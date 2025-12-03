@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Model.Dto.Shared\Blog.Model.Dto.Shared.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Presentation.Shared\Blog.Presentation.Shared.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Shared\Blog.Shared.csproj" />
+    <ProjectReference Include="..\Blog.Infrastructure.Identity\Blog.Infrastructure.Identity.csproj" />
+    <ProjectReference Include="..\Blog.Model.Dto.Identity\Blog.Model.Dto.Identity.csproj" />
+  </ItemGroup>
+
+</Project>

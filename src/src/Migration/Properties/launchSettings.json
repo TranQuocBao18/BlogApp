@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Ntech.Migration": {
+      "commandName": "Project",
+      "commandLineArgs": "identity"
+    }
+  }
+}

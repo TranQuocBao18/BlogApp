@@ -1,0 +1,85 @@
+@startuml EntityModelOverview
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+hide circle
+
+package "Identity" {
+  Table(Identity_User, "User") {
+    +Id : nvarchar
+    UserName : nvarchar
+    Email : nvarchar
+    PhoneNumber : nvarchar
+    FirstName : nvarchar
+    LastName : nvarchar
+    IsDeleted : bit
+    ...
+  }
+
+  Table(Identity_Role, "Role") {
+    +Id : nvarchar
+    Name : nvarchar
+  }
+
+  Table(Identity_UserRoles, "UserRoles") {
+    +UserId : nvarchar
+    +RoleId : nvarchar
+  }
+
+  Identity_UserRoles --> Identity_User
+  Identity_UserRoles --> Identity_Role
+}
+
+package "Application" {
+  Table(Blog, "Blog") {
+    +Id : uniqueidentifier
+    Title : nvarchar
+    Slug : nvarchar
+    Content : nvarchar(max)
+    IsPublished : bit
+    ...
+    AuthorId : nvarchar
+  }
+
+  Table(Comment, "Comment") {
+    +Id : uniqueidentifier
+    Content : nvarchar(max)
+    IsApproved : bit
+    BlogId : uniqueidentifier
+    ParentId : uniqueidentifier
+    UserId : nvarchar
+  }
+
+  Table(Like, "Like") {
+    +Id : uniqueidentifier
+    BlogId : uniqueidentifier
+    UserId : nvarchar
+  }
+
+  Table(Tag, "Tag") {
+    +Id : uniqueidentifier
+    Name : nvarchar
+  }
+
+  Table(BlogTag, "BlogTag") {
+    +Id : uniqueidentifier
+    BlogId : uniqueidentifier
+    TagId : uniqueidentifier
+  }
+
+  Table(Category, "Category") {
+    +Id : uniqueidentifier
+    Name : nvarchar
+    Slug : nvarchar
+  }
+  
+  Identity_User --> Blog : writes
+  Identity_User --> Comment : owns
+  Identity_User --> Like : gives
+  Blog --> Comment : has
+  Blog --> Like : receives
+  Blog --> BlogTag : has
+  Tag --> BlogTag : belongs to
+  Comment --> Comment : replies
+  Category --> Blog : categorizes
+}
+
+@enduml

@@ -1,0 +1,59 @@
+@startuml IdentityModule
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+hide circle
+
+' === Tables ===
+
+Table(Blog, "Blog") {
+    +Id : uniqueidentifier
+    Title : nvarchar
+    Slug : nvarchar
+    Content : nvarchar(max)
+    IsPublished : bit
+    AuthorId : nvarchar
+  }
+
+  Table(Comment, "Comment") {
+    +Id : uniqueidentifier
+    Content : nvarchar(max)
+    IsApproved : bit
+    BlogId : uniqueidentifier
+    ParentId : uniqueidentifier
+    UserId : nvarchar
+  }
+
+  Table(Like, "Like") {
+    +Id : uniqueidentifier
+    BlogId : uniqueidentifier
+    UserId : nvarchar
+  }
+
+  Table(Tag, "Tag") {
+    +Id : uniqueidentifier
+    Name : nvarchar
+  }
+
+  Table(BlogTag, "BlogTag") {
+    +Id : uniqueidentifier
+    BlogId : uniqueidentifier
+    TagId : uniqueidentifier
+  }
+
+  Table(Category, "Category") {
+    +Id : uniqueidentifier
+    Name : nvarchar
+    Slug : nvarchar
+    TagId : uniqueidentifier
+  }
+
+' === Relationships ===
+
+  Blog --> Comment : has
+  Blog --> Like : receives
+  Blog --> BlogTag : has
+  Tag --> BlogTag : belongs to
+  Comment --> Comment : replies
+  Category --> Blog : categorizes
+}
+
+@enduml

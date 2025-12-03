@@ -1,0 +1,87 @@
+@startuml
+
+entity User {
+  +id : UUID
+  +email : string
+  +password_hash : string
+  +auth_provider : enum
+  +role : enum {Candidate, Headhunter, Agency, Administrator}
+  +is_active : boolean
+  +two_fa_enabled : boolean
+  +created_at : datetime
+  +updated_at : datetime
+}
+
+entity UserProfile {
+  +id : UUID
+  +user_id : UUID
+  +avatar_url : string
+  +phone : string
+}
+
+entity Blog {
+  +id : UUID
+  +title : string
+  +content : text
+  +slug : string
+  +image_url : string
+  +is_published : boolean
+  +created_at : datetime
+  +created_by : UUID
+  +updated_at : datetime
+  +updated_by : UUID
+}
+
+entity Category {
+  +id : UUID
+  +name : string
+  +slug : string
+}
+
+entity Tag {
+  +id : UUID
+  +name : string
+}
+
+entity BlogTag {
+  +id : UUID
+  +blog_id : UUID
+  +tag_id : UUID
+}
+
+entity Comment {
+  +id : UUID
+  +blog_id : UUID
+  +user_id : UUID
+  +parent_id : UUID
+  +content : text
+  +is_approved : boolean
+  +created_at : datetime
+  +updated_at : datetime
+}
+
+entity Like {
+  +id : UUID
+  +blog_id : UUID
+  +user_id : UUID
+  +created_at : datetime
+}
+
+
+' RELATIONSHIPS
+User ||--|| UserProfile : has
+User ||--o{ Blog : writes
+Blog ||--o{ Comment : have
+
+User ||--o{ Comment : owns
+Comment ||--o{ Comment : replies
+
+Blog ||--|| BlogTag : has
+Tag ||--|| BlogTag : belongs to
+
+Blog ||--o{ Like : receives
+User ||--o{ Like : gives
+
+Category ||--|| Blog : categorizes
+
+@enduml

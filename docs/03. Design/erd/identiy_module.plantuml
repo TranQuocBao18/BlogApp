@@ -1,0 +1,109 @@
+@startuml IdentityModule
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+hide circle
+
+' === Tables ===
+
+Table(Identity_ApplicationSetting, "ApplicationSetting") {
+  +Key : nvarchar(450)
+  Value : nvarchar(max)
+  Enable : bit
+}
+
+Table(Identity_Role, "Role") {
+  +Id : nvarchar(450)
+  Name : nvarchar(256)
+  NormalizedName : nvarchar(256)
+  ConcurrencyStamp : nvarchar(max)
+}
+
+Table(Identity_User, "User") {
+  +Id : nvarchar(450)
+  UserName : nvarchar(256)
+  NormalizedUserName : nvarchar(256)
+  Email : nvarchar(256)
+  NormalizedEmail : nvarchar(256)
+  EmailConfirmed : bit
+  PasswordHash : nvarchar(max)
+  SecurityStamp : nvarchar(max)
+  ConcurrencyStamp : nvarchar(max)
+  PhoneNumber : nvarchar(max)
+  PhoneNumberConfirmed : bit
+  TwoFactorEnabled : bit
+  LockoutEnd : datetimeoffset
+  LockoutEnabled : bit
+  AccessFailedCount : int
+  FirstName : nvarchar(max)
+  LastName : nvarchar(max)
+  IsDeleted : bit
+  CreatedBy : nvarchar(max)
+  Created : datetime2
+  LastModifiedBy : nvarchar(max)
+  LastModified : datetime2
+}
+
+Table(Identity_RoleClaims, "RoleClaims") {
+  +Id : int
+  RoleId : nvarchar(450)
+  ClaimType : nvarchar(max)
+  ClaimValue : nvarchar(max)
+}
+
+Table(Identity_RefreshToken, "RefreshToken") {
+  +Id : int
+  Token : nvarchar(max)
+  Expires : datetime2
+  Created : datetime2
+  CreatedByIp : nvarchar(max)
+  Revoked : datetime2
+  RevokedByIp : nvarchar(max)
+  ReplacedByToken : nvarchar(max)
+  ApplicationUserId : nvarchar(450)
+}
+
+Table(Identity_UserClaims, "UserClaims") {
+  +Id : int
+  UserId : nvarchar(450)
+  ClaimType : nvarchar(max)
+  ClaimValue : nvarchar(max)
+}
+
+Table(Identity_UserLogins, "UserLogins") {
+  +LoginProvider : nvarchar(450)
+  +ProviderKey : nvarchar(450)
+  ProviderDisplayName : nvarchar(max)
+  UserId : nvarchar(450)
+}
+
+Table(Identity_UserRoles, "UserRoles") {
+  +UserId : nvarchar(450)
+  +RoleId : nvarchar(450)
+}
+
+Table(Identity_UserSetting, "UserSetting") {
+  +Key : nvarchar(450)
+  UserId : nvarchar(max)
+  Value : nvarchar(max)
+  Enable : bit
+  ApplicationUserId : nvarchar(450)
+}
+
+Table(Identity_UserTokens, "UserTokens") {
+  +UserId : nvarchar(450)
+  +LoginProvider : nvarchar(450)
+  +Name : nvarchar(450)
+  Value : nvarchar(max)
+}
+
+' === Relationships ===
+
+Identity_RoleClaims --> Identity_Role : RoleId
+Identity_RefreshToken --> Identity_User : ApplicationUserId
+Identity_UserClaims --> Identity_User : UserId
+Identity_UserLogins --> Identity_User : UserId
+Identity_UserRoles --> Identity_User : UserId
+Identity_UserRoles --> Identity_Role : RoleId
+Identity_UserSetting --> Identity_User : ApplicationUserId
+Identity_UserTokens --> Identity_User : UserId
+
+@enduml
