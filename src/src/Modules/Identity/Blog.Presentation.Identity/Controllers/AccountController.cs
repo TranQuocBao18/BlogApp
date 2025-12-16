@@ -54,6 +54,13 @@ public class AccountController : ControllerBase
         return Ok(await Mediator.Send(new ForgotPasswordCommand { Payload = request, IPAddress = ipClient }));
     }
 
+    [HttpPost]
+    [ProducesResponseType(typeof(Response<Guid>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Post(UpsertUserCommand command)
+    {
+        return Ok(await Mediator.Send(command));
+    }
+
     private string GenerateIPAddress()
     {
         if (Request.Headers.ContainsKey("X-Forwarded-For"))
