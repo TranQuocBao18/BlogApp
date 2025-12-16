@@ -6,31 +6,28 @@
 /**
  * Node modules
  */
-import { redirect } from 'react-router';
 
 /**
  * Custom modules
  */
-import { apiAddUser } from '@/api/user.api';
+import { apiRegister } from '@/api/user.api';
 
 /**
  * Components
  */
-import { toast } from 'sonner';
 
 /**
  * Types
  */
-import type { ActionFunction } from 'react-router';
+import type { ActionResponse, ErrorResponse } from '@/types';
 import { AxiosError } from 'axios';
-import type { ActionResponse, ErrorResponse, ApiResponse } from '@/types';
-import type { IAddEditUser } from '@/interfaces/user';
+import type { ActionFunction } from 'react-router';
 
 const signupAction: ActionFunction = async ({ request }) => {
   const data = await request.json();
 
   try {
-    const response = await apiAddUser(data);
+    const response = await apiRegister(data);
 
     if (response.data.succeeded) {
       return {

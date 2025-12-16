@@ -6,12 +6,12 @@
 /**
  * Node modules
  */
-import { Link, useFetcher, useNavigate } from 'react-router';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, useFetcher, useNavigate } from 'react-router';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 /**
  * Custome modules
@@ -21,9 +21,9 @@ import { cn } from '@/lib/utils';
 /**
  * Components
  */
+import { InputPassword } from '@/components/auth/InputPassword';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import {
   Form,
   FormControl,
@@ -32,9 +32,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { InputPassword } from '@/components/auth/InputPassword';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 /**
  * Assets
@@ -45,14 +43,13 @@ import { LoaderCircleIcon } from 'lucide-react';
 /**
  * Types
  */
-import type {
-  ActionResponse,
-  AuthResponse,
-  ErrorResponse,
-  SignupResponse,
-  ValidationError,
-} from '@/types';
-type SignupField = 'username' | 'email' | 'fullname' | 'phoneNumber';
+import type { ValidationError } from '@/types';
+type SignupField =
+  | 'username'
+  | 'email'
+  | 'fullname'
+  | 'phoneNumber'
+  | 'isAdmin';
 
 /**
  * Constants
@@ -88,6 +85,7 @@ const formSchema = z.object({
     .string()
     .nonempty('Phone number is required')
     .max(10, 'Phone number must be 10 characters'),
+  isAdmin: z.boolean(),
 });
 
 export const SignupForm = ({
@@ -109,6 +107,7 @@ export const SignupForm = ({
       password: '',
       fullname: '',
       phoneNumber: '',
+      isAdmin: false,
     },
   });
 

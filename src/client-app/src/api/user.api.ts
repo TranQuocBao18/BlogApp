@@ -17,10 +17,19 @@ import { request } from '@/api/request';
  * Types
  */
 import type { RequestConfig } from '@/api/request';
-import type { LoginParams, IAddEditUser } from '@/interfaces/user';
+import type {
+  IAddEditUser,
+  LoginParams,
+  RegisterParams,
+} from '@/interfaces/user';
 
 export const apiLogin = (data: LoginParams, config?: RequestConfig) =>
   request('post', `${ENV_CONFIG.API}/Account/authenticate`, data, config);
+
+export const apiRegister = (data: RegisterParams) =>
+  request('post', `${ENV_CONFIG.API}/Account`, {
+    payload: data,
+  });
 
 export const forgotPassword = (email: string) =>
   request('post', `${ENV_CONFIG.API}/Account/forgotpassword`, { email });

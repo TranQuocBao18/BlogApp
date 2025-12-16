@@ -10,6 +10,15 @@ export interface LoginParams {
   rememberMe: boolean;
 }
 
+export interface RegisterParams {
+  id?: string;
+  username: string;
+  email: string;
+  fullname: string;
+  phoneNumber: string;
+  isAdmin: boolean;
+}
+
 export interface UserRole {
   id: string;
   roleName: string;
