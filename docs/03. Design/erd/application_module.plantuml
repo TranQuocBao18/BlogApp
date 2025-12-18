@@ -6,6 +6,8 @@ hide circle
 
 Table(Blog, "Blog") {
     +Id : uniqueidentifier
+    CategoryId : uniqueidentifier
+    BannerId : uniqueidentifier
     Title : nvarchar
     Slug : nvarchar
     Content : nvarchar(max)
@@ -13,19 +15,26 @@ Table(Blog, "Blog") {
     AuthorId : nvarchar
   }
 
+  Table(Banner, "Banner") {
+    +Id : uniqueidentifier
+    url : nvarchar
+    width : int
+    height : int
+  }
+
   Table(Comment, "Comment") {
     +Id : uniqueidentifier
-    Content : nvarchar(max)
-    IsApproved : bit
     BlogId : uniqueidentifier
     ParentId : uniqueidentifier
     UserId : nvarchar
+    Content : nvarchar(max)
   }
 
   Table(Like, "Like") {
     +Id : uniqueidentifier
     BlogId : uniqueidentifier
-    UserId : nvarchar
+    UserId : uniqueidentifier
+    CommentId : uniqueidentifier
   }
 
   Table(Tag, "Tag") {
@@ -43,12 +52,12 @@ Table(Blog, "Blog") {
     +Id : uniqueidentifier
     Name : nvarchar
     Slug : nvarchar
-    TagId : uniqueidentifier
   }
 
 ' === Relationships ===
 
   Blog --> Comment : has
+  Blog --> Banner : has
   Blog --> Like : receives
   Blog --> BlogTag : has
   Tag --> BlogTag : belongs to

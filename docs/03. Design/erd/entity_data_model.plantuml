@@ -39,10 +39,16 @@ package "Application" {
     AuthorId : nvarchar
   }
 
+  Table(Banner, "Banner") {
+    +Id : uniqueidentifier
+    Url : nvarchar
+    Width : nvarchar
+    Height : nvarchar
+  }
+
   Table(Comment, "Comment") {
     +Id : uniqueidentifier
     Content : nvarchar(max)
-    IsApproved : bit
     BlogId : uniqueidentifier
     ParentId : uniqueidentifier
     UserId : nvarchar
@@ -51,7 +57,8 @@ package "Application" {
   Table(Like, "Like") {
     +Id : uniqueidentifier
     BlogId : uniqueidentifier
-    UserId : nvarchar
+    UserId : uniqueidentifier
+    CommentId : uniqueidentifier
   }
 
   Table(Tag, "Tag") {
@@ -77,6 +84,7 @@ package "Application" {
   Blog --> Comment : has
   Blog --> Like : receives
   Blog --> BlogTag : has
+  Blog --> Banner : has
   Tag --> BlogTag : belongs to
   Comment --> Comment : replies
   Category --> Blog : categorizes

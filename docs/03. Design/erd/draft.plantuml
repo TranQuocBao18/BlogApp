@@ -5,7 +5,7 @@ entity User {
   +email : string
   +password_hash : string
   +auth_provider : enum
-  +role : enum {Candidate, Headhunter, Agency, Administrator}
+  +role : enum {Administrator, Member}
   +is_active : boolean
   +two_fa_enabled : boolean
   +created_at : datetime
@@ -21,10 +21,11 @@ entity UserProfile {
 
 entity Blog {
   +id : UUID
+  +category_id : UUID
+  +banner_id : UUID
   +title : string
   +content : text
   +slug : string
-  +image_url : string
   +is_published : boolean
   +created_at : datetime
   +created_by : UUID
@@ -54,17 +55,25 @@ entity Comment {
   +blog_id : UUID
   +user_id : UUID
   +parent_id : UUID
-  +content : text
-  +is_approved : boolean
+  +content : string
   +created_at : datetime
   +updated_at : datetime
+}
+
+entity Banner {
+  +id : UUID
+  +url : string
+  +width : number
+  +height : number
 }
 
 entity Like {
   +id : UUID
   +blog_id : UUID
   +user_id : UUID
+  +comment_id : UUID
   +created_at : datetime
+  +created_by : UUID
 }
 
 
