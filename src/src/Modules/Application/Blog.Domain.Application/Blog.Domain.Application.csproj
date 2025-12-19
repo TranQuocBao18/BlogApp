@@ -6,4 +6,15 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Domain.Shared\Blog.Domain.Shared.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Model.Dto.Shared\Blog.Model.Dto.Shared.csproj" />
+    <ProjectReference Include="..\..\Identity\Blog.Domain.Identity\Blog.Domain.Identity.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Entities\" />
+    <Folder Include="Enum\" />
+  </ItemGroup>
+
 </Project>
