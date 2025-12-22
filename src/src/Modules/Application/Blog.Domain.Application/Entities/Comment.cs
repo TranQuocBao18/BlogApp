@@ -10,7 +10,7 @@ public class Comment : BaseEntityWithAudit
     public Guid UserId { get; set; }
     public Guid ParentId { get; set; }
     public required string Content { get; set; }
-    public virtual Blog? Blog { get; set; }
+    public virtual BlogEntity? Blog { get; set; }
     public virtual User? User { get; set; }
     public virtual Comment? Parent { get; set; }
 

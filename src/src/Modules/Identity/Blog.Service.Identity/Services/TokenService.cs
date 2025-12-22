@@ -36,7 +36,7 @@ public class TokenService : ITokenService
         var roles = await _roleRepository.GetRolesByUserIdAsync(user.Id.AsGuid());
 
         var roleClaims = new List<Claim>();
-        
+
         string ipAddress = IpHelper.GetIpAddress();
 
         var claims = new[]

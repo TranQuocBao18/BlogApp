@@ -14,21 +14,21 @@ public class JwtToken
 }
 
 public class JwtTokenWithRoles : JwtToken
-    {
-        public List<string> roles { get; set; } = new List<string>();
-    }
+{
+    public List<string> roles { get; set; } = new List<string>();
+}
 
-    public class JwtTokenWithRole : JwtToken
-    {
-        public string roles { get; set; }
-    }
+public class JwtTokenWithRole : JwtToken
+{
+    public string roles { get; set; }
+}
 
-    public class JwtTokenWithPermissions : JwtToken
-    {
-        public List<string> permissions { get; set; } = new List<string>();
-    }
+public class JwtTokenWithPermissions : JwtToken
+{
+    public List<string> permissions { get; set; } = new List<string>();
+}
 
-    public class JwtTokenWithPermission : JwtToken
-    {
-        public string permissions { get; set; }
-    }
+public class JwtTokenWithPermission : JwtToken
+{
+    public string permissions { get; set; }
+}

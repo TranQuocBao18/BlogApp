@@ -10,328 +10,328 @@ namespace Blog.Utilities;
 public static class StringUtils
 {
     public static string GetFriendlyTypeName(Type type)
+    {
+        var strTypeName = string.Empty;
+        if (type == null)
         {
-            var strTypeName = string.Empty;
-            if (type == null)
-            {
-                strTypeName = "Void";
-            }
-            else
-            {
-                strTypeName = type.Name;
-            }
-
-            return strTypeName;
+            strTypeName = "Void";
+        }
+        else
+        {
+            strTypeName = type.Name;
         }
 
-        public static object GetFriendlyObjectValue(object valueObj)
+        return strTypeName;
+    }
+
+    public static object GetFriendlyObjectValue(object valueObj)
+    {
+        if (valueObj == null)
         {
-            if (valueObj == null)
-            {
-                return valueObj;
-            }
-
-            if (valueObj is DateTime)
-            {
-                return ((DateTime)valueObj).ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
-            }
-
-            var objType = valueObj.GetType();
-            if (objType.IsPrimitive)
-            {
-                return valueObj;
-            }
-
-            var enumerable = valueObj as IEnumerable<object>;
-            if (enumerable != null)
-            {
-                return string.Join(string.Empty, objType.Name, "[Count: ", enumerable.Count(), "]");
-            }
-
-            var collection = valueObj as System.Collections.ICollection;
-            if (collection != null)
-            {
-                return string.Join(string.Empty, objType.Name, "[Count: ", collection.Count, "]");
-            }
-
             return valueObj;
         }
 
-        public static string DumpToString<T>(T value, string name)
+        if (valueObj is DateTime)
         {
-            using (var writer = new StringWriter(CultureInfo.InvariantCulture))
-            {
-                var idGenerator = new ObjectIDGenerator();
-                InternalDump(0, name, value, writer, idGenerator, true);
-                return writer.ToString();
-            }
+            return ((DateTime)valueObj).ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
         }
 
-        /// <summary>
-        /// Internals the dump.
-        /// </summary>
-        /// <param name="indentationLevel">The indentation level.</param>
-        /// <param name="name">The name.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="writer">The writer.</param>
-        /// <param name="idGenerator">The identifier generator.</param>
-        /// <param name="recursiveDump">if set to <c>true</c> [recursive dump].</param>
-        private static void InternalDump(int indentationLevel, string name, object value,
-            TextWriter writer, ObjectIDGenerator idGenerator, bool recursiveDump)
+        var objType = valueObj.GetType();
+        if (objType.IsPrimitive)
         {
-            var indentation = new string(' ', indentationLevel * 3);
+            return valueObj;
+        }
 
-            if (value == null)
+        var enumerable = valueObj as IEnumerable<object>;
+        if (enumerable != null)
+        {
+            return string.Join(string.Empty, objType.Name, "[Count: ", enumerable.Count(), "]");
+        }
+
+        var collection = valueObj as System.Collections.ICollection;
+        if (collection != null)
+        {
+            return string.Join(string.Empty, objType.Name, "[Count: ", collection.Count, "]");
+        }
+
+        return valueObj;
+    }
+
+    public static string DumpToString<T>(T value, string name)
+    {
+        using (var writer = new StringWriter(CultureInfo.InvariantCulture))
+        {
+            var idGenerator = new ObjectIDGenerator();
+            InternalDump(0, name, value, writer, idGenerator, true);
+            return writer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Internals the dump.
+    /// </summary>
+    /// <param name="indentationLevel">The indentation level.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="value">The value.</param>
+    /// <param name="writer">The writer.</param>
+    /// <param name="idGenerator">The identifier generator.</param>
+    /// <param name="recursiveDump">if set to <c>true</c> [recursive dump].</param>
+    private static void InternalDump(int indentationLevel, string name, object value,
+        TextWriter writer, ObjectIDGenerator idGenerator, bool recursiveDump)
+    {
+        var indentation = new string(' ', indentationLevel * 3);
+
+        if (value == null)
+        {
+            writer.WriteLine("{0}{1} = <null>", indentation, name);
+            return;
+        }
+
+        Type type = value.GetType();
+
+        // figure out if this is an object that has already been dumped, or is currently being dumped
+        string keyRef = string.Empty;
+        string keyPrefix = string.Empty;
+        if (!type.IsValueType)
+        {
+            bool firstTime;
+            long key = idGenerator.GetId(value, out firstTime);
+            if (!firstTime)
             {
-                writer.WriteLine("{0}{1} = <null>", indentation, name);
-                return;
-            }
-
-            Type type = value.GetType();
-
-            // figure out if this is an object that has already been dumped, or is currently being dumped
-            string keyRef = string.Empty;
-            string keyPrefix = string.Empty;
-            if (!type.IsValueType)
-            {
-                bool firstTime;
-                long key = idGenerator.GetId(value, out firstTime);
-                if (!firstTime)
-                {
-                    keyRef = string.Format(CultureInfo.InvariantCulture, " (see #{0})", key);
-                }
-                else
-                {
-                    keyPrefix = string.Format(CultureInfo.InvariantCulture, "#{0}: ", key);
-                }
-            }
-
-            // work out how a simple dump of the value should be done
-            bool isString = value is string;
-            string typeName = value.GetType().FullName;
-            string formattedValue = value.ToString();
-
-            var exception = value as Exception;
-            if (exception != null)
-            {
-                // formattedValue = exception.GetType().Name + ": " + exception.Message;
-                formattedValue = string.Concat(exception.GetType().Name, ": ", exception.Message);
-            }
-
-            if (formattedValue == typeName)
-            {
-                formattedValue = string.Empty;
+                keyRef = string.Format(CultureInfo.InvariantCulture, " (see #{0})", key);
             }
             else
             {
-                // escape tabs and line feeds
-                formattedValue = formattedValue.Replace("\t", "\\t").Replace("\n", "\\n").Replace("\r", "\\r");
-
-                // chop at 80 characters
-                int length = formattedValue.Length;
-                if (length > 80)
-                {
-                    formattedValue = formattedValue.Substring(0, 80);
-                }
-
-                if (isString)
-                {
-                    formattedValue = string.Format(CultureInfo.InvariantCulture, "\"{0}\"", formattedValue);
-                }
-
-                if (length > 80)
-                {
-                    // formattedValue += " (+" + (length - 80) + " chars)";
-                    formattedValue = string.Concat(" (+", (length - 80), " chars)");
-                }
-
-                // formattedValue = " = " + formattedValue;
-                formattedValue = string.Concat(" = ", formattedValue);
+                keyPrefix = string.Format(CultureInfo.InvariantCulture, "#{0}: ", key);
             }
+        }
 
-            writer.WriteLine("{0}{1}{2}{3} [{4}]{5}", indentation, keyPrefix, name, formattedValue, value.GetType(), keyRef);
+        // work out how a simple dump of the value should be done
+        bool isString = value is string;
+        string typeName = value.GetType().FullName;
+        string formattedValue = value.ToString();
 
-            // Avoid dumping objects we've already dumped, or is already in the process of dumping
-            if (keyRef.Length > 0)
+        var exception = value as Exception;
+        if (exception != null)
+        {
+            // formattedValue = exception.GetType().Name + ": " + exception.Message;
+            formattedValue = string.Concat(exception.GetType().Name, ": ", exception.Message);
+        }
+
+        if (formattedValue == typeName)
+        {
+            formattedValue = string.Empty;
+        }
+        else
+        {
+            // escape tabs and line feeds
+            formattedValue = formattedValue.Replace("\t", "\\t").Replace("\n", "\\n").Replace("\r", "\\r");
+
+            // chop at 80 characters
+            int length = formattedValue.Length;
+            if (length > 80)
             {
-                return;
+                formattedValue = formattedValue.Substring(0, 80);
             }
 
-            // don't dump strings, we already got at around 80 characters of those dumped
             if (isString)
             {
-                return;
+                formattedValue = string.Format(CultureInfo.InvariantCulture, "\"{0}\"", formattedValue);
             }
 
-            // don't dump value-types in the System namespace
-            if (type.IsValueType && type.FullName == "System." + type.Name)
+            if (length > 80)
             {
-                return;
+                // formattedValue += " (+" + (length - 80) + " chars)";
+                formattedValue = string.Concat(" (+", (length - 80), " chars)");
             }
 
-            // Avoid certain types that will result in endless recursion
-            if (type.FullName == "System.Reflection." + type.Name)
-            {
-                return;
-            }
+            // formattedValue = " = " + formattedValue;
+            formattedValue = string.Concat(" = ", formattedValue);
+        }
 
-            if (value is System.Security.Principal.SecurityIdentifier)
-            {
-                return;
-            }
+        writer.WriteLine("{0}{1}{2}{3} [{4}]{5}", indentation, keyPrefix, name, formattedValue, value.GetType(), keyRef);
 
-            if (!recursiveDump)
-            {
-                return;
-            }
+        // Avoid dumping objects we've already dumped, or is already in the process of dumping
+        if (keyRef.Length > 0)
+        {
+            return;
+        }
 
-            PropertyInfo[] properties =
-                (from property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                 where property.GetIndexParameters().Length == 0
-                       && property.CanRead
-                 select property).ToArray();
-            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).ToArray();
+        // don't dump strings, we already got at around 80 characters of those dumped
+        if (isString)
+        {
+            return;
+        }
 
-            if (properties.Length == 0 && fields.Length == 0)
-            {
-                return;
-            }
+        // don't dump value-types in the System namespace
+        if (type.IsValueType && type.FullName == "System." + type.Name)
+        {
+            return;
+        }
 
-            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}{{", indentation));
-            if (properties.Length > 0)
+        // Avoid certain types that will result in endless recursion
+        if (type.FullName == "System.Reflection." + type.Name)
+        {
+            return;
+        }
+
+        if (value is System.Security.Principal.SecurityIdentifier)
+        {
+            return;
+        }
+
+        if (!recursiveDump)
+        {
+            return;
+        }
+
+        PropertyInfo[] properties =
+            (from property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+             where property.GetIndexParameters().Length == 0
+                   && property.CanRead
+             select property).ToArray();
+        FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).ToArray();
+
+        if (properties.Length == 0 && fields.Length == 0)
+        {
+            return;
+        }
+
+        writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}{{", indentation));
+        if (properties.Length > 0)
+        {
+            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   properties {{", indentation));
+            foreach (PropertyInfo pi in properties)
             {
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   properties {{", indentation));
-                foreach (PropertyInfo pi in properties)
+                try
                 {
-                    try
-                    {
-                        object propertyValue = pi.GetValue(value, null);
-                        InternalDump(indentationLevel + 2, pi.Name, propertyValue, writer, idGenerator, true);
-                    }
-                    catch (TargetInvocationException ex)
-                    {
-                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false);
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false);
-                    }
-                    catch (Exception)
-                    {
-                        writer.WriteLine("{0}:{1}", pi.Name, "UnknowProperty");
-                    }
+                    object propertyValue = pi.GetValue(value, null);
+                    InternalDump(indentationLevel + 2, pi.Name, propertyValue, writer, idGenerator, true);
                 }
-
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
-            }
-            if (fields.Length > 0)
-            {
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   fields {{", indentation));
-                foreach (FieldInfo field in fields)
+                catch (TargetInvocationException ex)
                 {
-                    try
-                    {
-                        object fieldValue = field.GetValue(value);
-                        InternalDump(indentationLevel + 2, field.Name, fieldValue, writer, idGenerator, true);
-                    }
-                    catch (TargetInvocationException ex)
-                    {
-                        InternalDump(indentationLevel + 2, field.Name, ex, writer, idGenerator, false);
-                    }
-                    catch (Exception)
-                    {
-                        writer.WriteLine("{0}:{1}", field.Name, "UnknowValue");
-                    }
+                    InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false);
                 }
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
+                catch (ArgumentException ex)
+                {
+                    InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false);
+                }
+                catch (Exception)
+                {
+                    writer.WriteLine("{0}:{1}", pi.Name, "UnknowProperty");
+                }
             }
-            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}}}", indentation));
+
+            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
         }
-
-        public static string TypesToString(this ICollection<Type> types)
+        if (fields.Length > 0)
         {
-            var typeNames = Array.ConvertAll(types.ToArray(), t => t.FullName);
-            return string.Format("{0}: [{1}]", types.GetType().Name, string.Join(",", typeNames));
-        }
-
-        public static string AssembliesToString(this ICollection<Assembly> assemblies)
-        {
-            var assNames = Array.ConvertAll(assemblies.ToArray(), ass => ass.GetName().Name);
-            return string.Format("{0}: [{1}]", assemblies.GetType().Name, string.Join(",", assNames));
-        }
-
-        public static SecureString ToSecureString(string value)
-        {
-            var result = new SecureString();
-            var chars = value.ToCharArray();
-
-            foreach (var c in chars)
+            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   fields {{", indentation));
+            foreach (FieldInfo field in fields)
             {
-                result.AppendChar(c);
+                try
+                {
+                    object fieldValue = field.GetValue(value);
+                    InternalDump(indentationLevel + 2, field.Name, fieldValue, writer, idGenerator, true);
+                }
+                catch (TargetInvocationException ex)
+                {
+                    InternalDump(indentationLevel + 2, field.Name, ex, writer, idGenerator, false);
+                }
+                catch (Exception)
+                {
+                    writer.WriteLine("{0}:{1}", field.Name, "UnknowValue");
+                }
             }
-
-            return result;
+            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
         }
+        writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}}}", indentation));
+    }
 
-        public static Tuple<string, string> SplitToFirstAndLast(string fullName)
+    public static string TypesToString(this ICollection<Type> types)
+    {
+        var typeNames = Array.ConvertAll(types.ToArray(), t => t.FullName);
+        return string.Format("{0}: [{1}]", types.GetType().Name, string.Join(",", typeNames));
+    }
+
+    public static string AssembliesToString(this ICollection<Assembly> assemblies)
+    {
+        var assNames = Array.ConvertAll(assemblies.ToArray(), ass => ass.GetName().Name);
+        return string.Format("{0}: [{1}]", assemblies.GetType().Name, string.Join(",", assNames));
+    }
+
+    public static SecureString ToSecureString(string value)
+    {
+        var result = new SecureString();
+        var chars = value.ToCharArray();
+
+        foreach (var c in chars)
         {
-            fullName.NotNull();
-            fullName = fullName.Trim();
-            if (fullName.Contains(" "))
-            {
-                var character = new char[] { ' ' };
-                List<string> names = fullName.Split(character, StringSplitOptions.RemoveEmptyEntries).ToList();
-                string firstName = names.Last();
-                names.RemoveAt(names.Count - 1);
-                var lastName = String.Join(" ", names.ToArray()).Trim();
-                return Tuple.Create(firstName, lastName);
-            }
-            return Tuple.Create(fullName, string.Empty);
+            result.AppendChar(c);
         }
 
-        public static string ToFullName(this string fistName, string lastName)
+        return result;
+    }
+
+    public static Tuple<string, string> SplitToFirstAndLast(string fullName)
+    {
+        fullName.NotNull();
+        fullName = fullName.Trim();
+        if (fullName.Contains(" "))
         {
-            fistName.NotNull();
-            fistName = fistName.Trim();
-            lastName.NotNull();
-            lastName = lastName.Trim();
-
-            return $"{lastName} {fistName}";
+            var character = new char[] { ' ' };
+            List<string> names = fullName.Split(character, StringSplitOptions.RemoveEmptyEntries).ToList();
+            string firstName = names.Last();
+            names.RemoveAt(names.Count - 1);
+            var lastName = String.Join(" ", names.ToArray()).Trim();
+            return Tuple.Create(firstName, lastName);
         }
+        return Tuple.Create(fullName, string.Empty);
+    }
 
-        public static string ToFileSizeString(double fileSize)
+    public static string ToFullName(this string fistName, string lastName)
+    {
+        fistName.NotNull();
+        fistName = fistName.Trim();
+        lastName.NotNull();
+        lastName = lastName.Trim();
+
+        return $"{lastName} {fistName}";
+    }
+
+    public static string ToFileSizeString(double fileSize)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        int order = 0;
+        while (fileSize >= 1024 && order < sizes.Length - 1)
         {
-            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-            int order = 0;
-            while (fileSize >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                fileSize = fileSize / 1024;
-            }
-
-            // Adjust the format string to your preferences. For example "{0:0.#}{1}" would
-            // show a single decimal place, and no space.
-            string result = String.Format("{0:0.##} {1}", fileSize, sizes[order]);
-            return result;
+            order++;
+            fileSize = fileSize / 1024;
         }
 
-        public static string TrimStartExt(this string input, string prefixToRemove, StringComparison comparisonType = StringComparison.CurrentCulture)
+        // Adjust the format string to your preferences. For example "{0:0.#}{1}" would
+        // show a single decimal place, and no space.
+        string result = String.Format("{0:0.##} {1}", fileSize, sizes[order]);
+        return result;
+    }
+
+    public static string TrimStartExt(this string input, string prefixToRemove, StringComparison comparisonType = StringComparison.CurrentCulture)
+    {
+        if (prefixToRemove != null && input.StartsWith(prefixToRemove, comparisonType))
         {
-            if (prefixToRemove != null && input.StartsWith(prefixToRemove, comparisonType))
-            {
-                return input.Substring(prefixToRemove.Length);
-            }
-
-            return input;
+            return input.Substring(prefixToRemove.Length);
         }
 
-        public static string TrimEndExt(this string input, string suffixToRemove, StringComparison comparisonType = StringComparison.CurrentCulture)
+        return input;
+    }
+
+    public static string TrimEndExt(this string input, string suffixToRemove, StringComparison comparisonType = StringComparison.CurrentCulture)
+    {
+        if (suffixToRemove != null && input.EndsWith(suffixToRemove, comparisonType))
         {
-            if (suffixToRemove != null && input.EndsWith(suffixToRemove, comparisonType))
-            {
-                return input.Substring(0, input.Length - suffixToRemove.Length);
-            }
-
-            return input;
+            return input.Substring(0, input.Length - suffixToRemove.Length);
         }
+
+        return input;
+    }
 }

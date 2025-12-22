@@ -1,9 +1,10 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Blog.Domain.Shared.Common;
 
 namespace Blog.Domain.Application.Entities;
 
-public class Banner
+public class Banner : BaseEntityWithAudit
 {
     [Key]
     public Guid Id { get; set; }

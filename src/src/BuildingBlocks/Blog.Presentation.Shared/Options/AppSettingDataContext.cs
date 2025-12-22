@@ -5,22 +5,22 @@ namespace Blog.Presentation.Shared.Options;
 public sealed class AppSettingDataContext
 {
     private AppSettingDataContext()
-        {
-        }
+    {
+    }
 
-        private static AppSettingDataContext instance = null;
+    private static AppSettingDataContext instance = null;
 
-        public static AppSettingDataContext Instance
+    public static AppSettingDataContext Instance
+    {
+        get
         {
-            get
+            if (instance == null)
             {
-                if (instance == null)
-                {
-                    instance = new AppSettingDataContext();
-                }
-                return instance;
+                instance = new AppSettingDataContext();
             }
+            return instance;
         }
+    }
 
-        public bool EnableErrorDetail { get; set; }
+    public bool EnableErrorDetail { get; set; }
 }

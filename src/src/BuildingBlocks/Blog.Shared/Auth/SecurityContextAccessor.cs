@@ -9,86 +9,86 @@ namespace Blog.Shared.Auth;
 public class SecurityContextAccessor : ISecurityContextAccessor
 {
     private readonly ILogger<SecurityContextAccessor> _logger;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SecurityContextAccessor(IHttpContextAccessor httpContextAccessor, ILogger<SecurityContextAccessor> logger)
-        {
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+    public SecurityContextAccessor(IHttpContextAccessor httpContextAccessor, ILogger<SecurityContextAccessor> logger)
+    {
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
 
-        public Guid UserId
+    public Guid UserId
+    {
+        get
         {
-            get
+            var userId = _httpContextAccessor.HttpContext?.User.GetClaim(ClaimTypeExtend.UserId);
+            _logger.LogDebug("{SecurityContext} Current user_id: {UserId}", "SecurityContext", userId);
+
+            if (string.IsNullOrEmpty(userId))
             {
-                var userId = _httpContextAccessor.HttpContext?.User.GetClaim(ClaimTypeExtend.UserId);
-                _logger.LogDebug("{SecurityContext} Current user_id: {UserId}", "SecurityContext", userId);
-
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return Guid.Empty;
-                }
-                Guid.TryParse(userId, out Guid result);
-                return result;
+                return Guid.Empty;
             }
+            Guid.TryParse(userId, out Guid result);
+            return result;
         }
+    }
 
-        public string Email
+    public string Email
+    {
+        get
         {
-            get
-            {
-                var claim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Email);
-                return claim?.Value;
-            }
+            var claim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Email);
+            return claim?.Value;
         }
+    }
 
-        public string JwtToken
+    public string JwtToken
+    {
+        get
         {
-            get
-            {
-                return _httpContextAccessor.HttpContext?.Request?.Headers["Authorization"];
-            }
+            return _httpContextAccessor.HttpContext?.Request?.Headers["Authorization"];
         }
+    }
 
-        public string IPAddressClient
+    public string IPAddressClient
+    {
+        get
         {
-            get
-            {
-                return _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
-            }
+            return _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
         }
+    }
 
-        public bool IsAuthenticated
+    public bool IsAuthenticated
+    {
+        get
         {
-            get
+            var isAuthenticated = _httpContextAccessor.HttpContext?.User?.Identities?.FirstOrDefault()?.IsAuthenticated;
+            if (!isAuthenticated.HasValue)
             {
-                var isAuthenticated = _httpContextAccessor.HttpContext?.User?.Identities?.FirstOrDefault()?.IsAuthenticated;
-                if (!isAuthenticated.HasValue)
-                {
-                    return false;
-                }
-
-                return isAuthenticated.Value;
+                return false;
             }
-        }
 
-        public string Role
+            return isAuthenticated.Value;
+        }
+    }
+
+    public string Role
+    {
+        get
         {
-            get
-            {
-                _logger.LogDebug("{SecurityContext} Current role: {Role}", "SecurityContext", _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value);
-                var role = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value;
-                return role;
-            }
+            _logger.LogDebug("{SecurityContext} Current role: {Role}", "SecurityContext", _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value);
+            var role = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value;
+            return role;
         }
+    }
 
-        public List<string> Roles
+    public List<string> Roles
+    {
+        get
         {
-            get
-            {
-                _logger.LogDebug("{SecurityContext} Current role: {Role}", "SecurityContext", _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value);
-                var roleClaims = _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role).Select(x => x.Value);
-                return roleClaims.ToList();
-            }
+            _logger.LogDebug("{SecurityContext} Current role: {Role}", "SecurityContext", _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value);
+            var roleClaims = _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role).Select(x => x.Value);
+            return roleClaims.ToList();
         }
+    }
 }

@@ -2,7 +2,6 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Blog.Domain.Application.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using BlogEntity = Blog.Domain.Application.Entities.Blog;
 
 namespace Blog.Infrastructure.Application.Context.Configurations;
 
@@ -12,7 +11,7 @@ public class BlogConfiguration : IEntityTypeConfiguration<BlogEntity>
     {
         builder.ToTable("Blog", ApplicationDbContext.DefaultSchema);
         builder.HasKey(x => x.Id);
-        builder .Property(x => x.Id)
+        builder.Property(x => x.Id)
                 .HasConversion(v => v.ToString(), v => Guid.Parse(v))
                 .IsRequired();
     }

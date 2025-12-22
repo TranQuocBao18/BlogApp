@@ -7,15 +7,15 @@ namespace Blog.Infrastructure.Identity.Helpers;
 public class IpHelper
 {
     public static string GetIpAddress()
+    {
+        var host = Dns.GetHostEntry(Dns.GetHostName());
+        foreach (var ip in host.AddressList)
         {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
+                return ip.ToString();
             }
-            return string.Empty;
         }
+        return string.Empty;
+    }
 }

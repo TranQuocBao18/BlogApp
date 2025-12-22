@@ -4,7 +4,7 @@ using Blog.Domain.Shared.Common;
 
 namespace Blog.Domain.Application.Entities;
 
-public class Blog : BaseEntityWithAudit
+public class BlogEntity : BaseEntityWithAudit
 {
     public Guid CategoryId { get; set; }
     public Guid BannerId { get; set; }
