@@ -21,8 +21,11 @@ CREATE TABLE [Application].[Banner] (
     [Url] nvarchar(max) NOT NULL,
     [Width] FLOAT DEFAULT 0,
     [Height] FLOAT DEFAULT 0,
+    [IsDeleted] bit NOT NULL DEFAULT 0,
     [CreatedBy] nvarchar(max) NULL,
     [Created] datetime2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    [LastModifiedBy] nvarchar(max) NULL,
+    [LastModified] datetime2 NULL,
     CONSTRAINT [PK_Banner] PRIMARY KEY ([Id])
 );
 
@@ -102,8 +105,11 @@ CREATE TABLE [Application].[Like] (
     [BlogId] nvarchar(450) NOT NULL,
     [UserId] nvarchar(450) NOT NULL,
     [CommentId] nvarchar(450) NULL,
+    [IsDeleted] bit NOT NULL DEFAULT 0,
     [CreatedBy] nvarchar(max) NULL,
     [Created] datetime2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    [LastModifiedBy] nvarchar(max) NULL,
+    [LastModified] datetime2 NULL,
     CONSTRAINT [PK_Like] PRIMARY KEY ([Id]),
     CONSTRAINT [FK_Like_Blog_BlogId] FOREIGN KEY ([BlogId]) REFERENCES [Application].[Blog] ([Id]) ON DELETE CASCADE,
     CONSTRAINT [FK_Like_User_UserId] FOREIGN KEY ([UserId]) REFERENCES [Identity].[User] ([Id]) ON DELETE CASCADE,
