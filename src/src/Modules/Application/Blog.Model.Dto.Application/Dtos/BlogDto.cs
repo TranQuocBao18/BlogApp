@@ -1,4 +1,5 @@
 using System;
+using Blog.Domain.Application.Enum;
 
 namespace Blog.Model.Dto.Application.Dtos;
 
@@ -9,4 +10,6 @@ public class BlogDto
     public required string Tittle { get; set; }
     public required string Content { get; set; }
     public string? Slug { get; set; }
+    public BlogStatus Status { get; set; }
+
 }

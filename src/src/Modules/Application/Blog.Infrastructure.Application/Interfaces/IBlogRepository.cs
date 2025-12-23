@@ -6,5 +6,5 @@ namespace Blog.Infrastructure.Application.Interfaces;
 
 public interface IBlogRepository : IGenericRepository<BlogEntity, Guid>
 {
-
+    Task<BlogEntity> GetByBlogSlugAsync(string slug, CancellationToken cancellationToken, bool includedDeleted = false);
 }
