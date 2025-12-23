@@ -1,10 +1,8 @@
 using System;
-using System.ComponentModel.DataAnnotations;
-using Blog.Domain.Shared.Common;
 
-namespace Blog.Domain.Application.Entities;
+namespace Blog.Model.Dto.Application.Dtos;
 
-public class Banner : BaseEntityWithAudit
+public class BannerDto
 {
     public required string PublicId { get; set; }
     public required string Url { get; set; }

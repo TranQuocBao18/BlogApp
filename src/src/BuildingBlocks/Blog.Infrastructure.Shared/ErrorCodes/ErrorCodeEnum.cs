@@ -75,6 +75,36 @@ public enum ErrorCodeEnum
     NOTI_ERR_005,
     #endregion
 
+    #region Banner
+    [Description(@"Banner is not found.")]
+    BAN_ERR_001,
+    [Description(@"Banner is existing.")]
+    BAN_ERR_002,
+    [Description(@"Create Banner is Fail.")]
+    BAN_ERR_003,
+    [Description(@"Update Banner is Fail.")]
+    BAN_ERR_004,
+    [Description(@"Delete Banner is Fail.")]
+    BAN_ERR_005,
+    [Description(@"Banner width or height is duplicated.")]
+    BAN_ERR_006,
+    #endregion
+
+    #region Blog
+    [Description(@"Blog is not found.")]
+    BLOG_ERR_001,
+    [Description(@"Blog is existing.")]
+    BLOG_ERR_002,
+    [Description(@"Create Blog is Fail.")]
+    BLOG_ERR_003,
+    [Description(@"Update Blog is Fail.")]
+    BLOG_ERR_004,
+    [Description(@"Delete Blog is Fail.")]
+    BLOG_ERR_005,
+    [Description(@"Blog width or height is duplicated.")]
+    BLOG_ERR_006,
+    #endregion
+
     #region Categories
     #endregion
 

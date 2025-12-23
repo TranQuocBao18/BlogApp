@@ -18,6 +18,7 @@ GO
 
 CREATE TABLE [Application].[Banner] (
     [Id] nvarchar(450) NOT NULL,
+    [PublicId] nvarchar(450) NOT NULL,
     [Url] nvarchar(max) NOT NULL,
     [Width] FLOAT DEFAULT 0,
     [Height] FLOAT DEFAULT 0,

@@ -6,4 +6,23 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Files\Blog.Files.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Model.Dto.Shared\Blog.Model.Dto.Shared.csproj" />
+    <ProjectReference Include="..\Blog.Infrastructure.Application\Blog.Infrastructure.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Constants\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Mappings\" />
+    <Folder Include="Services\" />
+    <Folder Include="UseCases\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CloudinaryDotNet" Version="1.27.9" />
+  </ItemGroup>
+
 </Project>

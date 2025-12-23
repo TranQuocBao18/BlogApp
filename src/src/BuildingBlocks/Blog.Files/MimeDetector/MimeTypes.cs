@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace Blog.Files.MimeDetector;
 
@@ -32,6 +33,15 @@ public static class MimeTypes
     public const int MaxHeaderSize = 560;
 
     #endregion
+
+    public static bool IsAllowedExtension(string extension)
+    {
+        if (string.IsNullOrWhiteSpace(extension))
+            return false;
+
+        var ext = extension.TrimStart('.');
+        return _fileTypes.Any(ft => string.Equals(ft.Extension, ext, StringComparison.OrdinalIgnoreCase));
+    }
 
     #region 
 
