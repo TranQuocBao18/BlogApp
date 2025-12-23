@@ -103,6 +103,8 @@ public enum ErrorCodeEnum
     BLOG_ERR_005,
     [Description(@"Blog width or height is duplicated.")]
     BLOG_ERR_006,
+    [Description(@"Blog slug is existing.")]
+    BLOG_ERR_007,
     #endregion
 
     #region Categories

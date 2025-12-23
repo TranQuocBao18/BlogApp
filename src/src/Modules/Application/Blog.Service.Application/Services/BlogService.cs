@@ -10,6 +10,7 @@ using Blog.Model.Dto.Application.Requests;
 using Blog.Model.Dto.Application.Responses;
 using Blog.Service.Application.Interfaces;
 using Blog.Shared.Auth;
+using Blog.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -56,6 +57,26 @@ public class BlogService : IBlogService
             var blogEntity = _mapper.Map<BlogEntity>(blogRequest);
             blogEntity.Created = _dateTimeService.NowUtc;
             blogEntity.CreatedBy = currentUserId.ToString();
+
+            // Generate slug from title and ensure uniqueness
+            var baseSlug = StringUtils.GenerateSlug(blogRequest.Tittle, 450);
+            var slug = baseSlug;
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                slug = Guid.NewGuid().ToString();
+            }
+
+            var suffix = 1;
+            while (await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Slug == slug, cancellationToken))
+            {
+                slug = string.Concat(baseSlug, "-", suffix++);
+                if (slug.Length > 450)
+                {
+                    slug = slug.Substring(0, 450).Trim('-');
+                }
+            }
+
+            blogEntity.Slug = slug;
 
             var blogResponse = await _applicationUnitOfWork.BlogRepository.AddAsync(blogEntity, cancellationToken, true);
             if (blogResponse == null || blogResponse.Id == Guid.Empty)
@@ -191,6 +212,13 @@ public class BlogService : IBlogService
             blogEntity.Status = blogRequest.Status;
             blogEntity.LastModified = _dateTimeService.NowUtc;
             blogEntity.LastModifiedBy = currentUserId.ToString();
+
+            var isDuplicateSlug = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Slug == blogRequest.Slug, cancellationToken);
+            if (isDuplicateSlug)
+            {
+                _logger.LogError("Slug is existing");
+                return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_007);
+            }
 
             var blogResponse = _mapper.Map<BlogResponse>(blogEntity);
 

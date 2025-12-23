@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
+using System.Text;
+using System.Text.RegularExpressions;
 using Blog.Utilities.Extensions;
 
 namespace Blog.Utilities;
@@ -333,5 +335,36 @@ public static class StringUtils
         }
 
         return input;
+    }
+
+    public static string GenerateSlug(string phrase, int maxLength = 0)
+    {
+        if (string.IsNullOrWhiteSpace(phrase))
+            return string.Empty;
+
+        // Normalize and remove diacritics
+        var normalized = phrase.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+        foreach (var c in normalized)
+        {
+            var uc = CharUnicodeInfo.GetUnicodeCategory(c);
+            if (uc != UnicodeCategory.NonSpacingMark)
+                sb.Append(c);
+        }
+
+        var result = sb.ToString().Normalize(NormalizationForm.FormC);
+        result = result.ToLowerInvariant();
+
+        // Remove invalid chars
+        result = Regex.Replace(result, "[^a-z0-9\\s-]", string.Empty);
+        // Replace whitespace with hyphen
+        result = Regex.Replace(result, "\\s+", "-");
+        // Collapse multiple hyphens
+        result = Regex.Replace(result, "-+", "-").Trim('-');
+
+        if (maxLength > 0 && result.Length > maxLength)
+            result = result.Substring(0, maxLength).Trim('-');
+
+        return result;
     }
 }
