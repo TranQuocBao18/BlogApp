@@ -22,7 +22,7 @@ public class BlogService : IBlogService
     private readonly IApplicationUnitOfWork _applicationUnitOfWork;
     private readonly ISecurityContextAccessor _securityContextAccessor;
     private readonly IDateTimeService _dateTimeService;
-    private readonly ILogger<BannerService> _logger;
+    private readonly ILogger<BlogService> _logger;
     private readonly IConfiguration _configuration;
 
     public BlogService(
@@ -30,7 +30,7 @@ public class BlogService : IBlogService
         ISecurityContextAccessor securityContextAccessor,
         IApplicationUnitOfWork applicationUnitOfWork,
         IDateTimeService dateTimeService,
-        ILogger<BannerService> logger,
+        ILogger<BlogService> logger,
         IConfiguration configuration
     )
     {
@@ -114,7 +114,7 @@ public class BlogService : IBlogService
             blogEntity.LastModified = _dateTimeService.NowUtc;
             blogEntity.LastModifiedBy = currentUserId.ToString();
 
-            await _applicationUnitOfWork.BlogRepository.SoftDeleteAsync(blogEntity, cancellationToken);
+            await _applicationUnitOfWork.BlogRepository.SoftDeleteAsync(blogEntity, cancellationToken, true);
             await _applicationUnitOfWork.CommitAsync();
 
             return new Response<bool>(true);
@@ -168,7 +168,6 @@ public class BlogService : IBlogService
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            await _applicationUnitOfWork.RollbackAsync();
             throw new ApiException(ex.Message);
         }
     }
@@ -217,7 +216,7 @@ public class BlogService : IBlogService
             if (isDuplicateSlug)
             {
                 _logger.LogError("Slug is existing");
-                return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_007);
+                return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_006);
             }
 
             var blogResponse = _mapper.Map<BlogResponse>(blogEntity);

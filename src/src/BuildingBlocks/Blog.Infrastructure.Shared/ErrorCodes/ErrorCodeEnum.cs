@@ -101,10 +101,32 @@ public enum ErrorCodeEnum
     BLOG_ERR_004,
     [Description(@"Delete Blog is Fail.")]
     BLOG_ERR_005,
-    [Description(@"Blog width or height is duplicated.")]
-    BLOG_ERR_006,
     [Description(@"Blog slug is existing.")]
-    BLOG_ERR_007,
+    BLOG_ERR_006,
+    #endregion
+
+    #region Tag
+    [Description(@"Tag is not found.")]
+    TAG_ERR_001,
+    [Description(@"Tag is existing.")]
+    TAG_ERR_002,
+    [Description(@"Create Tag is Fail.")]
+    TAG_ERR_003,
+    [Description(@"Update Tag is Fail.")]
+    TAG_ERR_004,
+    [Description(@"Delete Tag is Fail.")]
+    TAG_ERR_005,
+    #endregion
+
+    #region BlogTag
+    [Description(@"BlogTag is not found.")]
+    BTAG_ERR_001,
+    [Description(@"BlogTag is existing.")]
+    BTAG_ERR_002,
+    [Description(@"Create BlogTag is Fail.")]
+    BTAG_ERR_003,
+    [Description(@"Delete BlogTag is Fail.")]
+    BTAG_ERR_004,
     #endregion
 
     #region Categories
