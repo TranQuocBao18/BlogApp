@@ -6,5 +6,5 @@ namespace Blog.Infrastructure.Application.Interfaces;
 
 public interface ICategoryRepository : IGenericRepository<Category, Guid>
 {
-
+    Task<Category> GetByCategorySlugAsync(string slug, CancellationToken cancellationToken, bool includedDeleted = false);
 }

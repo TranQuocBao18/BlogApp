@@ -129,7 +129,19 @@ public enum ErrorCodeEnum
     BTAG_ERR_004,
     #endregion
 
-    #region Categories
+    #region Category
+    [Description(@"Category is not found.")]
+    CAT_ERR_001,
+    [Description(@"Category is existing.")]
+    CAT_ERR_002,
+    [Description(@"Create Category is Fail.")]
+    CAT_ERR_003,
+    [Description(@"Update Category is Fail.")]
+    CAT_ERR_004,
+    [Description(@"Delete Category is Fail.")]
+    CAT_ERR_005,
+    [Description(@"Category slug is existing.")]
+    CAT_ERR_006,
     #endregion
 
 }
