@@ -144,4 +144,17 @@ public enum ErrorCodeEnum
     CAT_ERR_006,
     #endregion
 
+    #region Like
+    [Description(@"Like is not found.")]
+    LIKE_ERR_001,
+    [Description(@"Like is existing.")]
+    LIKE_ERR_002,
+    [Description(@"Create Like is Fail.")]
+    LIKE_ERR_003,
+    [Description(@"Update Like is Fail.")]
+    LIKE_ERR_004,
+    [Description(@"Delete Like is Fail.")]
+    LIKE_ERR_005,
+    #endregion
+
 }
