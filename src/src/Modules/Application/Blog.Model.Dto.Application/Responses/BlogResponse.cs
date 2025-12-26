@@ -5,5 +5,5 @@ namespace Blog.Model.Dto.Application.Responses;
 
 public class BlogResponse : BlogDto
 {
-
+    public Guid Id { get; set; }
 }

@@ -184,6 +184,104 @@ public class BannerService : IBannerService
         }
     }
 
+    // Variant that does not start/commit/rollback a transaction. Caller is responsible for transaction.
+    public async Task<Response<BannerResponse>> UploadBannerWithoutTransactionAsync(IFormFile imageFile, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // reuse existing validation and upload logic but do not begin/commit transaction on unit of work
+            var contentType = System.IO.Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+            var extension = contentType?.TrimStart('.') ?? string.Empty;
+            if (!Blog.Files.MimeDetector.MimeTypes.IsAllowedExtension(extension))
+            {
+                _logger.LogError("Unsupported file extension: {ext}", extension);
+                throw new ApiException("File extension is not allowed");
+            }
+            if (imageFile.Length > FileSize.MAX_FILE_SIZE)
+            {
+                _logger.LogError("Image size exceeds 5MB limit");
+                throw new ApiException("Image size exceeds 5MB limit");
+            }
+            if (imageFile.Length > 0)
+            {
+                var fileName = imageFile.FileName;
+                foreach (var reserved in UriReserveCharacters.URI_RESERVED_CHARACTERS)
+                {
+                    fileName = fileName.Replace(reserved, "");
+                }
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    await imageFile.CopyToAsync(memoryStream);
+                    var fileArray = memoryStream.ToArray();
+                    var result = await _fileScannerService.ScanAsync(fileName, fileArray);
+                    if (result)
+                    {
+                        _logger.LogError("File upload has virus");
+                        throw new ApiException("File upload has virus");
+                    }
+                    var openResult = _fileService.TryOpen(fileName, fileArray);
+                    if (openResult == false)
+                    {
+                        _logger.LogError("File cannot open");
+                        throw new ApiException("File cannot open");
+                    }
+                }
+            }
+
+            var uploadParams = new ImageUploadParams()
+            {
+                File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream()),
+                Folder = "blog-banners",
+                Transformation = new Transformation()
+                    .Width(1200)
+                    .Height(630)
+                    .Crop("fill")
+                    .Quality("auto")
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            if (uploadResult.Error != null)
+            {
+                _logger.LogError($"Cloudinary upload failed: {uploadResult.Error.Message}");
+                throw new ApiException($"Cloudinary upload failed: {uploadResult.Error.Message}");
+            }
+
+            var currentUserId = _securityContextAccessor.UserId;
+            var bannerEntity = new Banner
+            {
+                Url = uploadResult.SecureUrl.ToString(),
+                Width = uploadResult.Width,
+                Height = uploadResult.Height,
+                PublicId = uploadResult.PublicId,
+                Created = _dateTimeService.NowUtc,
+                CreatedBy = currentUserId.ToString()
+            };
+
+            var bannerResponse = await _applicationUnitOfWork.BannerRepository.AddAsync(bannerEntity, cancellationToken, true);
+            if (bannerResponse == null || bannerResponse.Id == Guid.Empty)
+            {
+                _logger.LogError("Failed to create banner: {error}", ErrorCodeEnum.BAN_ERR_003);
+                return new Response<BannerResponse>(ErrorCodeEnum.BAN_ERR_003);
+            }
+
+            var bannerDto = _mapper.Map<BannerResponse>(bannerResponse);
+            return new Response<BannerResponse>(bannerDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            throw new ApiException(ex.Message);
+        }
+    }
+
+    public async Task DeleteRemoteByPublicIdAsync(string publicId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(publicId)) return;
+        var deletionParams = new DeletionParams(publicId) { ResourceType = ResourceType.Image };
+        await _cloudinary.DestroyAsync(deletionParams);
+    }
+
     public async Task<Response<bool>> DeleteBannerByIdAsync(Guid? id, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();

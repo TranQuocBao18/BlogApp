@@ -42,7 +42,7 @@ public class BlogService : IBlogService
         _configuration = configuration;
     }
 
-    public async Task<Response<BlogResponse>> CreateBlogAsync(BlogRequest blogRequest, CancellationToken cancellationToken)
+    public async Task<Response<Guid>> CreateBlogAsync(BlogRequest blogRequest, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
@@ -51,7 +51,7 @@ public class BlogService : IBlogService
             if (isDuplicateTitle)
             {
                 _logger.LogError("Tittle is existing");
-                return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_002);
+                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_002);
             }
             var currentUserId = _securityContextAccessor.UserId;
             var blogEntity = _mapper.Map<BlogEntity>(blogRequest);
@@ -82,16 +82,66 @@ public class BlogService : IBlogService
             if (blogResponse == null || blogResponse.Id == Guid.Empty)
             {
                 _logger.LogError("Create Blog fail");
-                return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_003);
+                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_003);
             }
 
             await _applicationUnitOfWork.CommitAsync();
-            var blogDto = _mapper.Map<BlogResponse>(blogResponse);
-            return new Response<BlogResponse>(blogDto);
+            return new Response<Guid>(blogResponse.Id);
         }
         catch (Exception ex)
         {
             await _applicationUnitOfWork.RollbackAsync();
+            _logger.LogError(ex.Message);
+            throw new ApiException(ex.Message);
+        }
+    }
+
+    // Create without starting/committing transaction; caller manages unit of work transaction.
+    public async Task<Response<Guid>> CreateBlogWithoutTransactionAsync(BlogRequest blogRequest, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Tittle == blogRequest.Tittle, cancellationToken);
+            if (isDuplicateTitle)
+            {
+                _logger.LogError("Tittle is existing");
+                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_002);
+            }
+            var currentUserId = _securityContextAccessor.UserId;
+            var blogEntity = _mapper.Map<BlogEntity>(blogRequest);
+            blogEntity.Created = _dateTimeService.NowUtc;
+            blogEntity.CreatedBy = currentUserId.ToString();
+
+            var baseSlug = StringUtils.GenerateSlug(blogRequest.Tittle, 450);
+            var slug = baseSlug;
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                slug = Guid.NewGuid().ToString();
+            }
+
+            var suffix = 1;
+            while (await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Slug == slug, cancellationToken))
+            {
+                slug = string.Concat(baseSlug, "-", suffix++);
+                if (slug.Length > 450)
+                {
+                    slug = slug.Substring(0, 450).Trim('-');
+                }
+            }
+
+            blogEntity.Slug = slug;
+
+            var blogResponse = await _applicationUnitOfWork.BlogRepository.AddAsync(blogEntity, cancellationToken, true);
+            if (blogResponse == null || blogResponse.Id == Guid.Empty)
+            {
+                _logger.LogError("Create Blog fail");
+                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_003);
+            }
+
+            return new Response<Guid>(blogResponse.Id);
+        }
+        catch (Exception ex)
+        {
             _logger.LogError(ex.Message);
             throw new ApiException(ex.Message);
         }
@@ -182,7 +232,7 @@ public class BlogService : IBlogService
         return new PagedResponse<IReadOnlyList<BlogResponse>>(blogsResponse, pageNumber, pageSize, totalItems);
     }
 
-    public async Task<Response<BlogResponse>> UpdateBlogAsync(BlogRequest blogRequest, CancellationToken cancellationToken)
+    public async Task<Response<Guid>> UpdateBlogAsync(BlogRequest blogRequest, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
@@ -191,7 +241,7 @@ public class BlogService : IBlogService
             if (isDuplicateTitle)
             {
                 _logger.LogError("Tittle is existing");
-                return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_002);
+                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_002);
             }
             var currentUserId = _securityContextAccessor.UserId;
             var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(blogRequest.Id, cancellationToken);
@@ -199,7 +249,7 @@ public class BlogService : IBlogService
             if (blogEntity == null)
             {
                 _logger.LogError("Blog not found");
-                return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_001);
+                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_001);
             }
 
             blogEntity.Tittle = blogRequest.Tittle;
@@ -215,15 +265,13 @@ public class BlogService : IBlogService
             if (isDuplicateSlug)
             {
                 _logger.LogError("Slug is existing");
-                return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_006);
+                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_006);
             }
-
-            var blogResponse = _mapper.Map<BlogResponse>(blogEntity);
 
             await _applicationUnitOfWork.BlogRepository.UpdateAsync(blogEntity, cancellationToken, true);
             await _applicationUnitOfWork.CommitAsync();
 
-            return new Response<BlogResponse>(blogResponse);
+            return new Response<Guid>(blogRequest.Id);
         }
         catch (Exception ex)
         {
