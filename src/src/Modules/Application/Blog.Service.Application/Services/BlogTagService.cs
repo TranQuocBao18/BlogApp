@@ -37,7 +37,7 @@ public class BlogTagService : IBlogTagService
         _logger = logger;
     }
 
-    public async Task<Response<BlogTagResponse>> CreateBlogTagAsync(BlogTagRequest blogTagRequest, CancellationToken cancellationToken)
+    public async Task<Response<Guid>> CreateBlogTagAsync(BlogTagRequest blogTagRequest, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
@@ -51,12 +51,11 @@ public class BlogTagService : IBlogTagService
             if (blogTagResponse == null || blogTagResponse.Id == Guid.Empty)
             {
                 _logger.LogError("Create BlogTag fail");
-                return new Response<BlogTagResponse>(ErrorCodeEnum.BTAG_ERR_003);
+                return new Response<Guid>(ErrorCodeEnum.BTAG_ERR_003);
             }
 
             await _applicationUnitOfWork.CommitAsync();
-            var blogTagDto = _mapper.Map<BlogTagResponse>(blogTagResponse);
-            return new Response<BlogTagResponse>(blogTagDto);
+            return new Response<Guid>(blogTagResponse.Id);
 
         }
         catch (Exception ex)

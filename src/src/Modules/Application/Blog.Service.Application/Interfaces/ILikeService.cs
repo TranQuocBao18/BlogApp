@@ -9,6 +9,6 @@ public interface ILikeService
 {
     Task<Response<IReadOnlyList<LikeResponse>>> GetLikesOfBlogByBlogIdAsync(Guid? id, CancellationToken cancellationToken);
     Task<Response<IReadOnlyList<LikeResponse>>> GetLikesOfUserByBlogIdAsync(Guid? id, CancellationToken cancellationToken);
-    Task<Response<LikeResponse>> CreateLikeAsync(LikeRequest likeRequest, CancellationToken cancellationToken);
+    Task<Response<Guid>> CreateLikeAsync(LikeRequest likeRequest, CancellationToken cancellationToken);
     Task<Response<bool>> DeleteLikeAsync(Guid? id, CancellationToken cancellationToken);
 }

@@ -37,7 +37,7 @@ public class TagService : ITagService
         _logger = logger;
     }
 
-    public async Task<Response<TagResponse>> CreateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken)
+    public async Task<Response<Guid>> CreateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
@@ -46,7 +46,7 @@ public class TagService : ITagService
             if (isDuplicateTagName)
             {
                 _logger.LogError("Tag is existing");
-                return new Response<TagResponse>(ErrorCodeEnum.TAG_ERR_002);
+                return new Response<Guid>(ErrorCodeEnum.TAG_ERR_002);
             }
             var currentUserId = _securityContextAccessor.UserId;
             var tagEntity = _mapper.Map<Tag>(tagRequest);
@@ -57,12 +57,11 @@ public class TagService : ITagService
             if (tagResponse == null || tagResponse.Id == Guid.Empty)
             {
                 _logger.LogError("Create Tag fail");
-                return new Response<TagResponse>(ErrorCodeEnum.TAG_ERR_003);
+                return new Response<Guid>(ErrorCodeEnum.TAG_ERR_003);
             }
 
             await _applicationUnitOfWork.CommitAsync();
-            var tagDto = _mapper.Map<TagResponse>(tagResponse);
-            return new Response<TagResponse>(tagDto);
+            return new Response<Guid>(tagResponse.Id);
 
         }
         catch (Exception ex)
@@ -136,7 +135,7 @@ public class TagService : ITagService
         return new PagedResponse<IReadOnlyList<TagResponse>>(tagsResponse, pageNumber, pageSize, totalItems);
     }
 
-    public async Task<Response<TagResponse>> UpdateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken)
+    public async Task<Response<Guid>> UpdateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
@@ -145,15 +144,15 @@ public class TagService : ITagService
             if (isDuplicateTagName)
             {
                 _logger.LogError("Tag is existing");
-                return new Response<TagResponse>(ErrorCodeEnum.TAG_ERR_002);
+                return new Response<Guid>(ErrorCodeEnum.TAG_ERR_002);
             }
             var currentUserId = _securityContextAccessor.UserId;
-            var tagEntity = await _applicationUnitOfWork.TagRepository.GetByIdAsync(tagRequest.Id, cancellationToken);
+            var tagEntity = await _applicationUnitOfWork.TagRepository.GetByIdAsync(tagRequest.Id!.Value, cancellationToken);
 
             if (tagEntity == null)
             {
                 _logger.LogError("Tag not found");
-                return new Response<TagResponse>(ErrorCodeEnum.TAG_ERR_001);
+                return new Response<Guid>(ErrorCodeEnum.TAG_ERR_001);
             }
 
             tagEntity.Name = tagRequest.Name;
@@ -165,7 +164,7 @@ public class TagService : ITagService
             await _applicationUnitOfWork.TagRepository.UpdateAsync(tagEntity, cancellationToken, true);
             await _applicationUnitOfWork.CommitAsync();
 
-            return new Response<TagResponse>(tagResponse);
+            return new Response<Guid>(tagRequest.Id.Value);
         }
         catch (Exception ex)
         {

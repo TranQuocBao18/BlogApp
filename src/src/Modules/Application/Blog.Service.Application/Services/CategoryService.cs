@@ -38,7 +38,7 @@ public class CategoryService : ICategoryService
         _logger = logger;
     }
 
-    public async Task<Response<CategoryResponse>> CreateCategoryAsync(CategoryRequest categoryRequest, CancellationToken cancellationToken)
+    public async Task<Response<Guid>> CreateCategoryAsync(CategoryRequest categoryRequest, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
@@ -47,7 +47,7 @@ public class CategoryService : ICategoryService
             if (isDuplicateName)
             {
                 _logger.LogError("Tittle is existing");
-                return new Response<CategoryResponse>(ErrorCodeEnum.CAT_ERR_002);
+                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_002);
             }
             var currentUserId = _securityContextAccessor.UserId;
             var categoryEntity = _mapper.Map<Category>(categoryRequest);
@@ -78,12 +78,11 @@ public class CategoryService : ICategoryService
             if (categoryResponse == null || categoryResponse.Id == Guid.Empty)
             {
                 _logger.LogError("Create Category fail");
-                return new Response<CategoryResponse>(ErrorCodeEnum.CAT_ERR_003);
+                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_003);
             }
 
             await _applicationUnitOfWork.CommitAsync();
-            var categoryDto = _mapper.Map<CategoryResponse>(categoryResponse);
-            return new Response<CategoryResponse>(categoryDto);
+            return new Response<Guid>(categoryResponse.Id);
         }
         catch (Exception ex)
         {
@@ -178,7 +177,7 @@ public class CategoryService : ICategoryService
         }
     }
 
-    public async Task<Response<CategoryResponse>> UpdateCategoryAsync(CategoryRequest categoryRequest, CancellationToken cancellationToken)
+    public async Task<Response<Guid>> UpdateCategoryAsync(CategoryRequest categoryRequest, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
@@ -187,15 +186,15 @@ public class CategoryService : ICategoryService
             if (isDuplicateName)
             {
                 _logger.LogError("Tittle is existing");
-                return new Response<CategoryResponse>(ErrorCodeEnum.CAT_ERR_002);
+                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_002);
             }
             var currentUserId = _securityContextAccessor.UserId;
-            var categoryEntity = await _applicationUnitOfWork.CategoryRepository.GetByIdAsync(categoryRequest.Id, cancellationToken);
+            var categoryEntity = await _applicationUnitOfWork.CategoryRepository.GetByIdAsync(categoryRequest.Id!.Value, cancellationToken);
 
             if (categoryEntity == null)
             {
                 _logger.LogError("Category not found");
-                return new Response<CategoryResponse>(ErrorCodeEnum.CAT_ERR_001);
+                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_001);
             }
 
             categoryEntity.Name = categoryRequest.Name;
@@ -207,7 +206,7 @@ public class CategoryService : ICategoryService
             if (isDuplicateSlug)
             {
                 _logger.LogError("Slug is existing");
-                return new Response<CategoryResponse>(ErrorCodeEnum.CAT_ERR_006);
+                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_006);
             }
 
             var categoryResponse = _mapper.Map<CategoryResponse>(categoryEntity);
@@ -215,7 +214,7 @@ public class CategoryService : ICategoryService
             await _applicationUnitOfWork.CategoryRepository.UpdateAsync(categoryEntity, cancellationToken, true);
             await _applicationUnitOfWork.CommitAsync();
 
-            return new Response<CategoryResponse>(categoryResponse);
+            return new Response<Guid>(categoryRequest.Id!.Value);
         }
         catch (Exception ex)
         {

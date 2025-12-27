@@ -9,7 +9,7 @@ public interface ITagService
 {
     Task<PagedResponse<IReadOnlyList<TagResponse>>> GetTagsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken);
     Task<Response<TagResponse>> GetTagByIdAsync(Guid? id, CancellationToken cancellationToken);
-    Task<Response<TagResponse>> CreateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken);
-    Task<Response<TagResponse>> UpdateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken);
+    Task<Response<Guid>> CreateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken);
+    Task<Response<Guid>> UpdateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken);
     Task<Response<bool>> DeleteTagAsync(Guid? id, CancellationToken cancellationToken);
 }

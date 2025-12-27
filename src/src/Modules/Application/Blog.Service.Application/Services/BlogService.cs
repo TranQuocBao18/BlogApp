@@ -244,7 +244,7 @@ public class BlogService : IBlogService
                 return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_002);
             }
             var currentUserId = _securityContextAccessor.UserId;
-            var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(blogRequest.Id, cancellationToken);
+            var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(blogRequest.Id!.Value, cancellationToken);
 
             if (blogEntity == null)
             {
@@ -271,7 +271,7 @@ public class BlogService : IBlogService
             await _applicationUnitOfWork.BlogRepository.UpdateAsync(blogEntity, cancellationToken, true);
             await _applicationUnitOfWork.CommitAsync();
 
-            return new Response<Guid>(blogRequest.Id);
+            return new Response<Guid>(blogRequest.Id.Value);
         }
         catch (Exception ex)
         {

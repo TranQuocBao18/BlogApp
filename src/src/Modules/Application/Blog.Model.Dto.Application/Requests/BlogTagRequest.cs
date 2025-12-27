@@ -5,5 +5,5 @@ namespace Blog.Model.Dto.Application.Requests;
 
 public class BlogTagRequest : BlogTagDto
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 }

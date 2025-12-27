@@ -7,6 +7,6 @@ namespace Blog.Service.Application.Interfaces;
 
 public interface IBlogTagService
 {
-    Task<Response<BlogTagResponse>> CreateBlogTagAsync(BlogTagRequest blogTagRequest, CancellationToken cancellationToken);
+    Task<Response<Guid>> CreateBlogTagAsync(BlogTagRequest blogTagRequest, CancellationToken cancellationToken);
     Task<Response<bool>> DeleteBlogTagAsync(Guid? id, CancellationToken cancellationToken);
 }

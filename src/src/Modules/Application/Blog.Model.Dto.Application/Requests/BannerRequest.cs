@@ -5,5 +5,5 @@ namespace Blog.Model.Dto.Application.Requests;
 
 public class BannerRequest : BannerDto
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 }

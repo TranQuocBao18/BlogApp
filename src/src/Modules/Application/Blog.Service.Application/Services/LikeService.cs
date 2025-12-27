@@ -37,7 +37,7 @@ public class LikeService : ILikeService
         _logger = logger;
     }
 
-    public async Task<Response<LikeResponse>> CreateLikeAsync(LikeRequest likeRequest, CancellationToken cancellationToken)
+    public async Task<Response<Guid>> CreateLikeAsync(LikeRequest likeRequest, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
@@ -53,12 +53,11 @@ public class LikeService : ILikeService
             if (likeResponse == null || likeResponse.Id == Guid.Empty)
             {
                 _logger.LogError("Create Like fail");
-                return new Response<LikeResponse>(ErrorCodeEnum.LIKE_ERR_003);
+                return new Response<Guid>(ErrorCodeEnum.LIKE_ERR_003);
             }
 
             await _applicationUnitOfWork.CommitAsync();
-            var likeDto = _mapper.Map<LikeResponse>(likeResponse);
-            return new Response<LikeResponse>(likeDto);
+            return new Response<Guid>(likeResponse.Id);
         }
         catch (Exception ex)
         {
