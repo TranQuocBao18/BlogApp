@@ -157,4 +157,17 @@ public enum ErrorCodeEnum
     LIKE_ERR_005,
     #endregion
 
+    #region Comment
+    [Description(@"Comment is not found.")]
+    COMM_ERR_001,
+    [Description(@"Comment is existing.")]
+    COMM_ERR_002,
+    [Description(@"Create Comment is Fail.")]
+    COMM_ERR_003,
+    [Description(@"Update Comment is Fail.")]
+    COMM_ERR_004,
+    [Description(@"Delete Comment is Fail.")]
+    COMM_ERR_005,
+    #endregion
+
 }
