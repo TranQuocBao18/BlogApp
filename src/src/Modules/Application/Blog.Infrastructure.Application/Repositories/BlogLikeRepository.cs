@@ -5,7 +5,7 @@ using Blog.Infrastructure.Shared.Persistences.Repositories.Common;
 
 namespace Blog.Infrastructure.Application.Repositories;
 
-public class LikeRepository : GenericRepositoryAsync<Like, Guid>, ILikeRepository
+public class BlogLikeRepository : GenericRepositoryAsync<BlogLike, Guid>, IBlogLikeRepository
 {
 
 }

@@ -12,7 +12,8 @@ public class ApplicationUnitOfWork : BaseUnitOfWork, IApplicationUnitOfWork
     public IBlogTagRepository BlogTagRepository { get; private set; }
     public ICategoryRepository CategoryRepository { get; private set; }
     public ICommentRepository CommentRepository { get; private set; }
-    public ILikeRepository LikeRepository { get; private set; }
+    public IBlogLikeRepository BlogLikeRepository { get; private set; }
+    public ICommentLikeRepository CommentLikeRepository { get; private set; }
     public ITagRepository TagRepository { get; private set; }
 
     public ApplicationUnitOfWork(
@@ -22,7 +23,8 @@ public class ApplicationUnitOfWork : BaseUnitOfWork, IApplicationUnitOfWork
         IBlogTagRepository blogTagRepository,
         ICategoryRepository categoryRepository,
         ICommentRepository commentRepository,
-        ILikeRepository likeRepository,
+        IBlogLikeRepository blogLikeRepository,
+        ICommentLikeRepository commentLikeRepository,
         ITagRepository tagRepository
     ) : base(context)
     {
@@ -31,7 +33,8 @@ public class ApplicationUnitOfWork : BaseUnitOfWork, IApplicationUnitOfWork
         BlogTagRepository = blogTagRepository;
         CategoryRepository = categoryRepository;
         CommentRepository = commentRepository;
-        LikeRepository = likeRepository;
+        BlogLikeRepository = blogLikeRepository;
+        CommentLikeRepository = commentLikeRepository;
         TagRepository = tagRepository;
     }
 }

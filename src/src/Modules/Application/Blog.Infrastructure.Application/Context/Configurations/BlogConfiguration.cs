@@ -14,5 +14,32 @@ public class BlogConfiguration : IEntityTypeConfiguration<BlogEntity>
         builder.Property(x => x.Id)
                 .HasConversion(v => v.ToString(), v => Guid.Parse(v))
                 .IsRequired();
+        // Foreign Keys conversions
+        builder.Property(x => x.CategoryId)
+            .HasConversion(v => v.ToString(), v => Guid.Parse(v));
+
+        builder.Property(x => x.BannerId)
+            .HasConversion(v => v.ToString(), v => Guid.Parse(v));
+
+        // Relationships
+        builder.HasOne(x => x.Category)
+            .WithMany(c => c.Blogs)
+            .HasForeignKey(x => x.CategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.Comments)
+            .WithOne(c => c.Blog)
+            .HasForeignKey(c => c.BlogId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.BlogTags)
+            .WithOne(bt => bt.Blog)
+            .HasForeignKey(bt => bt.BlogId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.Likes)
+            .WithOne(l => l.Blog)
+            .HasForeignKey(l => l.BlogId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

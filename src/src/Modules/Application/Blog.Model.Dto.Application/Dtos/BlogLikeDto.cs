@@ -2,8 +2,7 @@ using System;
 
 namespace Blog.Model.Dto.Application.Dtos;
 
-public class LikeDto
+public class BlogLikeDto
 {
     public Guid BlogId { get; set; }
-    public Guid CommentId { get; set; }
 }

@@ -3,7 +3,7 @@ using Blog.Model.Dto.Application.Dtos;
 
 namespace Blog.Model.Dto.Application.Responses;
 
-public class LikeResponse : LikeDto
+public class CommentLikeResponse : CommentLikeDto
 {
     public Guid Id { get; set; }
 }

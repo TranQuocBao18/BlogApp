@@ -40,7 +40,8 @@ public static class ApplicationServiceExtesions
         services.AddScoped<IBlogTagService, BlogTagService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ICommentService, CommentService>();
-        services.AddScoped<ILikeService, LikeService>();
+        services.AddScoped<IBlogLikeService, BlogLikeService>();
+        services.AddScoped<ICommentLikeService, CommentLikeService>();
         services.AddScoped<ITagService, TagService>();
     }
 }

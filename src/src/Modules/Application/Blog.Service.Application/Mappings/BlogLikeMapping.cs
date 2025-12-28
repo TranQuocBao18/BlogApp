@@ -7,12 +7,12 @@ using Blog.Model.Dto.Application.Responses;
 
 namespace Blog.Service.Application.Mappings;
 
-public class LikeMapping : Profile
+public class BlogLikeMapping : Profile
 {
-    public LikeMapping()
+    public BlogLikeMapping()
     {
-        CreateMap<Like, LikeDto>().ReverseMap();
-        CreateMap<LikeRequest, Like>().ReverseMap();
-        CreateMap<LikeResponse, Like>().ReverseMap();
+        CreateMap<BlogLike, BlogLikeDto>().ReverseMap();
+        CreateMap<BlogLikeRequest, BlogLike>().ReverseMap();
+        CreateMap<BlogLikeResponse, BlogLike>().ReverseMap();
     }
 }

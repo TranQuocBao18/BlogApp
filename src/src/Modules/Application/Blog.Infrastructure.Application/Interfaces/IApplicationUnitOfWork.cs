@@ -10,6 +10,7 @@ public interface IApplicationUnitOfWork : IUnitOfWork
     IBlogTagRepository BlogTagRepository { get; }
     ICategoryRepository CategoryRepository { get; }
     ICommentRepository CommentRepository { get; }
-    ILikeRepository LikeRepository { get; }
+    IBlogLikeRepository BlogLikeRepository { get; }
+    ICommentLikeRepository CommentLikeRepository { get; }
     ITagRepository TagRepository { get; }
 }

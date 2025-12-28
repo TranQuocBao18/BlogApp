@@ -15,9 +15,6 @@
   <ItemGroup>
     <Folder Include="Constants\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Mappings\" />
-    <Folder Include="Services\" />
     <Folder Include="UseCases\" />
     <Folder Include="UseCases\Blog\" />
     <Folder Include="UseCases\Blog\Commands\" />

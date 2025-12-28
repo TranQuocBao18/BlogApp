@@ -47,10 +47,10 @@ public class BlogService : IBlogService
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
         {
-            var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Tittle == blogRequest.Tittle, cancellationToken);
+            var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Title == blogRequest.Title, cancellationToken);
             if (isDuplicateTitle)
             {
-                _logger.LogError("Tittle is existing");
+                _logger.LogError("Title is existing");
                 return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_002);
             }
             var currentUserId = _securityContextAccessor.UserId;
@@ -59,7 +59,7 @@ public class BlogService : IBlogService
             blogEntity.CreatedBy = currentUserId.ToString();
 
             // Generate slug from title and ensure uniqueness
-            var baseSlug = StringUtils.GenerateSlug(blogRequest.Tittle, 450);
+            var baseSlug = StringUtils.GenerateSlug(blogRequest.Title, 450);
             var slug = baseSlug;
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -101,18 +101,31 @@ public class BlogService : IBlogService
     {
         try
         {
-            var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Tittle == blogRequest.Tittle, cancellationToken);
+            if (!await _applicationUnitOfWork.CategoryRepository
+                .AnyAsync(c => c.Id == blogRequest.CategoryId, cancellationToken))
+            {
+                _logger.LogError($"Category with ID {blogRequest.CategoryId} not found");
+                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_001);
+            }
+
+            if (blogRequest.BannerId.HasValue && blogRequest.BannerId != Guid.Empty)
+            {
+                if (!await _applicationUnitOfWork.BannerRepository
+                    .AnyAsync(b => b.Id == blogRequest.BannerId, cancellationToken))
+                {
+                    _logger.LogError($"Banner with ID {blogRequest.BannerId} not found");
+                    return new Response<Guid>(ErrorCodeEnum.BAN_ERR_001);
+                }
+            }
+
+            var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Title == blogRequest.Title, cancellationToken);
             if (isDuplicateTitle)
             {
-                _logger.LogError("Tittle is existing");
+                _logger.LogError("Title is existing");
                 return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_002);
             }
-            var currentUserId = _securityContextAccessor.UserId;
-            var blogEntity = _mapper.Map<BlogEntity>(blogRequest);
-            blogEntity.Created = _dateTimeService.NowUtc;
-            blogEntity.CreatedBy = currentUserId.ToString();
 
-            var baseSlug = StringUtils.GenerateSlug(blogRequest.Tittle, 450);
+            var baseSlug = StringUtils.GenerateSlug(blogRequest.Title, 450);
             var slug = baseSlug;
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -129,6 +142,10 @@ public class BlogService : IBlogService
                 }
             }
 
+            var currentUserId = _securityContextAccessor.UserId;
+            var blogEntity = _mapper.Map<BlogEntity>(blogRequest);
+            blogEntity.Created = _dateTimeService.NowUtc;
+            blogEntity.CreatedBy = currentUserId.ToString();
             blogEntity.Slug = slug;
 
             var blogResponse = await _applicationUnitOfWork.BlogRepository.AddAsync(blogEntity, cancellationToken, true);
@@ -136,6 +153,30 @@ public class BlogService : IBlogService
             {
                 _logger.LogError("Create Blog fail");
                 return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_003);
+            }
+
+            if (blogRequest.TagIds != null && blogRequest.TagIds.Any())
+            {
+                // Validate all TagIds exist
+                foreach (var tagId in blogRequest.TagIds)
+                {
+                    if (!await _applicationUnitOfWork.TagRepository
+                        .AnyAsync(t => t.Id == tagId, cancellationToken))
+                    {
+                        _logger.LogError($"Tag with ID {tagId} not found");
+                        return new Response<Guid>(ErrorCodeEnum.TAG_ERR_001);
+                    }
+                }
+
+                // Create BlogTag relationships
+                var blogTags = blogRequest.TagIds.Select(tagId => new BlogTag
+                {
+                    BlogId = blogResponse.Id,
+                    TagId = tagId
+                }).ToList();
+
+                await _applicationUnitOfWork.BlogTagRepository
+                    .AddRangeAsync(blogTags, cancellationToken);
             }
 
             return new Response<Guid>(blogResponse.Id);
@@ -181,7 +222,9 @@ public class BlogService : IBlogService
     {
         try
         {
-            var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByBlogSlugAsync(slug, cancellationToken);
+            var currentUserId = _securityContextAccessor.UserId;
+            var (blogEntity, likeCount, isLiked) = await _applicationUnitOfWork.BlogRepository
+           .GetBySlugWithStatsAsync(slug, currentUserId, cancellationToken);
 
             if (blogEntity == null)
             {
@@ -189,7 +232,10 @@ public class BlogService : IBlogService
                 return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_001);
             }
 
+            blogEntity.LikeCount = likeCount;
+
             var blogResponse = _mapper.Map<BlogResponse>(blogEntity);
+            blogResponse.IsLikeByCurrentUser = isLiked;
             return new Response<BlogResponse>(blogResponse);
         }
         catch (Exception ex)
@@ -203,6 +249,7 @@ public class BlogService : IBlogService
     {
         try
         {
+            var currentUserId = _securityContextAccessor.UserId;
             var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(id!.Value, cancellationToken);
 
             if (blogEntity == null)
@@ -211,7 +258,13 @@ public class BlogService : IBlogService
                 return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_001);
             }
 
+            var likeCount = await _applicationUnitOfWork.BlogRepository.GetLikeCountAsync(blogEntity.Id, cancellationToken);
+            var isLiked = currentUserId != Guid.Empty &&
+                await _applicationUnitOfWork.BlogRepository.IsLikedByUserAsync(blogEntity.Id, currentUserId, cancellationToken);
+            blogEntity.LikeCount = likeCount;
+
             var blogResponse = _mapper.Map<BlogResponse>(blogEntity);
+            blogResponse.IsLikeByCurrentUser = isLiked;
             return new Response<BlogResponse>(blogResponse);
         }
         catch (Exception ex)
@@ -225,7 +278,7 @@ public class BlogService : IBlogService
     {
         var totalItems = await _applicationUnitOfWork.BlogRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
 
-        var blogs = await _applicationUnitOfWork.BlogRepository.GetPagedReponseAsync(pageNumber, pageSize, cancellationToken);
+        var blogs = await _applicationUnitOfWork.BlogRepository.GetPublishedBlogsAsync(pageNumber, pageSize, cancellationToken);
 
         var blogsResponse = _mapper.Map<IReadOnlyList<BlogResponse>>(blogs);
 
@@ -237,22 +290,38 @@ public class BlogService : IBlogService
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
         {
-            var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Tittle == blogRequest.Tittle, cancellationToken);
-            if (isDuplicateTitle)
-            {
-                _logger.LogError("Tittle is existing");
-                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_002);
-            }
-            var currentUserId = _securityContextAccessor.UserId;
-            var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(blogRequest.Id!.Value, cancellationToken);
+            var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(blogRequest.Id, cancellationToken);
 
             if (blogEntity == null)
             {
                 _logger.LogError("Blog not found");
                 return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_001);
             }
+            var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Title == blogRequest.Title && x.Id != blogRequest.Id, cancellationToken);
+            if (isDuplicateTitle)
+            {
+                _logger.LogError("Title is existing");
+                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_002);
+            }
+            var currentUserId = _securityContextAccessor.UserId;
 
-            blogEntity.Tittle = blogRequest.Tittle;
+            var isDuplicateSlug = await _applicationUnitOfWork.BlogRepository
+            .AnyAsync(x => x.Slug == blogRequest.Slug && x.Id != blogRequest.Id, cancellationToken);
+
+            if (isDuplicateSlug)
+            {
+                _logger.LogError($"Slug '{blogRequest.Slug}' already exists");
+                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_006);
+            }
+
+            if (!await _applicationUnitOfWork.CategoryRepository
+            .AnyAsync(c => c.Id == blogRequest.CategoryId, cancellationToken))
+            {
+                _logger.LogError($"Category with ID {blogRequest.CategoryId} not found");
+                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_001);
+            }
+
+            blogEntity.Title = blogRequest.Title;
             blogEntity.Content = blogRequest.Content;
             blogEntity.BannerId = blogRequest.BannerId;
             blogEntity.CategoryId = blogRequest.CategoryId;
@@ -261,17 +330,37 @@ public class BlogService : IBlogService
             blogEntity.LastModified = _dateTimeService.NowUtc;
             blogEntity.LastModifiedBy = currentUserId.ToString();
 
-            var isDuplicateSlug = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Slug == blogRequest.Slug, cancellationToken);
-            if (isDuplicateSlug)
+            await _applicationUnitOfWork.BlogRepository.UpdateAsync(blogEntity, cancellationToken, true);
+
+            if (blogRequest.TagIds != null)
             {
-                _logger.LogError("Slug is existing");
-                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_006);
+                // Remove old tags
+                var existingBlogTags = await _applicationUnitOfWork.BlogTagRepository
+                    .GetAllAsync(bt => bt.BlogId == blogRequest.Id, cancellationToken);
+
+                if (existingBlogTags.Any())
+                {
+                    await _applicationUnitOfWork.BlogTagRepository
+                        .DeleteRangeAsync(existingBlogTags.ToList(), cancellationToken);
+                }
+
+                // Add new tags
+                if (blogRequest.TagIds.Any())
+                {
+                    var newBlogTags = blogRequest.TagIds.Select(tagId => new BlogTag
+                    {
+                        BlogId = blogRequest.Id,
+                        TagId = tagId
+                    }).ToList();
+
+                    await _applicationUnitOfWork.BlogTagRepository
+                        .AddRangeAsync(newBlogTags, cancellationToken);
+                }
             }
 
-            await _applicationUnitOfWork.BlogRepository.UpdateAsync(blogEntity, cancellationToken, true);
             await _applicationUnitOfWork.CommitAsync();
 
-            return new Response<Guid>(blogRequest.Id.Value);
+            return new Response<Guid>(blogRequest.Id);
         }
         catch (Exception ex)
         {

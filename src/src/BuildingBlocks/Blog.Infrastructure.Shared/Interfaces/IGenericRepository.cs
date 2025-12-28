@@ -6,6 +6,8 @@ namespace Blog.Infrastructure.Shared.Interfaces;
 
 public interface IGenericRepository<TEntity, TKey> : ISearchRepository<TEntity, TKey> where TEntity : class, IEntity<TKey>
 {
+    IQueryable<TEntity> QueryWithIncludes(bool includeDeleted = false, params Expression<Func<TEntity, object>>[] includes);
+    IQueryable<TEntity> Query(bool includeDeleted = false);
     Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken, bool includedDeleted = false);
 
     Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken);
@@ -24,6 +26,6 @@ public interface IGenericRepository<TEntity, TKey> : ISearchRepository<TEntity, 
     Task<bool> AllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
     Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
     Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
-    Task<TResult> MaxAsync<TResult>(Expression<Func<TEntity, TResult>> predicate, CancellationToken cancellationToken);
-    Task<TResult> MinAsync<TResult>(Expression<Func<TEntity, TResult>> predicate, CancellationToken cancellationToken);
+    Task<TResult> MaxAsync<TResult>(Expression<Func<TEntity, TResult>> selector, CancellationToken cancellationToken);
+    Task<TResult> MinAsync<TResult>(Expression<Func<TEntity, TResult>> selector, CancellationToken cancellationToken);
 }

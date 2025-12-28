@@ -19,36 +19,103 @@ public class GenericRepositoryAsync<TEntity, TKey> : IGenericRepository<TEntity,
     {
     }
 
+    /// <summary>
+    /// Get queryable for custom queries in derived repositories
+    /// </summary>
+    protected IQueryable<TEntity> Query(bool includeDeleted = false)
+    {
+        var query = _dbContext.Set<TEntity>().AsQueryable();
+
+        if (!includeDeleted)
+        {
+            query = query.Where(x => !x.IsDeleted);
+        }
+
+        return query;
+    }
+
+    /// <summary>
+    /// Get queryable with includes
+    /// </summary>
+    protected IQueryable<TEntity> QueryWithIncludes(
+        bool includeDeleted = false,
+        params Expression<Func<TEntity, object>>[] includes)
+    {
+        var query = Query(includeDeleted);
+
+        foreach (var include in includes)
+        {
+            query = query.Include(include);
+        }
+
+        return query;
+    }
+
     #region Read Methods
-
-    #endregion
-
-    #region Write Methods
-
-    #endregion
-
-
     public virtual async Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken, bool includedDeleted = false)
     {
-        if (includedDeleted)
-        {
-            return await _dbContext.Set<TEntity>().Where(x => x.Id == id).FirstOrDefaultAsync();
-        }
-        return await _dbContext.Set<TEntity>().Where(x => !x.IsDeleted && x.Id == id).FirstOrDefaultAsync();
+        return await Query(includedDeleted)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
     public virtual async Task<IReadOnlyList<TEntity>> GetPagedReponseAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        return await _dbContext
-            .Set<TEntity>()
-            .Where(x => !x.IsDeleted)
+        return await Query()
+            .OrderByDescending(x => x.Created)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
-            .OrderByDescending(x => x.Created)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
+    public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await Query()
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    {
+        return await Query()
+            .Where(predicate)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async virtual Task<bool> AllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    {
+        return await Query()
+            .AllAsync(predicate, cancellationToken);
+    }
+
+    public async virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    {
+        return await Query()
+            .AnyAsync(predicate, cancellationToken);
+    }
+
+    public async virtual Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    {
+        return await Query()
+            .CountAsync(predicate, cancellationToken);
+    }
+
+    public async virtual Task<TResult> MaxAsync<TResult>(Expression<Func<TEntity, TResult>> selector, CancellationToken cancellationToken)
+    {
+        return await Query()
+            .MaxAsync(selector, cancellationToken);
+    }
+
+    public async virtual Task<TResult> MinAsync<TResult>(Expression<Func<TEntity, TResult>> selector, CancellationToken cancellationToken)
+    {
+        return await Query()
+            .MinAsync(selector, cancellationToken);
+    }
+
+    #endregion
+
+    #region Write Methods
     public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken, bool hasTransaction = false)
     {
         await _dbContext.Set<TEntity>().AddAsync(entity);
@@ -128,43 +195,20 @@ public class GenericRepositoryAsync<TEntity, TKey> : IGenericRepository<TEntity,
         }
     }
 
-    public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken)
+    IQueryable<TEntity> IGenericRepository<TEntity, Guid>.Query(bool includeDeleted)
     {
-        return await _dbContext.Set<TEntity>().Where(x => !x.IsDeleted).ToListAsync();
+        return Query(includeDeleted);
     }
 
-    public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    IQueryable<TEntity> IGenericRepository<TEntity, Guid>.QueryWithIncludes(bool includeDeleted, params Expression<Func<TEntity, object>>[] includes)
     {
-        return await _dbContext.Set<TEntity>().Where(predicate).ToListAsync();
-    }
-
-    public async virtual Task<bool> AllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
-    {
-        return await _dbContext.Set<TEntity>().Where(x => !x.IsDeleted).AllAsync(predicate, cancellationToken);
-    }
-
-    public async virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
-    {
-        return await _dbContext.Set<TEntity>().Where(x => !x.IsDeleted).AnyAsync(predicate, cancellationToken);
-    }
-
-    public async virtual Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
-    {
-        return await _dbContext.Set<TEntity>().Where(x => !x.IsDeleted).CountAsync(predicate, cancellationToken);
-    }
-
-    public async virtual Task<TResult> MaxAsync<TResult>(Expression<Func<TEntity, TResult>> predicate, CancellationToken cancellationToken)
-    {
-        return await _dbContext.Set<TEntity>().Where(x => !x.IsDeleted).MaxAsync(predicate, cancellationToken);
-    }
-
-    public async virtual Task<TResult> MinAsync<TResult>(Expression<Func<TEntity, TResult>> predicate, CancellationToken cancellationToken)
-    {
-        return await _dbContext.Set<TEntity>().Where(x => !x.IsDeleted).MinAsync(predicate, cancellationToken);
+        return QueryWithIncludes(includeDeleted, includes);
     }
 
     public IQueryable<TEntity> AsQueryable()
     {
         throw new NotImplementedException();
     }
+
+    #endregion
 }

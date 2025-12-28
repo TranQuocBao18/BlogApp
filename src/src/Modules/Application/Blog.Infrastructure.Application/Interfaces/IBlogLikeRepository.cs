@@ -4,7 +4,7 @@ using Blog.Infrastructure.Shared.Interfaces;
 
 namespace Blog.Infrastructure.Application.Interfaces;
 
-public interface ILikeRepository : IGenericRepository<Like, Guid>
+public interface IBlogLikeRepository : IGenericRepository<BlogLike, Guid>
 {
 
 }

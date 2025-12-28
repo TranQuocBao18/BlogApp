@@ -35,11 +35,12 @@ GO
 CREATE TABLE [Application].[Blog] (
     [Id] nvarchar(450) NOT NULL,
     [CategoryId] nvarchar(450) NOT NULL,
-    [BannerId] nvarchar(450) NOT NULL,
-    [Tittle] nvarchar(256) NOT NULL,
+    [BannerId] nvarchar(450) NULL,
+    [Title] nvarchar(256) NOT NULL,
     [Content] nvarchar(max) NOT NULL,
     [Slug] nvarchar(450) NULL,
     [Status] bit NOT NULL DEFAULT 0,
+    [LikeCount] int NOT NULL DEFAULT 0,
     [IsDeleted] bit NOT NULL DEFAULT 0,
     [CreatedBy] nvarchar(max) NULL,
     [Created] datetime2 NOT NULL DEFAULT SYSUTCDATETIME(),
@@ -56,6 +57,7 @@ GO
 CREATE TABLE [Application].[Tag] (
     [Id] nvarchar(450) NOT NULL,
     [Name] nvarchar(256) NOT NULL,
+    [Slug] nvarchar(450) NULL,
     [IsDeleted] bit NOT NULL DEFAULT 0,
     [CreatedBy] nvarchar(max) NULL,
     [Created] datetime2 NOT NULL DEFAULT SYSUTCDATETIME(),
@@ -101,20 +103,70 @@ CREATE TABLE [Application].[Comment] (
 
 GO
 
-CREATE TABLE [Application].[Like] (
+CREATE TABLE [Application].[BlogLike] (
     [Id] nvarchar(450) NOT NULL,
     [BlogId] nvarchar(450) NOT NULL,
     [UserId] nvarchar(450) NOT NULL,
-    [CommentId] nvarchar(450) NULL,
     [IsDeleted] bit NOT NULL DEFAULT 0,
     [CreatedBy] nvarchar(max) NULL,
     [Created] datetime2 NOT NULL DEFAULT SYSUTCDATETIME(),
     [LastModifiedBy] nvarchar(max) NULL,
     [LastModified] datetime2 NULL,
-    CONSTRAINT [PK_Like] PRIMARY KEY ([Id]),
-    CONSTRAINT [FK_Like_Blog_BlogId] FOREIGN KEY ([BlogId]) REFERENCES [Application].[Blog] ([Id]) ON DELETE CASCADE,
-    CONSTRAINT [FK_Like_User_UserId] FOREIGN KEY ([UserId]) REFERENCES [Identity].[User] ([Id]) ON DELETE CASCADE,
-    CONSTRAINT [FK_Like_Comment_CommentId] FOREIGN KEY ([CommentId]) REFERENCES [Application].[Comment] ([Id]) ON DELETE NO ACTION
+    CONSTRAINT [PK_BlogLike] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_BlogLike_Blog_BlogId] FOREIGN KEY ([BlogId]) REFERENCES [Application].[Blog] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_BlogLike_User_UserId] FOREIGN KEY ([UserId]) REFERENCES [Identity].[User] ([Id]) ON DELETE CASCADE
 );
+
+GO
+
+CREATE TABLE [Application].[CommentLike] (
+    [Id] nvarchar(450) NOT NULL,
+    [UserId] nvarchar(450) NOT NULL,
+    [CommentId] nvarchar(450) NOT NULL,
+    [IsDeleted] bit NOT NULL DEFAULT 0,
+    [CreatedBy] nvarchar(max) NULL,
+    [Created] datetime2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    [LastModifiedBy] nvarchar(max) NULL,
+    [LastModified] datetime2 NULL,
+    CONSTRAINT [PK_CommentLike] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_CommentLike_Comment_CommentId] FOREIGN KEY ([CommentId]) REFERENCES [Application].[Comment] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_CommentLike_User_UserId] FOREIGN KEY ([UserId]) REFERENCES [Identity].[User] ([Id]) ON DELETE NO ACTION
+);
+
+GO
+
+CREATE INDEX [IX_Blog_CategoryId] ON [Application].[Blog]([CategoryId]);
+
+GO
+
+CREATE INDEX [IX_Blog_Created] ON [Application].[Blog]([Created]);
+
+GO
+
+CREATE INDEX [IX_Comment_BlogId] ON [Application].[Comment]([BlogId]);
+
+GO
+
+CREATE INDEX [IX_Comment_ParentId] ON [Application].[Comment]([ParentId]);
+
+GO
+
+CREATE INDEX [IX_Comment_UserId] ON [Application].[Comment]([UserId]);
+
+GO
+
+CREATE INDEX [IX_BlogLike_BlogId] ON [Application].[BlogLike]([BlogId]);
+
+GO
+
+CREATE INDEX [IX_BlogLike_UserId] ON [Application].[BlogLike]([UserId]);
+
+GO
+
+CREATE INDEX [IX_CommentLike_CommentId] ON [Application].[CommentLike]([CommentId]);
+
+GO
+
+CREATE INDEX [IX_CommentLike_UserId] ON [Application].[CommentLike]([UserId]);
 
 GO

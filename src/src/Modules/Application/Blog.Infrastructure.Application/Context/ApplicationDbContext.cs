@@ -29,7 +29,8 @@ public class ApplicationDbContext : BaseDbContext<ApplicationDbContext>
         modelBuilder.ApplyConfiguration(new BlogTagConfiguration());
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
         modelBuilder.ApplyConfiguration(new CommentConfiguration());
-        modelBuilder.ApplyConfiguration(new LikeConfiguration());
+        modelBuilder.ApplyConfiguration(new BlogLikeConfiguration());
+        modelBuilder.ApplyConfiguration(new CommentLikeConfiguration());
         modelBuilder.ApplyConfiguration(new TagConfiguration());
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
