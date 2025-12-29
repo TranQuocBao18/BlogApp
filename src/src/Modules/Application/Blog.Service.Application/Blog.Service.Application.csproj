@@ -19,6 +19,9 @@
     <Folder Include="UseCases\Blog\" />
     <Folder Include="UseCases\Blog\Commands\" />
     <Folder Include="UseCases\Blog\Commands\Handlers\" />
+    <Folder Include="UseCases\Blog\Queries\" />
+    <Folder Include="UseCases\Blog\Queries\Handlers\" />
+    <Folder Include="UseCases\Blog\Validatiors\" />
   </ItemGroup>
 
   <ItemGroup>

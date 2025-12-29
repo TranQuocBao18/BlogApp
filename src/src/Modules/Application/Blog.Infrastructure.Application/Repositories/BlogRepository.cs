@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using Blog.Domain.Application.Entities;
 using Blog.Domain.Application.Enum;
 using Blog.Infrastructure.Application.Interfaces;
@@ -19,6 +20,17 @@ public class BlogRepository : GenericRepositoryAsync<BlogEntity, Guid>, IBlogRep
     {
         return await Query(includedDeleted)
             .FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<BlogEntity>> SearchAsync(Expression<Func<BlogEntity, bool>> predicate, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        return await Query()
+            .Where(predicate)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .OrderByDescending(x => x.Created)
+            .ToListAsync(cancellationToken);
     }
 
     // public async Task<BlogEntity?> GetBySlugWithRelationsAsync(

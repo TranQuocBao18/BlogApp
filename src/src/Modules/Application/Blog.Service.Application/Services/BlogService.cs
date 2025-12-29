@@ -1,6 +1,7 @@
 using System;
 using AutoMapper;
 using Blog.Domain.Application.Entities;
+using Blog.Domain.Application.Enum;
 using Blog.Infrastructure.Application.Interfaces;
 using Blog.Infrastructure.Shared.ErrorCodes;
 using Blog.Infrastructure.Shared.Exceptions;
@@ -274,15 +275,40 @@ public class BlogService : IBlogService
         }
     }
 
-    public async Task<PagedResponse<IReadOnlyList<BlogResponse>>> GetBlogsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedResponse<IReadOnlyList<BlogResponse>>> GetBlogsAsync(int pageNumber, int pageSize, string searchName, CancellationToken cancellationToken)
     {
-        var totalItems = await _applicationUnitOfWork.BlogRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
+        if (string.IsNullOrWhiteSpace(searchName))
+        {
+            var totalItems = await _applicationUnitOfWork.BlogRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
+            var blogs = await _applicationUnitOfWork.BlogRepository.GetPagedReponseAsync(pageNumber, pageSize, cancellationToken);
+            var blogsResponse = _mapper.Map<IReadOnlyList<BlogResponse>>(blogs);
+            return new PagedResponse<IReadOnlyList<BlogResponse>>(blogsResponse, pageNumber, pageSize, totalItems);
+        }
+        else
+        {
+            var totalItems = await _applicationUnitOfWork.BlogRepository.CountAsync(x => !x.IsDeleted && x.Title.Contains(searchName), cancellationToken);
+            var blogs = await _applicationUnitOfWork.BlogRepository.SearchAsync(x => !x.IsDeleted && x.Title.Contains(searchName), pageNumber, pageSize, cancellationToken);
+            var blogsResponse = _mapper.Map<IReadOnlyList<BlogResponse>>(blogs);
+            return new PagedResponse<IReadOnlyList<BlogResponse>>(blogsResponse, pageNumber, pageSize, totalItems);
+        }
+    }
 
-        var blogs = await _applicationUnitOfWork.BlogRepository.GetPublishedBlogsAsync(pageNumber, pageSize, cancellationToken);
-
-        var blogsResponse = _mapper.Map<IReadOnlyList<BlogResponse>>(blogs);
-
-        return new PagedResponse<IReadOnlyList<BlogResponse>>(blogsResponse, pageNumber, pageSize, totalItems);
+    public async Task<PagedResponse<IReadOnlyList<BlogResponse>>> GetPublishedBlogsAsync(int pageNumber, int pageSize, string searchName, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(searchName))
+        {
+            var totalItems = await _applicationUnitOfWork.BlogRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
+            var blogs = await _applicationUnitOfWork.BlogRepository.GetPublishedBlogsAsync(pageNumber, pageSize, cancellationToken);
+            var blogsResponse = _mapper.Map<IReadOnlyList<BlogResponse>>(blogs);
+            return new PagedResponse<IReadOnlyList<BlogResponse>>(blogsResponse, pageNumber, pageSize, totalItems);
+        }
+        else
+        {
+            var totalItems = await _applicationUnitOfWork.BlogRepository.CountAsync(x => !x.IsDeleted && x.Title.Contains(searchName) && x.Status == BlogStatus.Published, cancellationToken);
+            var blogs = await _applicationUnitOfWork.BlogRepository.SearchAsync(x => !x.IsDeleted && x.Title.Contains(searchName) && x.Status == BlogStatus.Published, pageNumber, pageSize, cancellationToken);
+            var blogsResponse = _mapper.Map<IReadOnlyList<BlogResponse>>(blogs);
+            return new PagedResponse<IReadOnlyList<BlogResponse>>(blogsResponse, pageNumber, pageSize, totalItems);
+        }
     }
 
     public async Task<Response<Guid>> UpdateBlogAsync(BlogRequest blogRequest, CancellationToken cancellationToken)

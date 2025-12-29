@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using Blog.Domain.Application.Entities;
 using Blog.Infrastructure.Shared.Interfaces;
 
@@ -6,6 +7,7 @@ namespace Blog.Infrastructure.Application.Interfaces;
 
 public interface IBlogRepository : IGenericRepository<BlogEntity, Guid>
 {
+    Task<IReadOnlyList<BlogEntity>> SearchAsync(Expression<Func<BlogEntity, bool>> predicate, int pageNumber, int pageSize, CancellationToken cancellationToken);
     Task<BlogEntity?> GetByBlogSlugAsync(string slug, CancellationToken cancellationToken, bool includedDeleted = false);
     // Task<BlogEntity?> GetBySlugWithRelationsAsync(string slug, CancellationToken cancellationToken);
     Task<(BlogEntity? blog, int likeCount, bool isLiked)> GetBySlugWithStatsAsync(string slug, Guid? currentUserId, CancellationToken cancellationToken = default);
