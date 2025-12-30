@@ -5,4 +5,5 @@ namespace Blog.Model.Dto.Application.Requests;
 
 public class CategoryRequest : CategoryDto
 {
+    public Guid? Id { get; set; }
 }

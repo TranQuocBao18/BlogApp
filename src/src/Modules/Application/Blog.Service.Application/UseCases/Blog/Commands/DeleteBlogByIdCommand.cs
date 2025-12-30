@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Blog.Service.Application.UseCases.Blog.Commands;
 
-public partial class DeleteBlogByIdCommand : IRequest<Response<bool>>
+public class DeleteBlogByIdCommand : IRequest<Response<bool>>
 {
     public Guid Id { get; set; }
 }

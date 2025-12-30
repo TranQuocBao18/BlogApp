@@ -6,5 +6,4 @@ namespace Blog.Model.Dto.Application.Responses;
 public class CategoryResponse : CategoryDto
 {
     public Guid? Id { get; set; }
-
 }

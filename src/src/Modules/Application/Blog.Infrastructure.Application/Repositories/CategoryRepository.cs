@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using Blog.Domain.Application.Entities;
 using Blog.Infrastructure.Application.Interfaces;
 using Blog.Infrastructure.Shared.Persistences.Repositories.Common;
@@ -13,9 +14,14 @@ public class CategoryRepository : GenericRepositoryAsync<Category, Guid>, ICateg
     {
         _dbContext = dbContext;
     }
-    public async Task<Category> GetByCategorySlugAsync(string slug, CancellationToken cancellationToken, bool includedDeleted = false)
+    public async Task<IReadOnlyList<Category>> SearchAsync(Expression<Func<Category, bool>> predicate, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        return await Query(includedDeleted)
-            .FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
+        return await Query()
+            .Where(predicate)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .OrderByDescending(x => x.Created)
+            .ToListAsync(cancellationToken);
     }
 }

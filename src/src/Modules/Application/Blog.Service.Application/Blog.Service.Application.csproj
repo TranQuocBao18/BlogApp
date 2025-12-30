@@ -15,13 +15,16 @@
   <ItemGroup>
     <Folder Include="Constants\" />
     <Folder Include="Extensions\" />
-    <Folder Include="UseCases\" />
     <Folder Include="UseCases\Blog\" />
     <Folder Include="UseCases\Blog\Commands\" />
     <Folder Include="UseCases\Blog\Commands\Handlers\" />
     <Folder Include="UseCases\Blog\Queries\" />
     <Folder Include="UseCases\Blog\Queries\Handlers\" />
     <Folder Include="UseCases\Blog\Validatiors\" />
+    <Folder Include="UseCases\Category\Commands\Handlers\" />
+    <Folder Include="UseCases\Category\Queries\" />
+    <Folder Include="UseCases\Category\Queries\Handlers\" />
+    <Folder Include="UseCases\Category\Validatiors\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -122,36 +122,21 @@ public class CategoryService : ICategoryService
         }
     }
 
-    public async Task<PagedResponse<IReadOnlyList<CategoryResponse>>> GetCategoriesAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedResponse<IReadOnlyList<CategoryResponse>>> GetCategoriesAsync(int pageNumber, int pageSize, string searchName, CancellationToken cancellationToken)
     {
-        var totalItems = await _applicationUnitOfWork.CategoryRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
-
-        var categories = await _applicationUnitOfWork.CategoryRepository.GetPagedReponseAsync(pageNumber, pageSize, cancellationToken);
-
-        var categoriesResponse = _mapper.Map<IReadOnlyList<CategoryResponse>>(categories);
-
-        return new PagedResponse<IReadOnlyList<CategoryResponse>>(categoriesResponse, pageNumber, pageSize, totalItems);
-    }
-
-    public async Task<Response<CategoryResponse>> GetCategoryByCategorySlugAsync(string slug, CancellationToken cancellationToken)
-    {
-        try
+        if (string.IsNullOrWhiteSpace(searchName))
         {
-            var categoryEntity = await _applicationUnitOfWork.CategoryRepository.GetByCategorySlugAsync(slug, cancellationToken);
-
-            if (categoryEntity == null)
-            {
-                _logger.LogError("Category not found");
-                return new Response<CategoryResponse>(ErrorCodeEnum.CAT_ERR_001);
-            }
-
-            var categoryResponse = _mapper.Map<CategoryResponse>(categoryEntity);
-            return new Response<CategoryResponse>(categoryResponse);
+            var totalItems = await _applicationUnitOfWork.CategoryRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
+            var categories = await _applicationUnitOfWork.CategoryRepository.GetPagedReponseAsync(pageNumber, pageSize, cancellationToken);
+            var categoriesResponse = _mapper.Map<IReadOnlyList<CategoryResponse>>(categories);
+            return new PagedResponse<IReadOnlyList<CategoryResponse>>(categoriesResponse, pageNumber, pageSize, totalItems);
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex.Message);
-            throw new ApiException(ex.Message);
+            var totalItems = await _applicationUnitOfWork.CategoryRepository.CountAsync(x => !x.IsDeleted && x.Name.Contains(searchName), cancellationToken);
+            var categories = await _applicationUnitOfWork.CategoryRepository.SearchAsync(x => !x.IsDeleted && x.Name.Contains(searchName), pageNumber, pageSize, cancellationToken);
+            var categoriesResponse = _mapper.Map<IReadOnlyList<CategoryResponse>>(categories);
+            return new PagedResponse<IReadOnlyList<CategoryResponse>>(categoriesResponse, pageNumber, pageSize, totalItems);
         }
     }
 
