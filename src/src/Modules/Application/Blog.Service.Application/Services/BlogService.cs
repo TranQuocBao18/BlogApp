@@ -225,7 +225,7 @@ public class BlogService : IBlogService
         {
             var currentUserId = _securityContextAccessor.UserId;
             var (blogEntity, likeCount, isLiked) = await _applicationUnitOfWork.BlogRepository
-           .GetBySlugWithStatsAsync(slug, currentUserId, cancellationToken);
+                .GetBySlugWithStatsAsync(slug, currentUserId, cancellationToken);
 
             if (blogEntity == null)
             {
@@ -306,6 +306,24 @@ public class BlogService : IBlogService
         {
             var totalItems = await _applicationUnitOfWork.BlogRepository.CountAsync(x => !x.IsDeleted && x.Title.Contains(searchName) && x.Status == BlogStatus.Published, cancellationToken);
             var blogs = await _applicationUnitOfWork.BlogRepository.SearchAsync(x => !x.IsDeleted && x.Title.Contains(searchName) && x.Status == BlogStatus.Published, pageNumber, pageSize, cancellationToken);
+            var blogsResponse = _mapper.Map<IReadOnlyList<BlogResponse>>(blogs);
+            return new PagedResponse<IReadOnlyList<BlogResponse>>(blogsResponse, pageNumber, pageSize, totalItems);
+        }
+    }
+
+    public async Task<PagedResponse<IReadOnlyList<BlogResponse>>> GetPublishedBlogsByCategoryIdAsync(Guid Id, int pageNumber, int pageSize, string searchName, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(searchName))
+        {
+            var totalItems = await _applicationUnitOfWork.BlogRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
+            var blogs = await _applicationUnitOfWork.BlogRepository.GetBlogsByCategoryAsync(Id, pageNumber, pageSize, cancellationToken);
+            var blogsResponse = _mapper.Map<IReadOnlyList<BlogResponse>>(blogs);
+            return new PagedResponse<IReadOnlyList<BlogResponse>>(blogsResponse, pageNumber, pageSize, totalItems);
+        }
+        else
+        {
+            var totalItems = await _applicationUnitOfWork.BlogRepository.CountAsync(x => !x.IsDeleted && x.Title.Contains(searchName) && x.Status == BlogStatus.Published && x.CategoryId == Id, cancellationToken);
+            var blogs = await _applicationUnitOfWork.BlogRepository.SearchAsync(x => !x.IsDeleted && x.Title.Contains(searchName) && x.Status == BlogStatus.Published && x.CategoryId == Id, pageNumber, pageSize, cancellationToken);
             var blogsResponse = _mapper.Map<IReadOnlyList<BlogResponse>>(blogs);
             return new PagedResponse<IReadOnlyList<BlogResponse>>(blogsResponse, pageNumber, pageSize, totalItems);
         }

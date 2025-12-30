@@ -325,7 +325,7 @@ public class BannerService : IBannerService
             }
 
             var currentUserId = _securityContextAccessor.UserId;
-            var bannerEntity = await _applicationUnitOfWork.BannerRepository.GetByIdAsync(bannerRequest.Id, cancellationToken);
+            var bannerEntity = await _applicationUnitOfWork.BannerRepository.GetByIdAsync(bannerRequest.Id!.Value, cancellationToken);
 
             if (bannerEntity == null)
             {

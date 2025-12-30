@@ -15,10 +15,7 @@ public class CategoryRepository : GenericRepositoryAsync<Category, Guid>, ICateg
     }
     public async Task<Category> GetByCategorySlugAsync(string slug, CancellationToken cancellationToken, bool includedDeleted = false)
     {
-        if (includedDeleted)
-        {
-            return await _dbContext.Set<Category>().Where(x => x.Slug == slug).FirstOrDefaultAsync();
-        }
-        return await _dbContext.Set<Category>().Where(x => !x.IsDeleted && x.Slug == slug).FirstOrDefaultAsync();
+        return await Query(includedDeleted)
+            .FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
     }
 }
