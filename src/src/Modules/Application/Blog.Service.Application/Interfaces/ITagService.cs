@@ -7,7 +7,7 @@ namespace Blog.Service.Application.Interfaces;
 
 public interface ITagService
 {
-    Task<PagedResponse<IReadOnlyList<TagResponse>>> GetTagsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken);
+    Task<PagedResponse<IReadOnlyList<TagResponse>>> GetTagsAsync(int pageNumber, int pageSize, string searchName, CancellationToken cancellationToken);
     Task<Response<TagResponse>> GetTagByIdAsync(Guid? id, CancellationToken cancellationToken);
     Task<Response<Guid>> CreateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken);
     Task<Response<Guid>> UpdateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken);

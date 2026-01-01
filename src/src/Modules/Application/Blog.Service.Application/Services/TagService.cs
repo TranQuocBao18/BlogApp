@@ -124,15 +124,22 @@ public class TagService : ITagService
         }
     }
 
-    public async Task<PagedResponse<IReadOnlyList<TagResponse>>> GetTagsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedResponse<IReadOnlyList<TagResponse>>> GetTagsAsync(int pageNumber, int pageSize, string searchName, CancellationToken cancellationToken)
     {
-        var totalItems = await _applicationUnitOfWork.TagRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
-
-        var tags = await _applicationUnitOfWork.TagRepository.GetPagedReponseAsync(pageNumber, pageSize, cancellationToken);
-
-        var tagsResponse = _mapper.Map<IReadOnlyList<TagResponse>>(tags);
-
-        return new PagedResponse<IReadOnlyList<TagResponse>>(tagsResponse, pageNumber, pageSize, totalItems);
+        if (string.IsNullOrWhiteSpace(searchName))
+        {
+            var totalItems = await _applicationUnitOfWork.TagRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
+            var tags = await _applicationUnitOfWork.TagRepository.GetPagedReponseAsync(pageNumber, pageSize, cancellationToken);
+            var tagsResponse = _mapper.Map<IReadOnlyList<TagResponse>>(tags);
+            return new PagedResponse<IReadOnlyList<TagResponse>>(tagsResponse, pageNumber, pageSize, totalItems);
+        }
+        else
+        {
+            var totalItems = await _applicationUnitOfWork.TagRepository.CountAsync(x => !x.IsDeleted && x.Name.Contains(searchName), cancellationToken);
+            var tags = await _applicationUnitOfWork.TagRepository.SearchAsync(x => !x.IsDeleted && x.Name.Contains(searchName), pageNumber, pageSize, cancellationToken);
+            var tagsResponse = _mapper.Map<IReadOnlyList<TagResponse>>(tags);
+            return new PagedResponse<IReadOnlyList<TagResponse>>(tagsResponse, pageNumber, pageSize, totalItems);
+        }
     }
 
     public async Task<Response<Guid>> UpdateTagAsync(TagRequest tagRequest, CancellationToken cancellationToken)

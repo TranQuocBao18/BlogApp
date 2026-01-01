@@ -25,6 +25,12 @@
     <Folder Include="UseCases\Category\Queries\" />
     <Folder Include="UseCases\Category\Queries\Handlers\" />
     <Folder Include="UseCases\Category\Validatiors\" />
+    <Folder Include="UseCases\Tag\" />
+    <Folder Include="UseCases\Tag\Commands\" />
+    <Folder Include="UseCases\Tag\Commands\Handlers\" />
+    <Folder Include="UseCases\Tag\Queries\" />
+    <Folder Include="UseCases\Tag\Queries\Handlers\" />
+    <Folder Include="UseCases\Tag\Validators\" />
   </ItemGroup>
 
   <ItemGroup>
