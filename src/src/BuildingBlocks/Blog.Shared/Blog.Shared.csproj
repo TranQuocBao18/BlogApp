@@ -26,4 +26,10 @@
     <ProjectReference Include="..\Blog.Utilities\Blog.Utilities.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Caching\" />
+    <Folder Include="Notification\" />
+    <Folder Include="Timing\" />
+  </ItemGroup>
+
 </Project>
