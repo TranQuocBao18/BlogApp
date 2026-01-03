@@ -1,4 +1,5 @@
 using System;
+using Blog.EventBus.Extensions;
 using Blog.Infrastructure.Application.Context;
 using Blog.Infrastructure.Application.Interfaces;
 using Blog.Infrastructure.Application.Repositories;
@@ -42,5 +43,7 @@ public static class ServiceRegistration
         services.AddTransient<IBlogLikeRepository, BlogLikeRepository>();
         services.AddTransient<ICommentLikeRepository, CommentLikeRepository>();
         services.AddTransient<ITagRepository, TagRepository>();
+
+        services.AddMessaging(configuration);
     }
 }

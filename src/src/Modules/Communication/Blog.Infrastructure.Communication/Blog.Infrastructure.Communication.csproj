@@ -11,11 +11,14 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Infrastructure.Shared\Blog.Infrastructure.Shared.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Presentation.Shared\Blog.Presentation.Shared.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.UnitOfWork\Blog.UnitOfWork.csproj" />
-    <ProjectReference Include="..\Blog.Domain.Application\Blog.Domain.Application.csproj" />
-    <ProjectReference Include="..\Blog.Model.Dto.Application\Blog.Model.Dto.Application.csproj" />
+    <ProjectReference Include="..\Blog.Domain.Communication\Blog.Domain.Communication.csproj" />
+    <ProjectReference Include="..\Blog.Model.Dto.Communication\Blog.Model.Dto.Communication.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Contexts\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Repositories\" />
     <Folder Include="UnitOfWorks\" />
   </ItemGroup>
 
