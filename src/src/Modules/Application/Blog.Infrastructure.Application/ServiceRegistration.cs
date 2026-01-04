@@ -1,4 +1,5 @@
 using System;
+using Blog.Domain.Shared.Contracts;
 using Blog.EventBus.Extensions;
 using Blog.Infrastructure.Application.Context;
 using Blog.Infrastructure.Application.Interfaces;
@@ -44,6 +45,6 @@ public static class ServiceRegistration
         services.AddTransient<ICommentLikeRepository, CommentLikeRepository>();
         services.AddTransient<ITagRepository, TagRepository>();
 
-        services.AddMessaging(configuration);
+        services.AddMessaging(configuration, typeof(ICommunicationServiceMarker).Assembly);
     }
 }

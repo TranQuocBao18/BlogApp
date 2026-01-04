@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
+using Blog.Presentation.Application.Extensions;
 using Blog.Presentation.Identity.Extensions;
 using Blog.Presentation.Shared.Extensions;
 using Blog.Presentation.Shared.Helpers;
 using Blog.Presentation.Shared.Options;
+using Blog.SignalR.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Razor;
 
@@ -36,7 +38,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddIdentityExtension(configuration);
-// builder.Services.AddApplicationExtension(configuration);
+builder.Services.AddApplicationExtension(configuration);
+// builder.Services.AddCommunicationExtension(configuration);
 
 builder.Services.AddCors();
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -58,6 +61,7 @@ builder.Services.Configure<RazorViewEngineOptions>(o =>
 
 builder.Services.AddSession();
 builder.Services.Configure<AppSettingOption>(configuration.GetSection("AppSetting"));
+builder.Services.AddNotificationSignalR(configuration);
 
 var app = builder.Build();
 
@@ -111,6 +115,8 @@ app.UseAuthorization();
 app.UseSwaggerExtension();
 app.UseErrorHandlingMiddleware();
 app.UseHealthChecks("/health");
+
+app.UseNotificationSignalR(environment, configuration);
 
 app.MapControllers().RequireCors(AllowSpecificOrigins);
 

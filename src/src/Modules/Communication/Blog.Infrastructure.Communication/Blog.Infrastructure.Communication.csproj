@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Contexts\" />
-    <Folder Include="Interfaces\" />
+    <Folder Include="Contexts\Configurations\" />
     <Folder Include="Repositories\" />
     <Folder Include="UnitOfWorks\" />
   </ItemGroup>

@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BuildingBlocks\Blog.Presentation.Shared\Blog.Presentation.Shared.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\Blog.SignalR\Blog.SignalR.csproj" />
     <ProjectReference Include="..\Modules\Application\Blog.Presentation.Application\Blog.Presentation.Application.csproj" />
     <ProjectReference Include="..\Modules\Identity\Blog.Presentation.Identity\Blog.Presentation.Identity.csproj" />
   </ItemGroup>
