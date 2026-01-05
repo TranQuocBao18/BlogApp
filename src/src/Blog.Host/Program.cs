@@ -61,7 +61,6 @@ builder.Services.Configure<RazorViewEngineOptions>(o =>
 
 builder.Services.AddSession();
 builder.Services.Configure<AppSettingOption>(configuration.GetSection("AppSetting"));
-builder.Services.AddNotificationSignalR(configuration);
 
 var app = builder.Build();
 

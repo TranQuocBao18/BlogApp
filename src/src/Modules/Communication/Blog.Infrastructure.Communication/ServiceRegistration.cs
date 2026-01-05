@@ -7,6 +7,7 @@ using Blog.Infrastructure.Communication.UnitOfWorks;
 using Blog.Infrastructure.Shared.Interfaces;
 using Blog.Infrastructure.Shared.Persistences.Repositories.Common;
 using Blog.Infrastructure.Shared.Services;
+using Blog.SignalR.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,5 +37,6 @@ public static class ServiceRegistration
         services.AddTransient<INotificationMessageRepository, NotificationMessageRepository>();
 
         services.AddMessaging(configuration);
+        services.AddNotificationSignalR(configuration);
     }
 }

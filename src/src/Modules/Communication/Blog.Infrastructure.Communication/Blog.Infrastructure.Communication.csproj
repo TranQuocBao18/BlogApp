@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.EventBus\Blog.EventBus.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Infrastructure.Shared\Blog.Infrastructure.Shared.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Presentation.Shared\Blog.Presentation.Shared.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.SignalR\Blog.SignalR.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.UnitOfWork\Blog.UnitOfWork.csproj" />
     <ProjectReference Include="..\Blog.Domain.Communication\Blog.Domain.Communication.csproj" />
     <ProjectReference Include="..\Blog.Model.Dto.Communication\Blog.Model.Dto.Communication.csproj" />
