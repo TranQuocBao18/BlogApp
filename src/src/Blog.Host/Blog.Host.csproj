@@ -10,7 +10,7 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageReference Include="JWT" Version="11.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.3.0" />
@@ -39,6 +39,7 @@
     <ProjectReference Include="..\BuildingBlocks\Blog.Presentation.Shared\Blog.Presentation.Shared.csproj" />
     <ProjectReference Include="..\BuildingBlocks\Blog.SignalR\Blog.SignalR.csproj" />
     <ProjectReference Include="..\Modules\Application\Blog.Presentation.Application\Blog.Presentation.Application.csproj" />
+    <ProjectReference Include="..\Modules\Communication\Blog.Presentation.Communication\Blog.Presentation.Communication.csproj" />
     <ProjectReference Include="..\Modules\Identity\Blog.Presentation.Identity\Blog.Presentation.Identity.csproj" />
   </ItemGroup>
 

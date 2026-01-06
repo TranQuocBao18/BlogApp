@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Blog.Presentation.Application.Extensions;
+using Blog.Presentation.Communication.Extensions;
 using Blog.Presentation.Identity.Extensions;
 using Blog.Presentation.Shared.Extensions;
 using Blog.Presentation.Shared.Helpers;
@@ -39,7 +40,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddIdentityExtension(configuration);
 builder.Services.AddApplicationExtension(configuration);
-// builder.Services.AddCommunicationExtension(configuration);
+builder.Services.AddCommunicationExtension(configuration);
 
 builder.Services.AddCors();
 builder.Services.AddControllers().AddJsonOptions(options =>

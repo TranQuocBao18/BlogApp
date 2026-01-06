@@ -1,6 +1,8 @@
 using System;
 using System.Reflection;
 using Blog.Infrastructure.Shared.Behaviours;
+using Blog.Service.Communication.Interfaces;
+using Blog.Service.Communication.Services;
 using Blog.Shared.Auth;
 using Blog.Shared.Notification;
 using Blog.SignalR.Extensions;
@@ -25,8 +27,6 @@ public static class CommunicationServiceExtensions
 
         services.AddHttpClient();
 
-        // services.AddScoped<IUserNotificationService, NotificationService>();
-        // services.AddScoped<ICommunicationService, CommunicationService>();
-        // services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<INotificationService, NotificationService>();
     }
 }
