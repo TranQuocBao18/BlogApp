@@ -19,6 +19,12 @@
     <Folder Include="Services\" />
     <Folder Include="Services\Consumer\" />
     <Folder Include="UseCases\" />
+    <Folder Include="UseCases\NotificationMessage\" />
+    <Folder Include="UseCases\NotificationMessage\Commands\" />
+    <Folder Include="UseCases\NotificationMessage\Commands\Handlers\" />
+    <Folder Include="UseCases\NotificationMessage\Queries\" />
+    <Folder Include="UseCases\NotificationMessage\Queries\Handlers\" />
+    <Folder Include="UseCases\NotificationMessage\Validatiors\" />
   </ItemGroup>
 
 </Project>
