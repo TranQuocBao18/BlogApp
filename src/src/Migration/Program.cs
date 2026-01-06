@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Migration;
+
 class Program
 {
     private static IConfiguration? _configuration;
@@ -12,7 +13,8 @@ class Program
     private enum DBName
     {
         identity = 0,
-        application = 1
+        application = 1,
+        communication = 2
     }
 
     static void Main(string[] args)
@@ -44,6 +46,12 @@ class Program
                 Run(DBName.application, "application");
                 continue;
             }
+            if (IsArg(args[lastArg], "communication"))
+            {
+                Log.Information("Run migration - Db");
+                Run(DBName.communication, "communication");
+                continue;
+            }
 
             else
             {
@@ -56,7 +64,7 @@ class Program
     {
         return (name != null && candidate.Equals(name, StringComparison.OrdinalIgnoreCase));
     }
-    
+
     private static void Run(DBName dBName, string schemaName)
     {
         var connString = _configuration.GetConnectionString(dBName.ToString());

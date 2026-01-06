@@ -33,6 +33,10 @@
     <Folder Include="Scripts\application\SampleData\" />
     <Folder Include="Scripts\application\Scripts\" />
     <Folder Include="Scripts\application\SeedData\" />
+    <Folder Include="Scripts\communication\" />
+    <Folder Include="Scripts\communication\SampleData\" />
+    <Folder Include="Scripts\communication\Scripts\" />
+    <Folder Include="Scripts\communication\SeedData\" />
     <Folder Include="Scripts\identity\Scripts\" />
     <Folder Include="Scripts\identity\SeedData\" />
   </ItemGroup>
