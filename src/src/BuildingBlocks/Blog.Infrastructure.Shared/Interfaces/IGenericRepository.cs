@@ -9,6 +9,7 @@ public interface IGenericRepository<TEntity, TKey> : ISearchRepository<TEntity, 
     IQueryable<TEntity> QueryWithIncludes(bool includeDeleted = false, params Expression<Func<TEntity, object>>[] includes);
     IQueryable<TEntity> Query(bool includeDeleted = false);
     Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken, bool includedDeleted = false);
+    Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken, bool includedDeleted = false);
 
     Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken);
     Task<IReadOnlyList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);

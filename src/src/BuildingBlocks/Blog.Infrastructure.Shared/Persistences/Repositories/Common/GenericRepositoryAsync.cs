@@ -58,6 +58,12 @@ public class GenericRepositoryAsync<TEntity, TKey> : IGenericRepository<TEntity,
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public virtual async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken, bool includedDeleted = false)
+    {
+        return await Query(includedDeleted)
+            .FirstOrDefaultAsync(predicate, cancellationToken);
+    }
+
     public virtual async Task<IReadOnlyList<TEntity>> GetPagedReponseAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         return await Query()

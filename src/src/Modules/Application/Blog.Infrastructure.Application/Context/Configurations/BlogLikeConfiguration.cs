@@ -21,6 +21,9 @@ public class BlogLikeConfiguration : IEntityTypeConfiguration<BlogLike>
         builder.Property(x => x.UserId)
             .HasConversion(v => v.ToString(), v => Guid.Parse(v));
 
+        builder.HasIndex(x => new { x.BlogId, x.UserId })
+            .IsUnique();
+
         // Relationships
         builder.HasOne(x => x.Blog)
             .WithMany(b => b.Likes)
