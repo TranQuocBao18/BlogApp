@@ -1,8 +1,8 @@
 using System;
 using Blog.Domain.Communication.Entities;
 using Blog.Domain.Communication.Enums;
+using Blog.Domain.Shared.Contracts;
 using Blog.Infrastructure.Communication.Interfaces;
-using Blog.Model.Dto.Communication.Dtos;
 using Blog.Shared.Notification;
 using Blog.SignalR.Hubs;
 using Blog.SignalR.Notifications;

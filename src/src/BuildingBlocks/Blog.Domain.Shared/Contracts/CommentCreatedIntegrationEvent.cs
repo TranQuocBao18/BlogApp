@@ -1,6 +1,6 @@
 using System;
 
-namespace Blog.Model.Dto.Communication.Dtos;
+namespace Blog.Domain.Shared.Contracts;
 
 public class CommentCreatedIntegrationEvent
 {

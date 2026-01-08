@@ -16,6 +16,7 @@ public static class MassTransitExtension
 
         services.AddMassTransit(x =>
         {
+            x.SetKebabCaseEndpointNameFormatter();
             if (consumerAssembly != null)
             {
                 x.AddConsumers(consumerAssembly);

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Domain.Shared\Blog.Domain.Shared.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Files\Blog.Files.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Model.Dto.Shared\Blog.Model.Dto.Shared.csproj" />
     <ProjectReference Include="..\Blog.Infrastructure.Application\Blog.Infrastructure.Application.csproj" />
@@ -25,6 +26,12 @@
     <Folder Include="UseCases\Category\Queries\" />
     <Folder Include="UseCases\Category\Queries\Handlers\" />
     <Folder Include="UseCases\Category\Validatiors\" />
+    <Folder Include="UseCases\Comment\" />
+    <Folder Include="UseCases\Comment\Commands\" />
+    <Folder Include="UseCases\Comment\Commands\Handlers\" />
+    <Folder Include="UseCases\Comment\Queries\" />
+    <Folder Include="UseCases\Comment\Queries\Handlers\" />
+    <Folder Include="UseCases\Comment\Validators\" />
     <Folder Include="UseCases\Tag\" />
     <Folder Include="UseCases\Tag\Commands\" />
     <Folder Include="UseCases\Tag\Commands\Handlers\" />
