@@ -29,6 +29,9 @@
     <Folder Include="UseCases\Category\Queries\" />
     <Folder Include="UseCases\Category\Queries\Handlers\" />
     <Folder Include="UseCases\Category\Validatiors\" />
+    <Folder Include="UseCases\CommentLike\" />
+    <Folder Include="UseCases\CommentLike\Commands\" />
+    <Folder Include="UseCases\CommentLike\Commands\Handlers\" />
     <Folder Include="UseCases\Comment\" />
     <Folder Include="UseCases\Comment\Commands\" />
     <Folder Include="UseCases\Comment\Commands\Handlers\" />

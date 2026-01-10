@@ -8,12 +8,13 @@ namespace Blog.Infrastructure.Application.Repositories;
 
 public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, ICommentRepository
 {
+    private readonly DbContext _dbContext;
     public CommentRepository(DbContext dbContext) : base(dbContext)
     {
-
+        _dbContext = dbContext;
     }
 
-    public async Task<IReadOnlyList<(Comment Comment, int ReplyCount)>> GetCommentsByBlogIdAsync(Guid blogId, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<(Comment Comment, int ReplyCount, bool isLiked)>> GetCommentsByBlogIdAsync(Guid blogId, Guid? currentUserId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         var query = Query()
             .AsNoTracking()
@@ -27,11 +28,13 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
             {
                 CommentEntity = c,
                 UserEntity = c.User, // Cần select rõ User để tránh null
-                RepliesCount = c.ChildComments.Count() // Đây là đoạn SQL Count(*)
+                RepliesCount = c.ChildComments.Count(), // Đây là đoạn SQL Count(*)
+                IsLiked = currentUserId.HasValue &&
+                    c.Likes.Any(l => l.UserId == currentUserId.Value)
             })
             .ToListAsync(cancellationToken);
 
-        var res = new List<(Comment, int)>();
+        var res = new List<(Comment, int, bool)>();
         foreach (var item in result)
         {
             if (item.CommentEntity != null && item.UserEntity != null)
@@ -39,19 +42,41 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
                 item.CommentEntity.User = item.UserEntity;
             }
 
-            res.Add((item.CommentEntity!, item.RepliesCount));
+            res.Add((item.CommentEntity!, item.RepliesCount, item.IsLiked));
         }
 
         return res;
     }
 
-    public async Task<IReadOnlyList<Comment>> GetRepliesByParentIdAsync(Guid parentId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<(Comment Comment, int ReplyCount, bool isLiked)>> GetRepliesByParentIdAsync(Guid parentId, Guid? currentUserId, CancellationToken cancellationToken)
     {
-        return await Query()
-            .Include(c => c.User)
-            .Where(c => c.ParentId == parentId)
-            .OrderBy(c => c.Created)
+        var query = Query()
             .AsNoTracking()
+            .Where(c => c.ParentId == parentId);
+
+        var result = await query
+            .Include(c => c.User)
+            .OrderBy(c => c.Created)
+            .Select(c => new
+            {
+                CommentEntity = c,
+                UserEntity = c.User, // Cần select rõ User để tránh null
+                RepliesCount = c.ChildComments.Count(), // Đây là đoạn SQL Count(*)
+                IsLiked = currentUserId.HasValue &&
+                    c.Likes.Any(l => l.UserId == currentUserId.Value)
+            })
             .ToListAsync(cancellationToken);
+
+        var res = new List<(Comment, int, bool)>();
+        foreach (var item in result)
+        {
+            if (item.CommentEntity != null && item.UserEntity != null)
+            {
+                item.CommentEntity.User = item.UserEntity;
+            }
+
+            res.Add((item.CommentEntity!, item.RepliesCount, item.IsLiked));
+        }
+        return res;
     }
 }

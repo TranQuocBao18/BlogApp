@@ -129,13 +129,15 @@ public class CommentService : ICommentService
 
     public async Task<PagedResponse<IReadOnlyList<CommentResponse>>> GetListCommentByBlogIdAsync(Guid blogId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
+        var currentUserId = _securityContextAccessor.UserId;
         var totalItems = await _applicationUnitOfWork.CommentRepository.CountAsync(x => !x.IsDeleted && x.ParentId == null, cancellationToken);
-        var comments = await _applicationUnitOfWork.CommentRepository.GetCommentsByBlogIdAsync(blogId, pageNumber, pageSize, cancellationToken);
+        var comments = await _applicationUnitOfWork.CommentRepository.GetCommentsByBlogIdAsync(blogId, currentUserId, pageNumber, pageSize, cancellationToken);
         var commentResponse = new List<CommentResponse>();
-        foreach (var (commentEntity, replyCount) in comments)
+        foreach (var (commentEntity, replyCount, isLiked) in comments)
         {
             var commentDto = _mapper.Map<CommentResponse>(commentEntity);
             commentDto.ReplyCount = replyCount;
+            commentDto.IsLikeByCurrentUser = isLiked;
             commentResponse.Add(commentDto);
         }
         return new PagedResponse<IReadOnlyList<CommentResponse>>(commentResponse, pageNumber, pageSize, totalItems);
@@ -143,9 +145,17 @@ public class CommentService : ICommentService
 
     public async Task<PagedResponse<IReadOnlyList<CommentResponse>>> GetRepliesByParentIdAsync(Guid parentId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
+        var currentUserId = _securityContextAccessor.UserId;
         var totalItems = await _applicationUnitOfWork.CommentRepository.CountAsync(x => !x.IsDeleted && x.ParentId == parentId, cancellationToken);
-        var replies = await _applicationUnitOfWork.CommentRepository.GetRepliesByParentIdAsync(parentId, cancellationToken);
-        var commentResponse = _mapper.Map<IReadOnlyList<CommentResponse>>(replies);
+        var replies = await _applicationUnitOfWork.CommentRepository.GetRepliesByParentIdAsync(parentId, currentUserId, cancellationToken);
+        var commentResponse = new List<CommentResponse>();
+        foreach (var (commentEntity, replyCount, isLiked) in replies)
+        {
+            var commentDto = _mapper.Map<CommentResponse>(commentEntity);
+            commentDto.ReplyCount = replyCount;
+            commentDto.IsLikeByCurrentUser = isLiked;
+            commentResponse.Add(commentDto);
+        }
         return new PagedResponse<IReadOnlyList<CommentResponse>>(commentResponse, pageNumber, pageSize, totalItems);
     }
 

@@ -7,6 +7,7 @@ namespace Blog.Service.Application.Interfaces;
 
 public interface ICommentLikeService
 {
-    Task<Response<Guid>> CreateCommentLikeAsync(CommentLikeRequest commentLikeRequest, CancellationToken cancellationToken);
-    Task<Response<bool>> DeleteCommentLikeAsync(Guid? id, CancellationToken cancellationToken);
+    // Task<Response<Guid>> CreateCommentLikeAsync(CommentLikeRequest commentLikeRequest, CancellationToken cancellationToken);
+    // Task<Response<bool>> DeleteCommentLikeAsync(Guid? id, CancellationToken cancellationToken);
+    Task<Response<bool>> ToggleLikeAsync(Guid commentId, CancellationToken cancellationToken);
 }

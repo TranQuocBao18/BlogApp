@@ -81,17 +81,16 @@ public class BlogLikeService : IBlogLikeService
 
                 isLikedNow = true;
 
+                await _publishEndpoint.Publish(new LikeCreatedIntegrationEvent
+                {
+                    BlogId = blogId,
+                    AuthorId = currentUserId,
+                    AuthorName = currentUserName,
+                    BlogAuthorId = blogEntity.CreatedBy!.AsGuid()
+                });
             }
             await _applicationUnitOfWork.BlogRepository.UpdateAsync(blogEntity, cancellationToken, true);
             await _applicationUnitOfWork.CommitAsync();
-
-            await _publishEndpoint.Publish(new LikeCreatedIntegrationEvent
-            {
-                BlogId = blogId,
-                AuthorId = currentUserId,
-                AuthorName = currentUserName,
-                BlogAuthorId = blogEntity.CreatedBy!.AsGuid()
-            });
 
             return new Infrastructure.Shared.Wrappers.Response<bool>(isLikedNow);
         }
