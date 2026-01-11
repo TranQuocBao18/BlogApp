@@ -126,6 +126,12 @@ public class BlogService : IBlogService
                 return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_002);
             }
 
+            var currentUserId = _securityContextAccessor.UserId;
+            var blogEntity = _mapper.Map<BlogEntity>(blogRequest);
+            blogEntity.Created = _dateTimeService.NowUtc;
+            blogEntity.CreatedBy = currentUserId.ToString();
+
+            // Generate slug from title and ensure uniqueness
             var baseSlug = StringUtils.GenerateSlug(blogRequest.Title, 450);
             var slug = baseSlug;
             if (string.IsNullOrWhiteSpace(slug))
@@ -142,11 +148,6 @@ public class BlogService : IBlogService
                     slug = slug.Substring(0, 450).Trim('-');
                 }
             }
-
-            var currentUserId = _securityContextAccessor.UserId;
-            var blogEntity = _mapper.Map<BlogEntity>(blogRequest);
-            blogEntity.Created = _dateTimeService.NowUtc;
-            blogEntity.CreatedBy = currentUserId.ToString();
             blogEntity.Slug = slug;
 
             var blogResponse = await _applicationUnitOfWork.BlogRepository.AddAsync(blogEntity, cancellationToken, true);
@@ -349,14 +350,24 @@ public class BlogService : IBlogService
             }
             var currentUserId = _securityContextAccessor.UserId;
 
-            var isDuplicateSlug = await _applicationUnitOfWork.BlogRepository
-            .AnyAsync(x => x.Slug == blogRequest.Slug && x.Id != blogRequest.Id, cancellationToken);
-
-            if (isDuplicateSlug)
+            // Generate slug from title and ensure uniqueness
+            var baseSlug = StringUtils.GenerateSlug(blogRequest.Title, 450);
+            var slug = baseSlug;
+            if (string.IsNullOrWhiteSpace(slug))
             {
-                _logger.LogError($"Slug '{blogRequest.Slug}' already exists");
-                return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_006);
+                slug = Guid.NewGuid().ToString();
             }
+
+            var suffix = 1;
+            while (await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Slug == slug, cancellationToken))
+            {
+                slug = string.Concat(baseSlug, "-", suffix++);
+                if (slug.Length > 450)
+                {
+                    slug = slug.Substring(0, 450).Trim('-');
+                }
+            }
+            blogEntity.Slug = slug;
 
             if (!await _applicationUnitOfWork.CategoryRepository
             .AnyAsync(c => c.Id == blogRequest.CategoryId, cancellationToken))
@@ -369,7 +380,6 @@ public class BlogService : IBlogService
             blogEntity.Content = blogRequest.Content;
             blogEntity.BannerId = blogRequest.BannerId;
             blogEntity.CategoryId = blogRequest.CategoryId;
-            blogEntity.Slug = blogRequest.Slug;
             blogEntity.Status = blogRequest.Status;
             blogEntity.LastModified = _dateTimeService.NowUtc;
             blogEntity.LastModifiedBy = currentUserId.ToString();

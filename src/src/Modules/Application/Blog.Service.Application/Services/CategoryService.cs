@@ -183,16 +183,28 @@ public class CategoryService : ICategoryService
             }
 
             categoryEntity.Name = categoryRequest.Name;
-            categoryEntity.Slug = categoryRequest.Slug;
             categoryEntity.LastModified = _dateTimeService.NowUtc;
             categoryEntity.LastModifiedBy = currentUserId.ToString();
 
-            var isDuplicateSlug = await _applicationUnitOfWork.CategoryRepository.AnyAsync(x => x.Slug == categoryRequest.Slug, cancellationToken);
-            if (isDuplicateSlug)
+            // Generate slug from title and ensure uniqueness
+            var baseSlug = StringUtils.GenerateSlug(categoryRequest.Name, 450);
+            var slug = baseSlug;
+            if (string.IsNullOrWhiteSpace(slug))
             {
-                _logger.LogError("Slug is existing");
-                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_006);
+                slug = Guid.NewGuid().ToString();
             }
+
+            var suffix = 1;
+            while (await _applicationUnitOfWork.CategoryRepository.AnyAsync(x => x.Slug == slug, cancellationToken))
+            {
+                slug = string.Concat(baseSlug, "-", suffix++);
+                if (slug.Length > 450)
+                {
+                    slug = slug.Substring(0, 450).Trim('-');
+                }
+            }
+
+            categoryEntity.Slug = slug;
 
             var categoryResponse = _mapper.Map<CategoryResponse>(categoryEntity);
 
