@@ -8,7 +8,7 @@ namespace Blog.Infrastructure.Shared.Persistences.Repositories.Common;
 
 public class GenericRepositoryAsync<TEntity, TKey> : IGenericRepository<TEntity, Guid> where TEntity : BaseEntityWithAudit
 {
-    private readonly DbContext _dbContext;
+    protected DbContext _dbContext;
 
     public GenericRepositoryAsync(DbContext dbContext)
     {

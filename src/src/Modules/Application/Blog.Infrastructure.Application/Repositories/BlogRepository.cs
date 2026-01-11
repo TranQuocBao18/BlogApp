@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using Blog.Domain.Application.Entities;
 using Blog.Domain.Application.Enum;
+using Blog.Infrastructure.Application.Context;
 using Blog.Infrastructure.Application.Interfaces;
 using Blog.Infrastructure.Shared.Persistences.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +11,8 @@ namespace Blog.Infrastructure.Application.Repositories;
 
 public class BlogRepository : GenericRepositoryAsync<BlogEntity, Guid>, IBlogRepository
 {
-    private readonly DbContext _dbContext;
-    public BlogRepository(DbContext dbContext)
+    private readonly ApplicationDbContext _dbContext;
+    public BlogRepository(ApplicationDbContext dbContext) : base(dbContext)
     {
         _dbContext = dbContext;
     }

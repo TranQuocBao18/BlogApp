@@ -571,4 +571,19 @@ public class UserRepository : IUserRepository
             return false;
         }
     }
+
+    public IQueryable<User> QueryWithIncludes(bool includeDeleted = false, params Expression<Func<User, object>>[] includes)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IQueryable<User> Query(bool includeDeleted = false)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<User> GetAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken, bool includedDeleted = false)
+    {
+        throw new NotImplementedException();
+    }
 }

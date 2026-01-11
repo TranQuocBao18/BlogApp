@@ -1,5 +1,7 @@
 using System;
 using System.Reflection;
+using Blog.Files.Interfaces;
+using Blog.Files.Services;
 using Blog.Infrastructure.Shared.Behaviours;
 using Blog.Service.Application.Interfaces;
 using Blog.Service.Application.Services;
@@ -24,6 +26,8 @@ public static class ApplicationServiceExtesions
         services.AddScoped<ISecurityContextAccessor, SecurityContextAccessor>();
         services.AddHttpContextAccessor();
         services.AddAuthorization();
+        services.AddScoped<IFileService>(sp => new FileService(null));
+        services.AddScoped<IFileScannerService, FileScannerService>();
         services.AddSingleton<Cloudinary>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();

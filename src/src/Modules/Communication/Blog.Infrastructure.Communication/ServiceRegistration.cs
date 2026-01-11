@@ -26,7 +26,7 @@ public static class ServiceRegistration
         services.AddTransient<IDateTimeService, DateTimeService>();
         if (configuration.GetValue<bool>("UseInMemomryDatabase"))
         {
-            services.AddDbContext<CommunicationDbContext>(options => options.UseInMemoryDatabase("ApplicationDb"));
+            services.AddDbContext<CommunicationDbContext>(options => options.UseInMemoryDatabase("CommunicationDb"));
         }
         else
         {

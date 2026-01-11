@@ -24,7 +24,7 @@ public static class MassTransitExtension
 
             x.UsingRabbitMq((context, cfg) =>
             {
-                cfg.Host(settings.Host, "/", h =>
+                cfg.Host(settings.Host, settings.VirtualHost, h =>
                 {
                     h.Username(settings.Username);
                     h.Password(settings.Password);

@@ -139,5 +139,20 @@ public class IdentityRepositoryAsync<T> : IGenericRepository<T, Guid> where T : 
         throw new NotImplementedException();
     }
 
+    public IQueryable<T> QueryWithIncludes(bool includeDeleted = false, params Expression<Func<T, object>>[] includes)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IQueryable<T> Query(bool includeDeleted = false)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<T> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken, bool includedDeleted = false)
+    {
+        throw new NotImplementedException();
+    }
+
     #endregion
 }

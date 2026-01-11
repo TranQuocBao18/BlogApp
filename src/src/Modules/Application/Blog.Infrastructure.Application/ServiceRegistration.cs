@@ -43,7 +43,5 @@ public static class ServiceRegistration
         services.AddTransient<IBlogLikeRepository, BlogLikeRepository>();
         services.AddTransient<ICommentLikeRepository, CommentLikeRepository>();
         services.AddTransient<ITagRepository, TagRepository>();
-
-        services.AddMessaging(configuration);
     }
 }

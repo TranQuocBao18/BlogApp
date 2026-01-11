@@ -1,5 +1,6 @@
 using System;
 using Blog.Domain.Application.Entities;
+using Blog.Infrastructure.Application.Context;
 using Blog.Infrastructure.Application.Interfaces;
 using Blog.Infrastructure.Shared.Persistences.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
@@ -8,8 +9,8 @@ namespace Blog.Infrastructure.Application.Repositories;
 
 public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, ICommentRepository
 {
-    private readonly DbContext _dbContext;
-    public CommentRepository(DbContext dbContext) : base(dbContext)
+    private readonly ApplicationDbContext _dbContext;
+    public CommentRepository(ApplicationDbContext dbContext) : base(dbContext)
     {
         _dbContext = dbContext;
     }
