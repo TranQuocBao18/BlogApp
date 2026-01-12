@@ -10,6 +10,7 @@ using Blog.Model.Dto.Application.Requests;
 using Blog.Model.Dto.Application.Responses;
 using Blog.Service.Application.Interfaces;
 using Blog.Shared.Auth;
+using Blog.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Blog.Service.Application.Services;
@@ -52,6 +53,26 @@ public class TagService : ITagService
             var tagEntity = _mapper.Map<Tag>(tagRequest);
             tagEntity.Created = _dateTimeService.NowUtc;
             tagEntity.CreatedBy = currentUserId.ToString();
+
+            // Generate slug from title and ensure uniqueness
+            var baseSlug = StringUtils.GenerateSlug(tagRequest.Name, 450);
+            var slug = baseSlug;
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                slug = Guid.NewGuid().ToString();
+            }
+
+            var suffix = 1;
+            while (await _applicationUnitOfWork.TagRepository.AnyAsync(x => x.Slug == slug, cancellationToken))
+            {
+                slug = string.Concat(baseSlug, "-", suffix++);
+                if (slug.Length > 450)
+                {
+                    slug = slug.Substring(0, 450).Trim('-');
+                }
+            }
+
+            tagEntity.Slug = slug;
 
             var tagResponse = await _applicationUnitOfWork.TagRepository.AddAsync(tagEntity, cancellationToken, true);
             if (tagResponse == null || tagResponse.Id == Guid.Empty)
@@ -165,6 +186,26 @@ public class TagService : ITagService
             tagEntity.Name = tagRequest.Name;
             tagEntity.LastModified = _dateTimeService.NowUtc;
             tagEntity.LastModifiedBy = currentUserId.ToString();
+
+            // Generate slug from title and ensure uniqueness
+            var baseSlug = StringUtils.GenerateSlug(tagRequest.Name, 450);
+            var slug = baseSlug;
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                slug = Guid.NewGuid().ToString();
+            }
+
+            var suffix = 1;
+            while (await _applicationUnitOfWork.TagRepository.AnyAsync(x => x.Slug == slug, cancellationToken))
+            {
+                slug = string.Concat(baseSlug, "-", suffix++);
+                if (slug.Length > 450)
+                {
+                    slug = slug.Substring(0, 450).Trim('-');
+                }
+            }
+
+            tagEntity.Slug = slug;
 
             var tagResponse = _mapper.Map<TagResponse>(tagEntity);
 

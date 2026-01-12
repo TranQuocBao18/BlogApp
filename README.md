@@ -4,7 +4,7 @@ Below is the step-by-step guide to run the application locally.
 
 **Prerequisites:**
 
-1. Visual Studio V17.10.0 and .NET 8.0 (for .NET Aspire applications)
+1. Visual Studio V17.10.0 and .NET 9.0 (for .NET Aspire applications)
 2. Docker(not implement yet)
 
 **Step 1:**
@@ -21,6 +21,7 @@ dotnet build --no-restore
 
 dotnet run --project Blog/src/src/Migration/Migration.csproj identity
 dotnet run --project Blog/src/src/Migration/Migration.csproj application
+dotnet run --project Blog/src/src/Migration/Migration.csproj communication
 
 dotnet run --project src/src/Blog.Host/Blog.Host.csproj
 
