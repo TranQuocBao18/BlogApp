@@ -22,6 +22,7 @@ CREATE TABLE [Application].[Banner] (
     [Url] nvarchar(max) NOT NULL,
     [Width] FLOAT DEFAULT 0,
     [Height] FLOAT DEFAULT 0,
+    [ETag] nvarchar(450) NOT NULL,
     [IsDeleted] bit NOT NULL DEFAULT 0,
     [CreatedBy] nvarchar(max) NULL,
     [Created] datetime2 NOT NULL DEFAULT SYSUTCDATETIME(),

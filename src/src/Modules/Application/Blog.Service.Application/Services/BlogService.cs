@@ -332,16 +332,33 @@ public class BlogService : IBlogService
 
     public async Task<Response<Guid>> UpdateBlogAsync(BlogRequest blogRequest, CancellationToken cancellationToken)
     {
-        await _applicationUnitOfWork.BeginTransactionAsync();
         try
         {
-            var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(blogRequest.Id, cancellationToken);
+            var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(blogRequest.Id!.Value, cancellationToken);
 
             if (blogEntity == null)
             {
                 _logger.LogError("Blog not found");
                 return new Response<Guid>(ErrorCodeEnum.BLOG_ERR_001);
             }
+
+            if (!await _applicationUnitOfWork.CategoryRepository
+                .AnyAsync(c => c.Id == blogRequest.CategoryId, cancellationToken))
+            {
+                _logger.LogError($"Category with ID {blogRequest.CategoryId} not found");
+                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_001);
+            }
+
+            if (blogRequest.BannerId.HasValue && blogRequest.BannerId != Guid.Empty)
+            {
+                if (!await _applicationUnitOfWork.BannerRepository
+                    .AnyAsync(b => b.Id == blogRequest.BannerId, cancellationToken))
+                {
+                    _logger.LogError($"Banner with ID {blogRequest.BannerId} not found");
+                    return new Response<Guid>(ErrorCodeEnum.BAN_ERR_001);
+                }
+            }
+
             var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Title == blogRequest.Title && x.Id != blogRequest.Id, cancellationToken);
             if (isDuplicateTitle)
             {
@@ -368,13 +385,6 @@ public class BlogService : IBlogService
                 }
             }
             blogEntity.Slug = slug;
-
-            if (!await _applicationUnitOfWork.CategoryRepository
-            .AnyAsync(c => c.Id == blogRequest.CategoryId, cancellationToken))
-            {
-                _logger.LogError($"Category with ID {blogRequest.CategoryId} not found");
-                return new Response<Guid>(ErrorCodeEnum.CAT_ERR_001);
-            }
 
             blogEntity.Title = blogRequest.Title;
             blogEntity.Content = blogRequest.Content;
@@ -403,7 +413,7 @@ public class BlogService : IBlogService
                 {
                     var newBlogTags = blogRequest.TagIds.Select(tagId => new BlogTag
                     {
-                        BlogId = blogRequest.Id,
+                        BlogId = blogRequest.Id.Value,
                         TagId = tagId
                     }).ToList();
 
@@ -412,13 +422,10 @@ public class BlogService : IBlogService
                 }
             }
 
-            await _applicationUnitOfWork.CommitAsync();
-
-            return new Response<Guid>(blogRequest.Id);
+            return new Response<Guid>(blogRequest.Id.Value);
         }
         catch (Exception ex)
         {
-            await _applicationUnitOfWork.RollbackAsync();
             _logger.LogError(ex.Message);
             throw new ApiException(ex.Message);
         }

@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Blog.Service.Application.UseCases.Blog.Commands.Handlers;
 
-public class InsertBlogHandler : IRequestHandler<InsertBlogCommand, Response<Guid>>
+public class InsertBlogHandler : IRequestHandler<UpsertBlogCommand, Response<Guid>>
 {
     private readonly IBlogService _blogService;
     private readonly IBannerService _bannerService;
@@ -25,7 +25,7 @@ public class InsertBlogHandler : IRequestHandler<InsertBlogCommand, Response<Gui
         _applicationUnitOfWork = applicationUnitOfWork;
     }
 
-    public async Task<Response<Guid>> Handle(InsertBlogCommand request, CancellationToken cancellationToken)
+    public async Task<Response<Guid>> Handle(UpsertBlogCommand request, CancellationToken cancellationToken)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));
 

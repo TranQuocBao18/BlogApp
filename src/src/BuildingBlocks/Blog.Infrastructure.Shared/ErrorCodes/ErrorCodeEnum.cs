@@ -88,6 +88,8 @@ public enum ErrorCodeEnum
     BAN_ERR_005,
     [Description(@"Banner width or height is duplicated.")]
     BAN_ERR_006,
+    [Description(@"Banner is duplicated.")]
+    BAN_ERR_007,
     #endregion
 
     #region Blog

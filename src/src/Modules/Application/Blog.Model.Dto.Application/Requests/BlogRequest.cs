@@ -6,7 +6,7 @@ namespace Blog.Model.Dto.Application.Requests;
 
 public class BlogRequest
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
     public Guid CategoryId { get; set; }
     public Guid? BannerId { get; set; }
 

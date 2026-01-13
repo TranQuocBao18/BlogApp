@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
 using Blog.Domain.Application.Entities;
@@ -81,6 +82,18 @@ public class BannerService : IBannerService
         }
     }
 
+    public async Task<string> CalculateFileHashAsync(IFormFile file)
+    {
+        using (var md5 = MD5.Create())
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                var hash = await Task.Run(() => md5.ComputeHash(stream));
+                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            }
+        }
+    }
+
     public async Task<Response<BannerResponse>> UploadBannerAsync(IFormFile imageFile, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();
@@ -134,15 +147,20 @@ public class BannerService : IBannerService
             }
 
             // Upload to Cloudinary
+            // Tính file hash để kiểm tra xem image này đã tồn tại chưa
+            var fileHash = await CalculateFileHashAsync(imageFile);
+
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream()),
                 Folder = "blog-banners",
+                Moderation = "duplicate:0.8",
                 Transformation = new Transformation()
                     .Width(1200)
                     .Height(630)
                     .Crop("fill")
-                    .Quality("auto")
+                    .Quality("auto"),
+                Tags = fileHash // Lưu file hash để tracking
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -160,6 +178,7 @@ public class BannerService : IBannerService
                 Width = uploadResult.Width,
                 Height = uploadResult.Height,
                 PublicId = uploadResult.PublicId,
+                ETag = uploadResult.Etag,
                 Created = _dateTimeService.NowUtc,
                 CreatedBy = currentUserId.ToString()
             };
@@ -233,11 +252,13 @@ public class BannerService : IBannerService
             {
                 File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream()),
                 Folder = "blog-banners",
+                Moderation = "duplicate:0.8",
                 Transformation = new Transformation()
                     .Width(1200)
                     .Height(630)
                     .Crop("fill")
-                    .Quality("auto")
+                    .Quality("auto"),
+                Tags = await CalculateFileHashAsync(imageFile) // Lưu file hash để tracking
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -254,6 +275,7 @@ public class BannerService : IBannerService
                 Width = uploadResult.Width,
                 Height = uploadResult.Height,
                 PublicId = uploadResult.PublicId,
+                ETag = uploadResult.Etag,
                 Created = _dateTimeService.NowUtc,
                 CreatedBy = currentUserId.ToString()
             };

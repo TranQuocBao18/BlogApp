@@ -19,8 +19,6 @@
     <Folder Include="UseCases\BlogLike\" />
     <Folder Include="UseCases\BlogLike\Commands\" />
     <Folder Include="UseCases\BlogLike\Commands\Handlers\" />
-    <Folder Include="UseCases\Blog\" />
-    <Folder Include="UseCases\Blog\Commands\" />
     <Folder Include="UseCases\Blog\Commands\Handlers\" />
     <Folder Include="UseCases\Blog\Queries\" />
     <Folder Include="UseCases\Blog\Queries\Handlers\" />
