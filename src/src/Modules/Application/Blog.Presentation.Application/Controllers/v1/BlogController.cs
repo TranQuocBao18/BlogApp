@@ -95,7 +95,7 @@ public class BlogController : ControllerBase
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin")]
     [ProducesResponseType(typeof(Response<Guid>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Post(InsertBlogCommand command)
+    public async Task<IActionResult> Post(UpsertBlogCommand command)
     {
         return Ok(await Mediator.Send(command));
     }
@@ -104,7 +104,7 @@ public class BlogController : ControllerBase
     [HttpPut]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin")]
     [ProducesResponseType(typeof(Response<Guid>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Post(UpdateBlogCommand command)
+    public async Task<IActionResult> Put(UpsertBlogCommand command)
     {
         return Ok(await Mediator.Send(command));
     }
