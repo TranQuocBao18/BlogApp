@@ -2,6 +2,7 @@ using System;
 using Blog.Infrastructure.Application.Interfaces;
 using Blog.Infrastructure.Shared.ErrorCodes;
 using Blog.Infrastructure.Shared.Wrappers;
+using Blog.Model.Dto.Application.Responses;
 using Blog.Service.Application.Interfaces;
 using MediatR;
 
@@ -41,18 +42,23 @@ public class UpdateBlogHandler : IRequestHandler<UpsertBlogCommand, Response<Gui
                 if (await _applicationUnitOfWork.BannerRepository
                     .AnyAsync(c => c.ETag == fileHash, cancellationToken))
                 {
-                    return new Response<Guid>(ErrorCodeEnum.BAN_ERR_007);
+                    var banner = _applicationUnitOfWork.BannerRepository.GetAsync(x => x.ETag == fileHash, cancellationToken);
+                    uploadedPublicId = banner.Result.PublicId;
+                    request.Payload.BannerId = banner.Result.Id;
                 }
-
-                var bannerResult = await _bannerService.UploadBannerWithoutTransactionAsync(request.BannerImage, cancellationToken);
-                if (bannerResult == null || !bannerResult.Succeeded)
+                else
                 {
-                    await _applicationUnitOfWork.RollbackAsync();
-                    return new Response<Guid>(bannerResult?.ErrorCode ?? ErrorCodeEnum.BAN_ERR_003.ToString(), bannerResult?.Message ?? "Upload banner failed");
+                    var bannerResult = await _bannerService.UploadBannerWithoutTransactionAsync(request.BannerImage, cancellationToken);
+                    if (bannerResult == null || !bannerResult.Succeeded)
+                    {
+                        await _applicationUnitOfWork.RollbackAsync();
+                        return new Response<Guid>(bannerResult?.ErrorCode ?? ErrorCodeEnum.BAN_ERR_003.ToString(), bannerResult?.Message ?? "Upload banner failed");
+                    }
+
+                    uploadedPublicId = bannerResult.Data?.PublicId;
+                    request.Payload.BannerId = bannerResult.Data.Id;
                 }
 
-                uploadedPublicId = bannerResult.Data?.PublicId;
-                request.Payload.BannerId = bannerResult.Data.Id;
 
                 blogResult = await _blogService.UpdateBlogAsync(request.Payload, cancellationToken);
                 if (blogResult == null || !blogResult.Succeeded)

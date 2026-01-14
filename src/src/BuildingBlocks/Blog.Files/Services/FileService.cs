@@ -1,5 +1,6 @@
 using System;
 using Blog.Files.Interfaces;
+using Blog.Files.MimeDetector;
 
 namespace Blog.Files.Services;
 
@@ -27,10 +28,29 @@ public class FileService : IFileService
 
     protected virtual bool CanOpen(string fileName)
     {
-        return false;
+        return MimeTypes.IsAllowedExtension(Path.GetExtension(fileName));
     }
     protected virtual bool Open(string fileName, byte[] bytes)
     {
-        return false;
+        if (bytes == null || bytes.Length == 0)
+        {
+            return false;
+        }
+
+        var fileType = MimeTypes.GetFileType(() => bytes);
+
+        if (fileType == null)
+        {
+            return false;
+        }
+
+        var ext = Path.GetExtension(fileName).TrimStart('.');
+
+        if (!string.Equals(ext, fileType.Extension, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -11,8 +11,8 @@ public class BlogRequest
     public Guid? BannerId { get; set; }
 
     // Basic info
-    public required string Title { get; set; }
-    public required string Content { get; set; }
+    public string Title { get; set; } = default!;
+    public string Content { get; set; } = default!;
     public string? Slug { get; set; }
     public string? MetaDescription { get; set; }
     public BlogStatus Status { get; set; }

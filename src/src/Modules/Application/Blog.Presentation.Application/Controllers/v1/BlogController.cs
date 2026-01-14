@@ -74,7 +74,7 @@ public class BlogController : ControllerBase
     }
 
     // POST: api/v1/<controller>/admin/search
-    [HttpPost("/admin/search")]
+    [HttpPost("admin/search")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin")]
     [ProducesResponseType(typeof(PagedResponse<IReadOnlyList<BlogResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> SearchBlogs(SearchBlogsParameter search)

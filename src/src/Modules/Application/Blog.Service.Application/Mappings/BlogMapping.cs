@@ -41,5 +41,21 @@ public class BlogMapping : Profile
             .ForMember(dest => dest.BlogTags, opt => opt.Ignore())
             .ForMember(dest => dest.Comments, opt => opt.Ignore())
             .ForMember(dest => dest.Likes, opt => opt.Ignore());
+
+        // BlogRequest → BlogEntity (for API requests)
+        CreateMap<BlogRequest, BlogEntity>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id ?? Guid.NewGuid()))
+            .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
+            .ForMember(dest => dest.BannerId, opt => opt.MapFrom(src => src.BannerId))
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+            .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+            .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Slug))
+            // .ForMember(dest => dest.MetaDescription, opt => opt.MapFrom(src => src.MetaDescription))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+            .ForMember(dest => dest.Category, opt => opt.Ignore())
+            .ForMember(dest => dest.Banner, opt => opt.Ignore())
+            .ForMember(dest => dest.BlogTags, opt => opt.Ignore())
+            .ForMember(dest => dest.Comments, opt => opt.Ignore())
+            .ForMember(dest => dest.Likes, opt => opt.Ignore());
     }
 }

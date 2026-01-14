@@ -147,14 +147,16 @@ public class BannerService : IBannerService
             }
 
             // Upload to Cloudinary
-            // Tính file hash để kiểm tra xem image này đã tồn tại chưa
             var fileHash = await CalculateFileHashAsync(imageFile);
+
+            // Reset stream position to 0 before upload to avoid "stream position changed unexpectedly" error
+            var uploadStream = imageFile.OpenReadStream();
+            uploadStream.Seek(0, SeekOrigin.Begin);
 
             var uploadParams = new ImageUploadParams()
             {
-                File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream()),
+                File = new FileDescription(imageFile.FileName, uploadStream),
                 Folder = "blog-banners",
-                Moderation = "duplicate:0.8",
                 Transformation = new Transformation()
                     .Width(1200)
                     .Height(630)
@@ -248,17 +250,22 @@ public class BannerService : IBannerService
                 }
             }
 
+            var fileHash = await CalculateFileHashAsync(imageFile);
+
+            // Reset stream position to 0 before upload to avoid "stream position changed unexpectedly" error
+            var uploadStream = imageFile.OpenReadStream();
+            uploadStream.Seek(0, SeekOrigin.Begin);
+
             var uploadParams = new ImageUploadParams()
             {
-                File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream()),
+                File = new FileDescription(imageFile.FileName, uploadStream),
                 Folder = "blog-banners",
-                Moderation = "duplicate:0.8",
                 Transformation = new Transformation()
                     .Width(1200)
                     .Height(630)
                     .Crop("fill")
                     .Quality("auto"),
-                Tags = await CalculateFileHashAsync(imageFile) // Lưu file hash để tracking
+                Tags = fileHash // Lưu file hash để tracking
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -275,7 +282,7 @@ public class BannerService : IBannerService
                 Width = uploadResult.Width,
                 Height = uploadResult.Height,
                 PublicId = uploadResult.PublicId,
-                ETag = uploadResult.Etag,
+                ETag = fileHash,
                 Created = _dateTimeService.NowUtc,
                 CreatedBy = currentUserId.ToString()
             };

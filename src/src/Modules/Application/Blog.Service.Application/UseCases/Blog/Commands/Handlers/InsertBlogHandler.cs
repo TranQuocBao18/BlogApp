@@ -36,15 +36,28 @@ public class InsertBlogHandler : IRequestHandler<UpsertBlogCommand, Response<Gui
             // upload remote image (service variant that does not control transaction)
             if (request.BannerImage != null)
             {
-                var bannerResult = await _bannerService.UploadBannerWithoutTransactionAsync(request.BannerImage, cancellationToken);
-                if (bannerResult == null || !bannerResult.Succeeded)
+                var fileHash = await _bannerService.CalculateFileHashAsync(request.BannerImage);
+
+                if (await _applicationUnitOfWork.BannerRepository
+                    .AnyAsync(c => c.ETag == fileHash, cancellationToken))
                 {
-                    await _applicationUnitOfWork.RollbackAsync();
-                    return new Response<Guid>(bannerResult?.ErrorCode ?? ErrorCodeEnum.BAN_ERR_003.ToString(), bannerResult?.Message ?? "Upload banner failed");
+                    var banner = _applicationUnitOfWork.BannerRepository.GetAsync(x => x.ETag == fileHash, cancellationToken);
+                    uploadedPublicId = banner.Result.PublicId;
+                    request.Payload.BannerId = banner.Result.Id;
+                }
+                else
+                {
+                    var bannerResult = await _bannerService.UploadBannerWithoutTransactionAsync(request.BannerImage, cancellationToken);
+                    if (bannerResult == null || !bannerResult.Succeeded)
+                    {
+                        await _applicationUnitOfWork.RollbackAsync();
+                        return new Response<Guid>(bannerResult?.ErrorCode ?? ErrorCodeEnum.BAN_ERR_003.ToString(), bannerResult?.Message ?? "Upload banner failed");
+                    }
+
+                    uploadedPublicId = bannerResult.Data?.PublicId;
+                    request.Payload.BannerId = bannerResult.Data.Id;
                 }
 
-                uploadedPublicId = bannerResult.Data?.PublicId;
-                request.Payload.BannerId = bannerResult.Data.Id;
             }
 
             var blogResult = await _blogService.CreateBlogWithoutTransactionAsync(request.Payload, cancellationToken);

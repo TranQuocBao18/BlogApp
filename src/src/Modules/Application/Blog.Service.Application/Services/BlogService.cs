@@ -109,15 +109,15 @@ public class BlogService : IBlogService
                 return new Response<Guid>(ErrorCodeEnum.CAT_ERR_001);
             }
 
-            if (blogRequest.BannerId.HasValue && blogRequest.BannerId != Guid.Empty)
-            {
-                if (!await _applicationUnitOfWork.BannerRepository
-                    .AnyAsync(b => b.Id == blogRequest.BannerId, cancellationToken))
-                {
-                    _logger.LogError($"Banner with ID {blogRequest.BannerId} not found");
-                    return new Response<Guid>(ErrorCodeEnum.BAN_ERR_001);
-                }
-            }
+            // if (blogRequest.BannerId.HasValue && blogRequest.BannerId != Guid.Empty)
+            // {
+            //     if (!await _applicationUnitOfWork.BannerRepository
+            //         .AnyAsync(b => b.Id == blogRequest.BannerId, cancellationToken))
+            //     {
+            //         _logger.LogError($"Banner with ID {blogRequest.BannerId} not found");
+            //         return new Response<Guid>(ErrorCodeEnum.BAN_ERR_001);
+            //     }
+            // }
 
             var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Title == blogRequest.Title, cancellationToken);
             if (isDuplicateTitle)
