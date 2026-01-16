@@ -21,6 +21,10 @@ public class CommentLikeConfiguration : IEntityTypeConfiguration<CommentLike>
         builder.Property(x => x.UserId)
             .HasConversion(v => v.ToString(), v => Guid.Parse(v));
 
+        // Configure IsDeleted as bit type
+        builder.Property(x => x.IsDeleted)
+            .HasColumnType("bit");
+
         // Relationships
         builder.HasOne(x => x.Comment)
             .WithMany(c => c.Likes)

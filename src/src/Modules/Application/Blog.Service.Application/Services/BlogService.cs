@@ -226,7 +226,7 @@ public class BlogService : IBlogService
         {
             var currentUserId = _securityContextAccessor.UserId;
             var (blogEntity, likeCount, isLiked) = await _applicationUnitOfWork.BlogRepository
-                .GetBySlugWithStatsAsync(slug, currentUserId, cancellationToken);
+                .GetByPredicateWithStatsAsync(x => x.Slug == slug, currentUserId, cancellationToken);
 
             if (blogEntity == null)
             {
@@ -234,10 +234,9 @@ public class BlogService : IBlogService
                 return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_001);
             }
 
-            blogEntity.LikeCount = likeCount;
-
             var blogResponse = _mapper.Map<BlogResponse>(blogEntity);
             blogResponse.IsLikeByCurrentUser = isLiked;
+            blogResponse.LikeCount = likeCount;
             return new Response<BlogResponse>(blogResponse);
         }
         catch (Exception ex)
@@ -252,7 +251,8 @@ public class BlogService : IBlogService
         try
         {
             var currentUserId = _securityContextAccessor.UserId;
-            var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(id!.Value, cancellationToken);
+            var (blogEntity, likeCount, isLiked) = await _applicationUnitOfWork.BlogRepository
+                .GetByPredicateWithStatsAsync(x => x.Id == id, currentUserId, cancellationToken);
 
             if (blogEntity == null)
             {
@@ -260,13 +260,9 @@ public class BlogService : IBlogService
                 return new Response<BlogResponse>(ErrorCodeEnum.BLOG_ERR_001);
             }
 
-            var likeCount = await _applicationUnitOfWork.BlogRepository.GetLikeCountAsync(blogEntity.Id, cancellationToken);
-            var isLiked = currentUserId != Guid.Empty &&
-                await _applicationUnitOfWork.BlogRepository.IsLikedByUserAsync(blogEntity.Id, currentUserId, cancellationToken);
-            blogEntity.LikeCount = likeCount;
-
             var blogResponse = _mapper.Map<BlogResponse>(blogEntity);
             blogResponse.IsLikeByCurrentUser = isLiked;
+            blogResponse.LikeCount = likeCount;
             return new Response<BlogResponse>(blogResponse);
         }
         catch (Exception ex)
@@ -349,15 +345,15 @@ public class BlogService : IBlogService
                 return new Response<Guid>(ErrorCodeEnum.CAT_ERR_001);
             }
 
-            if (blogRequest.BannerId.HasValue && blogRequest.BannerId != Guid.Empty)
-            {
-                if (!await _applicationUnitOfWork.BannerRepository
-                    .AnyAsync(b => b.Id == blogRequest.BannerId, cancellationToken))
-                {
-                    _logger.LogError($"Banner with ID {blogRequest.BannerId} not found");
-                    return new Response<Guid>(ErrorCodeEnum.BAN_ERR_001);
-                }
-            }
+            // if (blogRequest.BannerId.HasValue && blogRequest.BannerId != Guid.Empty)
+            // {
+            //     if (!await _applicationUnitOfWork.BannerRepository
+            //         .AnyAsync(b => b.Id == blogRequest.BannerId, cancellationToken))
+            //     {
+            //         _logger.LogError($"Banner with ID {blogRequest.BannerId} not found");
+            //         return new Response<Guid>(ErrorCodeEnum.BAN_ERR_001);
+            //     }
+            // }
 
             var isDuplicateTitle = await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Title == blogRequest.Title && x.Id != blogRequest.Id, cancellationToken);
             if (isDuplicateTitle)

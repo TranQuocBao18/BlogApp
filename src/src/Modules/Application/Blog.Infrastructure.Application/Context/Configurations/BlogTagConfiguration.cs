@@ -21,6 +21,10 @@ public class BlogTagConfiguration : IEntityTypeConfiguration<BlogTag>
         builder.Property(x => x.TagId)
             .HasConversion(v => v.ToString(), v => Guid.Parse(v));
 
+        // Configure IsDeleted as bit type
+        builder.Property(x => x.IsDeleted)
+            .HasColumnType("bit");
+
         // Relationships
         builder.HasOne(x => x.Blog)
             .WithMany(b => b.BlogTags)

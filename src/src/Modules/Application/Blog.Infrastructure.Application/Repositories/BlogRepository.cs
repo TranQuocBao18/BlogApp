@@ -47,42 +47,32 @@ public class BlogRepository : GenericRepositoryAsync<BlogEntity, Guid>, IBlogRep
     //         .FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
     // }
 
-    public async Task<(BlogEntity? blog, int likeCount, bool isLiked)> GetBySlugWithStatsAsync(
-        string slug,
+    public async Task<(BlogEntity? blog, int likeCount, bool isLiked)> GetByPredicateWithStatsAsync(
+        Expression<Func<BlogEntity, bool>> predicate,
         Guid? currentUserId,
         CancellationToken cancellationToken = default)
     {
-        // Single query với subqueries
-        var result = await Query()
-            .Where(b => b.Slug == slug)
-            .Select(b => new
-            {
-                Blog = b,
-                LikeCount = b.Likes.Count(),
-                IsLiked = currentUserId.HasValue &&
-                    b.Likes.Any(l => l.UserId == currentUserId.Value)
-            })
+        var result = await _dbContext.Set<BlogEntity>()
+            .Where(predicate)
+            .Include(b => b.Category)
+            .Include(b => b.Banner)
+            .Include(b => b.BlogTags)
+                .ThenInclude(bt => bt.Tag)
+            .AsNoTracking()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (result == null)
             return (null, 0, false);
 
-        // Load relationships
-        await _dbContext.Entry(result.Blog)
-            .Reference(b => b.Category)
-            .LoadAsync(cancellationToken);
+        var likeCount = await _dbContext.Set<BlogLike>()
+            .Where(l => l.BlogId == result.Id && !l.IsDeleted)
+            .CountAsync(cancellationToken);
 
-        await _dbContext.Entry(result.Blog)
-            .Reference(b => b.Banner)
-            .LoadAsync(cancellationToken);
+        var isLiked = currentUserId.HasValue &&
+            await _dbContext.Set<BlogLike>()
+                .AnyAsync(l => l.BlogId == result.Id && l.UserId == currentUserId.Value && !l.IsDeleted, cancellationToken);
 
-        await _dbContext.Entry(result.Blog)
-            .Collection(b => b.BlogTags)
-            .Query()
-            .Include(bt => bt.Tag)
-            .LoadAsync(cancellationToken);
-
-        return (result.Blog, result.LikeCount, result.IsLiked);
+        return (result, likeCount, isLiked);
     }
 
     public async Task<List<BlogEntity>> GetPublishedBlogsAsync(

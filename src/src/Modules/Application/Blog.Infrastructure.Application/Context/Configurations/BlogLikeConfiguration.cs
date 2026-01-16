@@ -21,6 +21,10 @@ public class BlogLikeConfiguration : IEntityTypeConfiguration<BlogLike>
         builder.Property(x => x.UserId)
             .HasConversion(v => v.ToString(), v => Guid.Parse(v));
 
+        // Configure IsDeleted as bit type
+        builder.Property(x => x.IsDeleted)
+            .HasColumnType("bit");
+
         builder.HasIndex(x => new { x.BlogId, x.UserId })
             .IsUnique();
 

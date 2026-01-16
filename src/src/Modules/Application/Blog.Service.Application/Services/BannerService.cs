@@ -341,6 +341,34 @@ public class BannerService : IBannerService
         }
     }
 
+    public async Task<Response<bool>> DeleteBannerByIdWithoutTransactionAsync(Guid? id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var currentUserId = _securityContextAccessor.UserId;
+
+            var bannerEntity = await _applicationUnitOfWork.BannerRepository.GetByIdAsync(id!.Value, cancellationToken);
+            if (bannerEntity == null)
+            {
+                _logger.LogError("Banner not found");
+                return new Response<bool>(ErrorCodeEnum.BAN_ERR_001);
+            }
+
+            bannerEntity.LastModified = _dateTimeService.NowUtc;
+            bannerEntity.LastModifiedBy = currentUserId.ToString();
+
+            await _applicationUnitOfWork.BannerRepository.SoftDeleteAsync(bannerEntity, cancellationToken, true);
+
+            return new Response<bool>(true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            await _applicationUnitOfWork.RollbackAsync();
+            throw new ApiException(ex.Message);
+        }
+    }
+
     public async Task<Response<Guid>> UpdateBannerAsync(BannerRequest bannerRequest, CancellationToken cancellationToken)
     {
         await _applicationUnitOfWork.BeginTransactionAsync();

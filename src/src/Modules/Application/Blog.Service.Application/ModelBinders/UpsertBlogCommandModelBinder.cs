@@ -30,10 +30,26 @@ public class UpsertBlogCommandModelBinder : IModelBinder
         {
             try
             {
-                var jsonString = payloadValue.ToString();
-                _logger.LogInformation($"Payload JSON: {jsonString}");
+                var jsonString = payloadValue.ToString()?.Trim();
+                _logger.LogInformation($"Payload JSON length: {jsonString?.Length ?? 0}");
+                _logger.LogInformation($"Payload JSON (first 500 chars): {jsonString?.Substring(0, Math.Min(500, jsonString?.Length ?? 0))}");
+
                 if (!string.IsNullOrEmpty(jsonString))
                 {
+                    // Validate JSON format before deserialization
+                    try
+                    {
+                        using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
+                        _logger.LogInformation("Payload JSON validation passed");
+                    }
+                    catch (JsonException parseEx)
+                    {
+                        _logger.LogError($"Payload JSON validation error at position {parseEx.BytePositionInLine}: {parseEx.Message}. Raw payload: {jsonString}");
+                        bindingContext.ModelState.AddModelError("Payload", $"Invalid JSON format: {parseEx.GetType().Name} - {parseEx.Message}");
+                        bindingContext.Result = ModelBindingResult.Success(command);
+                        return;
+                    }
+
                     command.Payload = JsonSerializer.Deserialize<BlogRequest>(jsonString, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
@@ -42,8 +58,13 @@ public class UpsertBlogCommandModelBinder : IModelBinder
             }
             catch (JsonException ex)
             {
-                _logger.LogError($"Payload JSON parse error: {ex.Message}");
+                _logger.LogError($"Payload deserialization error: {ex.Message}");
                 bindingContext.ModelState.AddModelError("Payload", $"Invalid JSON format: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unexpected error parsing payload: {ex.Message}");
+                bindingContext.ModelState.AddModelError("Payload", $"Error parsing payload: {ex.Message}");
             }
         }
 

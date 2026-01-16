@@ -27,6 +27,10 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
                 v => string.IsNullOrEmpty(v) ? (Guid?)null : Guid.Parse(v)
             );
 
+        // Configure IsDeleted as bit type
+        builder.Property(x => x.IsDeleted)
+            .HasColumnType("bit");
+
         // Self-referencing relationship
         builder.HasOne(x => x.ParentComment)
             .WithMany(c => c.ChildComments)

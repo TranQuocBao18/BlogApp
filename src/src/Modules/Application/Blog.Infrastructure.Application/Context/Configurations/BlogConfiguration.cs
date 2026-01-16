@@ -21,6 +21,17 @@ public class BlogConfiguration : IEntityTypeConfiguration<BlogEntity>
         builder.Property(x => x.BannerId)
             .HasConversion(v => v.ToString(), v => Guid.Parse(v));
 
+        // Configure Status enum conversion
+        builder.Property(x => x.Status)
+            .HasConversion<int>();
+
+        // Configure IsDeleted as bit type
+        builder.Property(x => x.IsDeleted)
+            .HasColumnType("bit");
+
+        builder.Property(x => x.LikeCount)
+            .HasColumnType("int");
+
         // Relationships
         builder.HasOne(x => x.Category)
             .WithMany(c => c.Blogs)

@@ -14,5 +14,6 @@ public interface IBannerService
     Task DeleteRemoteByPublicIdAsync(string publicId, CancellationToken cancellationToken);
     Task<Response<Guid>> UpdateBannerAsync(BannerRequest bannerRequest, CancellationToken cancellationToken);
     Task<Response<bool>> DeleteBannerByIdAsync(Guid? id, CancellationToken cancellationToken);
+    Task<Response<bool>> DeleteBannerByIdWithoutTransactionAsync(Guid? id, CancellationToken cancellationToken);
     Task<string> CalculateFileHashAsync(IFormFile file);
 }
