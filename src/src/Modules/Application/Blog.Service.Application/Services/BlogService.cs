@@ -192,7 +192,6 @@ public class BlogService : IBlogService
 
     public async Task<Response<bool>> DeleteBlogAsync(Guid? id, CancellationToken cancellationToken)
     {
-        await _applicationUnitOfWork.BeginTransactionAsync();
         try
         {
             var currentUserId = _securityContextAccessor.UserId;
@@ -208,14 +207,12 @@ public class BlogService : IBlogService
             blogEntity.LastModifiedBy = currentUserId.ToString();
 
             await _applicationUnitOfWork.BlogRepository.SoftDeleteAsync(blogEntity, cancellationToken, true);
-            await _applicationUnitOfWork.CommitAsync();
 
             return new Response<bool>(true);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            await _applicationUnitOfWork.RollbackAsync();
             throw new ApiException(ex.Message);
         }
     }
@@ -363,24 +360,31 @@ public class BlogService : IBlogService
             }
             var currentUserId = _securityContextAccessor.UserId;
 
-            // Generate slug from title and ensure uniqueness
-            var baseSlug = StringUtils.GenerateSlug(blogRequest.Title, 450);
-            var slug = baseSlug;
-            if (string.IsNullOrWhiteSpace(slug))
+            if (blogEntity.Title != blogRequest.Title)
             {
-                slug = Guid.NewGuid().ToString();
-            }
-
-            var suffix = 1;
-            while (await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Slug == slug, cancellationToken))
-            {
-                slug = string.Concat(baseSlug, "-", suffix++);
-                if (slug.Length > 450)
+                // Generate slug from title and ensure uniqueness
+                var baseSlug = StringUtils.GenerateSlug(blogRequest.Title, 450);
+                var slug = baseSlug;
+                if (string.IsNullOrWhiteSpace(slug))
                 {
-                    slug = slug.Substring(0, 450).Trim('-');
+                    slug = Guid.NewGuid().ToString();
                 }
+
+                var suffix = 1;
+                while (await _applicationUnitOfWork.BlogRepository.AnyAsync(x => x.Slug == slug, cancellationToken))
+                {
+                    slug = string.Concat(baseSlug, "-", suffix++);
+                    if (slug.Length > 450)
+                    {
+                        slug = slug.Substring(0, 450).Trim('-');
+                    }
+                }
+                blogEntity.Slug = slug;
             }
-            blogEntity.Slug = slug;
+            else
+            {
+                blogEntity.Slug = blogRequest.Slug;
+            }
 
             blogEntity.Title = blogRequest.Title;
             blogEntity.Content = blogRequest.Content;

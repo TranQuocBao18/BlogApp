@@ -364,7 +364,6 @@ public class BannerService : IBannerService
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            await _applicationUnitOfWork.RollbackAsync();
             throw new ApiException(ex.Message);
         }
     }
