@@ -10,7 +10,7 @@ using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-namespace Blog.Service.Communication.Services.Consumer;
+namespace Blog.Infrastructure.Communication.Consumer;
 
 public class CommentCreatedConsumer : IConsumer<CommentCreatedIntegrationEvent>
 {

@@ -17,7 +17,6 @@
     <Folder Include="Interfaces\" />
     <Folder Include="Mappings\" />
     <Folder Include="Services\" />
-    <Folder Include="Services\Consumer\" />
     <Folder Include="UseCases\" />
     <Folder Include="UseCases\NotificationMessage\" />
     <Folder Include="UseCases\NotificationMessage\Commands\" />
