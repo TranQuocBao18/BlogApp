@@ -35,7 +35,12 @@ public abstract class BaseHub : Hub
     public override async Task OnConnectedAsync()
     {
         var userId = Context.User?.FindFirst("uid")?.Value;
-        Console.WriteLine("Connected UserId: " + userId);
+        _logger.LogInformation($"=== SignalR OnConnectedAsync ===");
+        _logger.LogInformation($"ConnectionId: {Context.ConnectionId}");
+        _logger.LogInformation($"UserId from token (uid): {userId}");
+        _logger.LogInformation($"IsAuthenticated: {Context.User?.Identity?.IsAuthenticated}");
+        _logger.LogInformation($"All claims: {string.Join(", ", Context.User?.Claims?.Select(c => $"{c.Type}={c.Value}") ?? Array.Empty<string>())}");
+
         await base.OnConnectedAsync();
         var client = CreateClient();
         _logger.LogInformation($"A client is connected, client = {JsonConvert.SerializeObject(client)}");

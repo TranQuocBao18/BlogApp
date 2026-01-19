@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR Test Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        input, button { padding: 10px; margin: 5px 0; }
+        input { width: 100%; box-sizing: border-box; }
+        button { cursor: pointer; background: #007bff; color: white; border: none; }
+        button:hover { background: #0056b3; }
+        #status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; background: #f9f9f9; }
+        .message { padding: 5px; margin: 5px 0; background: white; border-left: 3px solid #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SignalR Test Client</h1>
+
+        <div>
+            <label>Hub URL:</label>
+            <input type="text" id="hubUrl" value="http://localhost:5000/api/hubs" />
+        </div>
+
+        <div>
+            <label>Access Token (JWT):</label>
+            <input type="text" id="accessToken" placeholder="Paste your JWT token here" />
+        </div>
+
+        <div>
+            <button onclick="connect()">Connect</button>
+            <button onclick="disconnect()">Disconnect</button>
+        </div>
+
+        <div id="status" class="disconnected">Disconnected</div>
+
+        <h3>Messages:</h3>
+        <div id="messages"></div>
+
+        <button onclick="clearMessages()">Clear Messages</button>
+    </div>
+
+    <script>
+        let connection = null;
+
+        function log(message, data = null) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            const time = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `<strong>[${time}]</strong> ${message}`;
+            if (data) {
+                messageDiv.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateStatus(connected) {
+            const statusDiv = document.getElementById('status');
+            if (connected) {
+                statusDiv.textContent = 'Connected';
+                statusDiv.className = 'connected';
+            } else {
+                statusDiv.textContent = 'Disconnected';
+                statusDiv.className = 'disconnected';
+            }
+        }
+
+        async function connect() {
+            const hubUrl = document.getElementById('hubUrl').value;
+            const accessToken = document.getElementById('accessToken').value;
+
+            try {
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl(hubUrl, {
+                        accessTokenFactory: () => accessToken
+                    })
+                    .withAutomaticReconnect()
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
+
+                // Listen for NOTIFICATION event
+                connection.on("NOTIFICATION", (data) => {
+                    log("Received NOTIFICATION:", data);
+                });
+
+                // Listen for ReceiveMessage event
+                connection.on("ReceiveMessage", (data) => {
+                    log("Received ReceiveMessage:", data);
+                });
+
+                // Listen for all possible event names
+                connection.on("LikeCreated", (data) => {
+                    log("Received LikeCreated:", data);
+                });
+
+                connection.on("CommentCreated", (data) => {
+                    log("Received CommentCreated:", data);
+                });
+
+                connection.onclose((error) => {
+                    log("Connection closed", error);
+                    updateStatus(false);
+                });
+
+                connection.onreconnecting((error) => {
+                    log("Reconnecting...", error);
+                });
+
+                connection.onreconnected((connectionId) => {
+                    log("Reconnected with connectionId: " + connectionId);
+                    updateStatus(true);
+                });
+
+                await connection.start();
+                log("Connected successfully! ConnectionId: " + connection.connectionId);
+                updateStatus(true);
+
+            } catch (err) {
+                log("Connection failed: " + err.message);
+                updateStatus(false);
+            }
+        }
+
+        async function disconnect() {
+            if (connection) {
+                await connection.stop();
+                log("Disconnected");
+                updateStatus(false);
+            }
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
