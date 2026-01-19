@@ -4,7 +4,7 @@ using Blog.Domain.Communication.Enums;
 using Blog.Domain.Shared.Contracts;
 using Blog.Infrastructure.Communication.Interfaces;
 using Blog.Shared.Notification;
-using Blog.SignalR.Notifications;
+using Blog.SignalR.Core;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
@@ -13,17 +13,17 @@ namespace Blog.Infrastructure.Communication.Consumer;
 public class LikeCreatedConsumer : IConsumer<LikeCreatedIntegrationEvent>
 {
     private readonly ICommunicationUnitOfWork _communicationUnitOfWork;
-    private readonly SignalRRealTimeNotifier _signalRRealTimeNotifier;
+    private readonly IRealTimeNotifier _realTimeNotifier;
     private readonly ILogger<LikeCreatedConsumer> _logger;
 
     public LikeCreatedConsumer(
         ICommunicationUnitOfWork communicationUnitOfWork,
-        SignalRRealTimeNotifier signalRRealTimeNotifier,
+        IRealTimeNotifier realTimeNotifier,
         ILogger<LikeCreatedConsumer> logger
     )
     {
         _communicationUnitOfWork = communicationUnitOfWork;
-        _signalRRealTimeNotifier = signalRRealTimeNotifier;
+        _realTimeNotifier = realTimeNotifier;
         _logger = logger;
     }
 
@@ -62,7 +62,7 @@ public class LikeCreatedConsumer : IConsumer<LikeCreatedIntegrationEvent>
             };
 
             _logger.LogInformation($"Sending SignalR notification to user: {evenData.BlogAuthorId}");
-            await _signalRRealTimeNotifier.SendNotification(new[] { userNotification });
+            await _realTimeNotifier.SendNotification(new[] { userNotification });
             _logger.LogInformation($"Notification sent to user: {evenData.BlogAuthorId}");
             _logger.LogInformation("=== LikeCreatedConsumer.Consume COMPLETED ===");
         }

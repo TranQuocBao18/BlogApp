@@ -4,8 +4,7 @@ using Blog.Domain.Communication.Enums;
 using Blog.Domain.Shared.Contracts;
 using Blog.Infrastructure.Communication.Interfaces;
 using Blog.Shared.Notification;
-using Blog.SignalR.Hubs;
-using Blog.SignalR.Notifications;
+using Blog.SignalR.Core;
 using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -15,18 +14,18 @@ namespace Blog.Infrastructure.Communication.Consumer;
 public class CommentCreatedConsumer : IConsumer<CommentCreatedIntegrationEvent>
 {
     private readonly ICommunicationUnitOfWork _communicationUnitOfWork;
-    private readonly SignalRRealTimeNotifier _signalRRealTimeNotifier;
+    private readonly IRealTimeNotifier _realTimeNotifier;
     private readonly ILogger<CommentCreatedConsumer> _logger;
 
     public CommentCreatedConsumer(
         ICommunicationUnitOfWork communicationUnitOfWork,
         ILogger<CommentCreatedConsumer> logger,
-        SignalRRealTimeNotifier signalRRealTimeNotifier
+        IRealTimeNotifier realTimeNotifier
     )
     {
         _communicationUnitOfWork = communicationUnitOfWork;
         _logger = logger;
-        _signalRRealTimeNotifier = signalRRealTimeNotifier;
+        _realTimeNotifier = realTimeNotifier;
     }
 
     public async Task Consume(ConsumeContext<CommentCreatedIntegrationEvent> context)
@@ -58,7 +57,7 @@ public class CommentCreatedConsumer : IConsumer<CommentCreatedIntegrationEvent>
                 CreationTime = DateTime.UtcNow
             };
 
-            await _signalRRealTimeNotifier.SendNotification(new[] { userNotification });
+            await _realTimeNotifier.SendNotification(new[] { userNotification });
             _logger.LogInformation($"Notification sent to user: {evenData.BlogAuthorId}");
         }
         else
@@ -85,7 +84,7 @@ public class CommentCreatedConsumer : IConsumer<CommentCreatedIntegrationEvent>
                 CreationTime = DateTime.UtcNow
             };
 
-            await _signalRRealTimeNotifier.SendNotification(new[] { userNotification });
+            await _realTimeNotifier.SendNotification(new[] { userNotification });
             _logger.LogInformation($"Notification sent to user: {evenData.ParentId}");
         }
 

@@ -4,7 +4,7 @@ using Blog.Domain.Communication.Enums;
 using Blog.Domain.Shared.Contracts;
 using Blog.Infrastructure.Communication.Interfaces;
 using Blog.Shared.Notification;
-using Blog.SignalR.Notifications;
+using Blog.SignalR.Core;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
@@ -13,17 +13,17 @@ namespace Blog.Infrastructure.Communication.Consumer;
 public class CommentLikeCreatedConsumer : IConsumer<CommentLikeCreatedIntegrationEvent>
 {
     private readonly ICommunicationUnitOfWork _communicationUnitOfWork;
-    private readonly SignalRRealTimeNotifier _signalRRealTimeNotifier;
+    private readonly IRealTimeNotifier _realTimeNotifier;
     private readonly ILogger<CommentLikeCreatedConsumer> _logger;
 
     public CommentLikeCreatedConsumer(
         ICommunicationUnitOfWork communicationUnitOfWork,
-        SignalRRealTimeNotifier signalRRealTimeNotifier,
+        IRealTimeNotifier realTimeNotifier,
         ILogger<CommentLikeCreatedConsumer> logger
     )
     {
         _communicationUnitOfWork = communicationUnitOfWork;
-        _signalRRealTimeNotifier = signalRRealTimeNotifier;
+        _realTimeNotifier = realTimeNotifier;
         _logger = logger;
     }
 
@@ -54,7 +54,7 @@ public class CommentLikeCreatedConsumer : IConsumer<CommentLikeCreatedIntegratio
             CreationTime = DateTime.UtcNow
         };
 
-        await _signalRRealTimeNotifier.SendNotification(new[] { userNotification });
+        await _realTimeNotifier.SendNotification(new[] { userNotification });
         _logger.LogInformation($"Notification sent to user: {evenData.CommentAuthorId}");
     }
 }
