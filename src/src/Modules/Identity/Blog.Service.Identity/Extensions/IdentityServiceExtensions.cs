@@ -8,6 +8,7 @@ using Blog.Infrastructure.Shared.Wrappers;
 using Blog.Service.Identity.Interfaces;
 using Blog.Service.Identity.Services;
 using Blog.Shared.Auth;
+using Blog.SignalR.Extensions;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -72,6 +73,7 @@ public static class IdentityServiceExtensions
                     return context.Response.WriteAsync(result);
                 },
             };
+            o.HandleSignalRAuthorizeToken();
         });
     }
 

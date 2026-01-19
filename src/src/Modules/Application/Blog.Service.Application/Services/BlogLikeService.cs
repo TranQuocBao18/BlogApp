@@ -31,6 +31,7 @@ public class BlogLikeService : IBlogLikeService
         ISecurityContextAccessor securityContextAccessor,
         IApplicationUnitOfWork applicationUnitOfWork,
         IDateTimeService dateTimeService,
+        IPublishEndpoint publishEndpoint,
         ILogger<BlogLikeService> logger
         )
     {
@@ -38,6 +39,7 @@ public class BlogLikeService : IBlogLikeService
         _applicationUnitOfWork = applicationUnitOfWork;
         _securityContextAccessor = securityContextAccessor;
         _dateTimeService = dateTimeService;
+        _publishEndpoint = publishEndpoint;
         _logger = logger;
     }
 
@@ -46,6 +48,7 @@ public class BlogLikeService : IBlogLikeService
         await _applicationUnitOfWork.BeginTransactionAsync();
         try
         {
+            _logger.LogInformation("[ToggleLikeAsync] START - BlogId={BlogId}", blogId);
             var blogEntity = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(blogId, cancellationToken);
             if (blogEntity == null)
             {
@@ -81,6 +84,10 @@ public class BlogLikeService : IBlogLikeService
 
                 isLikedNow = true;
 
+                _logger.LogInformation("[BlogLikeService] Publishing LikeCreatedIntegrationEvent...");
+                _logger.LogInformation($"[BlogLikeService] BlogId={blogId}, AuthorId={currentUserId}, AuthorName={currentUserName}, BlogAuthorId={blogEntity.CreatedBy}");
+                _logger.LogInformation($"[BlogLikeService] Event Type: {typeof(LikeCreatedIntegrationEvent).FullName}");
+
                 await _publishEndpoint.Publish(new LikeCreatedIntegrationEvent
                 {
                     BlogId = blogId,
@@ -88,6 +95,8 @@ public class BlogLikeService : IBlogLikeService
                     AuthorName = currentUserName,
                     BlogAuthorId = blogEntity.CreatedBy!.AsGuid()
                 });
+
+                _logger.LogInformation("[BlogLikeService] LikeCreatedIntegrationEvent published successfully");
             }
             await _applicationUnitOfWork.BlogRepository.UpdateAsync(blogEntity, cancellationToken, true);
             await _applicationUnitOfWork.CommitAsync();

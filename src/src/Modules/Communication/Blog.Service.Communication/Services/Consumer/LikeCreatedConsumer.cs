@@ -32,29 +32,46 @@ public class LikeCreatedConsumer : IConsumer<LikeCreatedIntegrationEvent>
         var cancellationToken = context.CancellationToken;
         var evenData = context.Message;
 
-        var notification = new NotificationMessage
+        _logger.LogInformation("=== LikeCreatedConsumer.Consume START ===");
+        _logger.LogInformation($"Event received: BlogId={evenData.BlogId}, AuthorId={evenData.AuthorId}, BlogAuthorId={evenData.BlogAuthorId}");
+
+        try
         {
-            Title = "Someone has liked your blog!",
-            NotificationType = NotificationType.User,
-            ContentNotify = $"{evenData.AuthorName} has just liked your blog",
-            ReferenceData = evenData.BlogId.ToString()
-        };
+            var notification = new NotificationMessage
+            {
+                Title = "Someone has liked your blog!",
+                NotificationType = NotificationType.User,
+                ContentNotify = $"{evenData.AuthorName} has just liked your blog",
+                ReferenceData = evenData.BlogId.ToString()
+            };
 
-        await _communicationUnitOfWork.NotificationMessageRepository.AddUsersNotificationAsync(
-                userIds: new[] { evenData.BlogAuthorId!.Value },
-                notification,
-                cancellationToken
-            );
-        _logger.LogInformation("Notification saved to db successfully");
+            _logger.LogInformation($"Notification message created: {notification.Title}");
 
-        var userNotification = new UserNotification<NotificationMessage>(evenData.BlogAuthorId.Value.ToString())
+            await _communicationUnitOfWork.NotificationMessageRepository.AddUsersNotificationAsync(
+                    userIds: new[] { evenData.BlogAuthorId!.Value },
+                    notification,
+                    cancellationToken
+                );
+            _logger.LogInformation("Notification saved to db successfully");
+
+            var userNotification = new UserNotification<NotificationMessage>(evenData.BlogAuthorId.Value.ToString())
+            {
+                Type = "LikeCreated",
+                Data = notification,
+                CreationTime = DateTime.UtcNow
+            };
+
+            _logger.LogInformation($"Sending SignalR notification to user: {evenData.BlogAuthorId}");
+            await _signalRRealTimeNotifier.SendNotification(new[] { userNotification });
+            _logger.LogInformation($"Notification sent to user: {evenData.BlogAuthorId}");
+            _logger.LogInformation("=== LikeCreatedConsumer.Consume COMPLETED ===");
+        }
+        catch (Exception ex)
         {
-            Type = "LikeCreated",
-            Data = notification,
-            CreationTime = DateTime.UtcNow
-        };
-
-        await _signalRRealTimeNotifier.SendNotification(new[] { userNotification });
-        _logger.LogInformation($"Notification sent to user: {evenData.BlogAuthorId}");
+            _logger.LogError($"=== LikeCreatedConsumer.Consume ERROR ===");
+            _logger.LogError($"Exception: {ex.Message}");
+            _logger.LogError($"StackTrace: {ex.StackTrace}");
+            throw;
+        }
     }
 }

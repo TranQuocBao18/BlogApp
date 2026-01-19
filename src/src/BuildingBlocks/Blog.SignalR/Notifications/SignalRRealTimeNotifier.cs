@@ -70,13 +70,18 @@ public class SignalRRealTimeNotifier : IRealTimeNotifier
 
     private async Task SendNotification2Client(IUserNotification notification, IOnlineClient client)
     {
+        _logger.LogInformation($"[SendNotification2Client] Attempting to send to ConnectionId: {client.ConnectionId}, UserId: {client.UserId}");
+
         var signalRClient = _hubContext.Clients.Client(client.ConnectionId);
         if (signalRClient == null)
         {
-            _logger.LogDebug($"Can't get Connection {client.ConnectionId} of user {notification.UserId}");
+            _logger.LogWarning($"[SendNotification2Client] Can't get Connection {client.ConnectionId} of user {notification.UserId}");
             return;
         }
+
+        _logger.LogInformation($"[SendNotification2Client] Sending '{REALTIME_NOTIFICATION_KEY}' to {client.ConnectionId}");
         await signalRClient.SendAsync(REALTIME_NOTIFICATION_KEY, notification);
+        _logger.LogInformation($"[SendNotification2Client] Successfully sent to {client.ConnectionId}");
     }
 
     private IReadOnlyList<IOnlineClient> GetOnlineClientsByNotification(IUserNotification notification)
