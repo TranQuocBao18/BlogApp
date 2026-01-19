@@ -22,12 +22,8 @@ public static class CustomSignalRExtension
         {
             builder.AllowAnyMethod()
                 .AllowAnyHeader()
-                .WithOrigins(signalROptions.AllowOrigins.Split(";"));
-
-            if (signalROptions.AllowOrigins == "*")
-            {
-                builder.SetIsOriginAllowed(host => true);
-            }
+                .AllowCredentials()
+                .SetIsOriginAllowed(origin => true);
         }));
 
         //Use to set HubCallerContext.UserIdentifier from ClaimTypes.NameIdentifier in DefaultUserIdProvider
