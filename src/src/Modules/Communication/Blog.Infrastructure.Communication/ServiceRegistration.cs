@@ -2,6 +2,7 @@ using System;
 using Blog.Domain.Shared.Contracts;
 using Blog.EventBus.Extensions;
 using Blog.Infrastructure.Communication.Contexts;
+using Blog.Infrastructure.Communication.Consumer;
 using Blog.Infrastructure.Communication.Interfaces;
 using Blog.Infrastructure.Communication.Repositories;
 using Blog.Infrastructure.Communication.UnitOfWorks;
@@ -37,7 +38,7 @@ public static class ServiceRegistration
         services.AddTransient(typeof(IGenericRepository<,>), typeof(GenericRepositoryAsync<,>));
         services.AddTransient<INotificationMessageRepository, NotificationMessageRepository>();
 
-        services.AddMessaging(configuration, typeof(ICommunicationServiceMarker).Assembly);
+        services.AddMessaging(configuration, typeof(LikeCreatedConsumer).Assembly);
         services.AddNotificationSignalR(configuration);
     }
 }
