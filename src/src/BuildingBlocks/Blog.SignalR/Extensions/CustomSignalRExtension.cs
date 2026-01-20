@@ -22,11 +22,16 @@ public static class CustomSignalRExtension
         {
             builder.AllowAnyMethod()
                 .AllowAnyHeader()
-                .WithOrigins(signalROptions.AllowOrigins.Split(";"));
+                // .WithOrigins(signalROptions.AllowOrigins.Split(";"))
+                .AllowCredentials();
 
             if (signalROptions.AllowOrigins == "*")
             {
                 builder.SetIsOriginAllowed(host => true);
+            }
+            else
+            {
+                builder.WithOrigins(signalROptions.AllowOrigins.Split(";"));
             }
         }));
 

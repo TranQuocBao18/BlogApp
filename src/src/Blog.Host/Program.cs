@@ -16,19 +16,19 @@ var AllowSpecificOrigins = "_AllowSpecificOrigins";
 var configuration = builder.Configuration;
 var environment = builder.Environment;
 
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(
-        policy =>
-        {
-            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-        });
-    options.AddPolicy(name: AllowSpecificOrigins,
-        policy =>
-        {
-            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-        });
-});
+// builder.Services.AddCors(options =>
+// {
+//     options.AddDefaultPolicy(
+//         policy =>
+//         {
+//             policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+//         });
+//     options.AddPolicy(name: AllowSpecificOrigins,
+//         policy =>
+//         {
+//             policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+//         });
+// });
 
 builder.Services.Configure<CookieAuthenticationOptions>(o =>
 {
@@ -80,10 +80,12 @@ app.UseRouting();
 
 // app.UseStaticFiles();
 
-app.UseCors(corsPolicyBuilder =>
-   corsPolicyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
-);
-app.UseCors(AllowSpecificOrigins);
+// app.UseCors(corsPolicyBuilder =>
+//    corsPolicyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
+// );
+// app.UseCors(AllowSpecificOrigins);
+
+app.UseCors("SignalRCorsPolicy");
 
 app.UseSession();
 app.UseAuthentication();

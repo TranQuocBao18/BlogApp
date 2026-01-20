@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Blog Notification Tester</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.25/signalr.min.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f4f4f9;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+      }
+
+      /* Input Styles */
+      .input-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #34495e;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      /* Button Styles */
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s;
+      }
+      #btnConnect {
+        background-color: #27ae60;
+        color: white;
+      }
+      #btnConnect:hover {
+        background-color: #219150;
+      }
+      #btnClear {
+        background-color: #95a5a6;
+        color: white;
+        float: right;
+      }
+
+      /* Notification Box */
+      #notification-area {
+        margin-top: 20px;
+      }
+      .noti-card {
+        background: #e8f6f3;
+        border-left: 5px solid #1abc9c;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        animation: slideIn 0.3s ease-out;
+      }
+      .noti-title {
+        font-weight: bold;
+        font-size: 1.1em;
+        color: #16a085;
+      }
+      .noti-body {
+        margin-top: 5px;
+        color: #555;
+      }
+      .noti-time {
+        font-size: 0.8em;
+        color: #7f8c8d;
+        margin-top: 8px;
+        text-align: right;
+      }
+      .raw-json {
+        font-size: 0.75em;
+        color: #999;
+        margin-top: 5px;
+        font-family: monospace;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .status-connected {
+        color: green;
+        font-weight: bold;
+      }
+      .status-disconnected {
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>🔔 Realtime Notification Receiver</h2>
+
+      <div class="input-group">
+        <label>1. Nhập Token của người NHẬN thông báo (Ví dụ: User A):</label>
+        <input
+          type="text"
+          id="token"
+          placeholder="Paste Access Token here..."
+        />
+      </div>
+
+      <button id="btnConnect" onclick="toggleConnection()">
+        KẾT NỐI SOCKET
+      </button>
+      <span id="status" style="margin-left: 10px"
+        >Trạng thái: Disconnected</span
+      >
+
+      <hr />
+
+      <button
+        id="btnClear"
+        onclick="document.getElementById('notification-area').innerHTML = ''"
+      >
+        Xóa Log
+      </button>
+      <h3>Danh sách thông báo nhận được:</h3>
+      <div id="notification-area">
+        <div style="color: #ccc; font-style: italic">
+          Chưa có thông báo nào...
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let connection = null;
+
+      async function toggleConnection() {
+        const token = document.getElementById("token").value.trim();
+        const btn = document.getElementById("btnConnect");
+        const statusLabel = document.getElementById("status");
+        const notiArea = document.getElementById("notification-area");
+
+        // Xử lý Ngắt kết nối
+        if (
+          connection &&
+          connection.state === signalR.HubConnectionState.Connected
+        ) {
+          await connection.stop();
+          btn.innerText = "KẾT NỐI SOCKET";
+          btn.style.backgroundColor = "#27ae60";
+          statusLabel.innerText = "Trạng thái: Disconnected";
+          statusLabel.className = "status-disconnected";
+          return;
+        }
+
+        if (!token) return alert("Vui lòng nhập Token!");
+
+        // 1. Cấu hình kết nối
+        connection = new signalR.HubConnectionBuilder()
+          .withUrl("http://localhost:5151/api/hubs", {
+            accessTokenFactory: () => token,
+          })
+          .withAutomaticReconnect()
+          .build();
+
+        // 2. Hứng sự kiện "ReceiveMessage" (Dùng cho Group/User notification)
+        // Backend gọi: await _hubContext.Clients.Group(userId).SendAsync("ReceiveMessage", notification);
+        connection.on("ReceiveMessage", (data) => {
+          renderNotification(data);
+        });
+
+        // 3. Hứng sự kiện "NOTIFICATION" (Dùng cho manual client list)
+        connection.on("NOTIFICATION", (data) => {
+          renderNotification(data);
+        });
+
+        // 4. Bắt đầu kết nối
+        try {
+          await connection.start();
+          btn.innerText = "NGẮT KẾT NỐI";
+          btn.style.backgroundColor = "#c0392b";
+          statusLabel.innerText = "Trạng thái: ✅ CONNECTED (Đang chờ tin...)";
+          statusLabel.className = "status-connected";
+          notiArea.innerHTML = ""; // Xóa text placeholder
+        } catch (err) {
+          alert("Lỗi kết nối: " + err.toString());
+        }
+      }
+
+      function renderNotification(payload) {
+        const container = document.getElementById("notification-area");
+
+        // Xử lý dữ liệu: Backend trả về UserNotification<NotificationMessage>
+        // Cấu trúc dự kiến: { type: "LikeCreated", data: { title: "...", contentNotify: "..." }, creationTime: "..." }
+
+        let title = "Thông báo mới";
+        let content = "";
+        let time = new Date().toLocaleTimeString();
+
+        // Logic bóc tách dữ liệu JSON
+        if (typeof payload === "object") {
+          if (payload.data) {
+            title = payload.data.title || payload.type || title;
+            content =
+              payload.data.contentNotify || JSON.stringify(payload.data);
+          } else {
+            // Trường hợp payload là string message thường
+            content = JSON.stringify(payload);
+          }
+          if (payload.creationTime) {
+            time = new Date(payload.creationTime).toLocaleString();
+          }
+        } else {
+          content = payload; // Trường hợp nhận string thuần
+        }
+
+        const html = `
+                <div class="noti-card">
+                    <div class="noti-title">📢 ${title}</div>
+                    <div class="noti-body">${content}</div>
+                    <div class="noti-time">🕒 ${time}</div>
+                    <div class="raw-json">Raw: ${JSON.stringify(payload).substring(0, 100)}...</div>
+                </div>
+            `;
+
+        container.insertAdjacentHTML("afterbegin", html);
+      }
+    </script>
+  </body>
+</html>

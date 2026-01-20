@@ -3,27 +3,28 @@ using Blog.Domain.Communication.Entities;
 using Blog.Domain.Communication.Enums;
 using Blog.Domain.Shared.Contracts;
 using Blog.Infrastructure.Communication.Interfaces;
+using Blog.Model.Dto.Communication.Dtos;
 using Blog.Shared.Notification;
 using Blog.SignalR.Notifications;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-namespace Blog.Infrastructure.Communication.Consumer;
+namespace Blog.Presentation.Communication.Consumer;
 
 public class CommentLikeCreatedConsumer : IConsumer<CommentLikeCreatedIntegrationEvent>
 {
     private readonly ICommunicationUnitOfWork _communicationUnitOfWork;
-    private readonly SignalRRealTimeNotifier _signalRRealTimeNotifier;
+    private readonly IRealTimeNotifier _realTimeNotifier;
     private readonly ILogger<CommentLikeCreatedConsumer> _logger;
 
     public CommentLikeCreatedConsumer(
         ICommunicationUnitOfWork communicationUnitOfWork,
-        SignalRRealTimeNotifier signalRRealTimeNotifier,
+        IRealTimeNotifier realTimeNotifier,
         ILogger<CommentLikeCreatedConsumer> logger
     )
     {
         _communicationUnitOfWork = communicationUnitOfWork;
-        _signalRRealTimeNotifier = signalRRealTimeNotifier;
+        _realTimeNotifier = realTimeNotifier;
         _logger = logger;
     }
 
@@ -47,14 +48,22 @@ public class CommentLikeCreatedConsumer : IConsumer<CommentLikeCreatedIntegratio
             );
         _logger.LogInformation("Notification saved to db successfully");
 
-        var userNotification = new UserNotification<NotificationMessage>(evenData.CommentAuthorId.Value.ToString())
+        var notificationDto = new NotificationMessageDto
+        {
+            Title = notification.Title,
+            NotificationType = notification.NotificationType,
+            ContentNotify = notification.ContentNotify,
+            ReferenceData = notification.ReferenceData
+        };
+
+        var userNotification = new UserNotification<NotificationMessageDto>(evenData.CommentAuthorId.Value.ToString())
         {
             Type = "LikeCreated",
-            Data = notification,
+            Data = notificationDto,
             CreationTime = DateTime.UtcNow
         };
 
-        await _signalRRealTimeNotifier.SendNotification(new[] { userNotification });
+        await _realTimeNotifier.SendNotification(new[] { userNotification });
         _logger.LogInformation($"Notification sent to user: {evenData.CommentAuthorId}");
     }
 }

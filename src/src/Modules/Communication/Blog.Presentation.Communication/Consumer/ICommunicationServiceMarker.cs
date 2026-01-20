@@ -1,6 +1,6 @@
 using System;
 
-namespace Blog.Domain.Shared.Contracts;
+namespace Blog.Presentation.Communication.Consumer;
 
 public interface ICommunicationServiceMarker
 {

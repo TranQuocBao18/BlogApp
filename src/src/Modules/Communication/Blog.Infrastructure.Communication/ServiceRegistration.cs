@@ -37,7 +37,7 @@ public static class ServiceRegistration
         services.AddTransient(typeof(IGenericRepository<,>), typeof(GenericRepositoryAsync<,>));
         services.AddTransient<INotificationMessageRepository, NotificationMessageRepository>();
 
-        services.AddMessaging(configuration, typeof(ICommunicationServiceMarker).Assembly);
-        services.AddNotificationSignalR(configuration);
+        // services.AddMessaging(configuration, typeof(ICommunicationServiceMarker).Assembly);
+        // services.AddNotificationSignalR(configuration);
     }
 }

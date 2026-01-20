@@ -28,7 +28,7 @@ public class OnlineClientManager : IOnlineClientManager
 
     public IOnlineClient Get(string connectionId)
     {
-        throw new NotImplementedException();
+        return Store.Get(connectionId);
     }
 
     public bool Remove(string connectionId)
