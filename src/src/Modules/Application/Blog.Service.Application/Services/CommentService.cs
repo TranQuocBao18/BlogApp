@@ -143,11 +143,11 @@ public class CommentService : ICommentService
         return new PagedResponse<IReadOnlyList<CommentResponse>>(commentResponse, pageNumber, pageSize, totalItems);
     }
 
-    public async Task<PagedResponse<IReadOnlyList<CommentResponse>>> GetRepliesByParentIdAsync(Guid parentId, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedResponse<IReadOnlyList<CommentResponse>>> GetRepliesByParentIdAsync(Guid parentId, Guid blogId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         var currentUserId = _securityContextAccessor.UserId;
-        var totalItems = await _applicationUnitOfWork.CommentRepository.CountAsync(x => !x.IsDeleted && x.ParentId == parentId, cancellationToken);
-        var replies = await _applicationUnitOfWork.CommentRepository.GetRepliesByParentIdAsync(parentId, currentUserId, cancellationToken);
+        var totalItems = await _applicationUnitOfWork.CommentRepository.CountAsync(x => !x.IsDeleted && x.BlogId == blogId && x.ParentId == parentId, cancellationToken);
+        var replies = await _applicationUnitOfWork.CommentRepository.GetRepliesByParentIdAsync(parentId, blogId, currentUserId, cancellationToken);
         var commentResponse = new List<CommentResponse>();
         foreach (var (commentEntity, replyCount, isLiked) in replies)
         {

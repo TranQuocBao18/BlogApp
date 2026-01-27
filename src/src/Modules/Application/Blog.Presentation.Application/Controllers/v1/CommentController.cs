@@ -37,11 +37,11 @@ public class CommentController : ControllerBase
     }
 
     // GET: api/v1/<controller>
-    [HttpGet("parentId:guid")]
+    [HttpGet("blogId:guid/parentId:guid")]
     [ProducesResponseType(typeof(PagedResponse<IReadOnlyList<CommentResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetByParentId([FromQuery] GetCommentsParameter filter, Guid parentId)
+    public async Task<IActionResult> GetByParentId([FromQuery] GetCommentsParameter filter, Guid parentId, Guid blogId)
     {
-        return Ok(await Mediator.Send(new GetRepliesByParentIdQuery() { Id = parentId, PageSize = filter.PageSize, PageNumber = filter.PageNumber }));
+        return Ok(await Mediator.Send(new GetRepliesByParentIdQuery() { Id = parentId, BlogId = blogId, PageSize = filter.PageSize, PageNumber = filter.PageNumber }));
     }
 
     // POST: api/v1/<controller>

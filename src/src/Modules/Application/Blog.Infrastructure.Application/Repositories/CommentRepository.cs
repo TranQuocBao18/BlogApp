@@ -28,8 +28,8 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
             .Select(c => new
             {
                 CommentEntity = c,
-                UserEntity = c.User, // Cần select rõ User để tránh null
-                RepliesCount = c.ChildComments.Count(), // Đây là đoạn SQL Count(*)
+                UserEntity = c.User,
+                RepliesCount = c.ChildComments.Count(),
                 IsLiked = currentUserId.HasValue &&
                     c.Likes.Any(l => l.UserId == currentUserId.Value)
             })
@@ -49,11 +49,11 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
         return res;
     }
 
-    public async Task<IReadOnlyList<(Comment Comment, int ReplyCount, bool isLiked)>> GetRepliesByParentIdAsync(Guid parentId, Guid? currentUserId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<(Comment Comment, int ReplyCount, bool isLiked)>> GetRepliesByParentIdAsync(Guid parentId, Guid blogId, Guid? currentUserId, CancellationToken cancellationToken)
     {
         var query = Query()
             .AsNoTracking()
-            .Where(c => c.ParentId == parentId);
+            .Where(c => c.BlogId == blogId && c.ParentId == parentId);
 
         var result = await query
             .Include(c => c.User)
@@ -61,8 +61,8 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
             .Select(c => new
             {
                 CommentEntity = c,
-                UserEntity = c.User, // Cần select rõ User để tránh null
-                RepliesCount = c.ChildComments.Count(), // Đây là đoạn SQL Count(*)
+                UserEntity = c.User,
+                RepliesCount = c.ChildComments.Count(),
                 IsLiked = currentUserId.HasValue &&
                     c.Likes.Any(l => l.UserId == currentUserId.Value)
             })

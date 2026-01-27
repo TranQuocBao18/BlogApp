@@ -16,6 +16,7 @@ public interface ICommentRepository : IGenericRepository<Comment, Guid>
 
     Task<IReadOnlyList<(Comment Comment, int ReplyCount, bool isLiked)>> GetRepliesByParentIdAsync(
         Guid parentId,
+        Guid blogId,
         Guid? currentUserId,
         CancellationToken cancellationToken
     );

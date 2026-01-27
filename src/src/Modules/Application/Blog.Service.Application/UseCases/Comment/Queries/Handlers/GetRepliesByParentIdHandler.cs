@@ -17,6 +17,6 @@ public class GetRepliesByParentIdHandler : IRequestHandler<GetRepliesByParentIdQ
 
     public async Task<PagedResponse<IReadOnlyList<CommentResponse>>> Handle(GetRepliesByParentIdQuery request, CancellationToken cancellationToken)
     {
-        return await _service.GetRepliesByParentIdAsync(request.Id, request.PageNumber, request.PageSize, cancellationToken);
+        return await _service.GetRepliesByParentIdAsync(request.Id, request.BlogId, request.PageNumber, request.PageSize, cancellationToken);
     }
 }
