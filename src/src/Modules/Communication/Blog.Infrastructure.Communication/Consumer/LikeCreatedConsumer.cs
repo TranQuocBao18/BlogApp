@@ -9,7 +9,7 @@ using Blog.SignalR.Notifications;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-namespace Blog.Presentation.Communication.Consumer;
+namespace Blog.Infrastructure.Communication.Consumer;
 
 public class LikeCreatedConsumer : IConsumer<LikeCreatedIntegrationEvent>
 {
