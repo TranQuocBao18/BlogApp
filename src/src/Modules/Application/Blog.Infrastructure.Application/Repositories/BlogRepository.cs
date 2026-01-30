@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using Blog.Domain.Application.Entities;
 using Blog.Domain.Application.Enum;
 using Blog.Infrastructure.Application.Context;
-using Blog.Infrastructure.Application.Interfaces;
+using Blog.Domain.Application.Interfaces;
 using Blog.Infrastructure.Shared.Persistences.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 

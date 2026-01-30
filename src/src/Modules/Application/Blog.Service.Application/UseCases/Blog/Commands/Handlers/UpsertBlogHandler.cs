@@ -1,9 +1,9 @@
 using System;
 using Blog.Infrastructure.Shared.ErrorCodes;
-using Blog.Model.Dto.Application.Requests;
+using Blog.Domain.Application.Requests;
 using Blog.Infrastructure.Shared.Wrappers;
 using Blog.Service.Application.Interfaces;
-using Blog.Infrastructure.Application.Interfaces;
+using Blog.Domain.Application.Interfaces;
 using MediatR;
 
 namespace Blog.Service.Application.UseCases.Blog.Commands.Handlers;

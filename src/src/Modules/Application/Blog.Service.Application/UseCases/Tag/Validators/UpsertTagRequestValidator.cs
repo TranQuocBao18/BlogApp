@@ -1,5 +1,5 @@
 using System;
-using Blog.Model.Dto.Application.Requests;
+using Blog.Domain.Application.Requests;
 using Blog.Presentation.Shared.ErrorCodes;
 using Blog.Presentation.Shared.Extensions;
 using Blog.Service.Application.UseCases.Tag.Commands;

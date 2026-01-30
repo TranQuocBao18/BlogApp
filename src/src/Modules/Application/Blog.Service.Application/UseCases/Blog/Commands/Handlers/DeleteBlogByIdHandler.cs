@@ -1,5 +1,5 @@
 using System;
-using Blog.Infrastructure.Application.Interfaces;
+using Blog.Domain.Application.Interfaces;
 using Blog.Infrastructure.Shared.Wrappers;
 using Blog.Service.Application.Interfaces;
 using MediatR;

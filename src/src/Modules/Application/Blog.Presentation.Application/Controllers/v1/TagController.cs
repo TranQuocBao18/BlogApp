@@ -1,6 +1,6 @@
 using System;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Application.Responses;
+using Blog.Domain.Application.Responses;
 using Blog.Service.Application.UseCases.Tag.Commands;
 using Blog.Service.Application.UseCases.Tag.Queries;
 using MediatR;

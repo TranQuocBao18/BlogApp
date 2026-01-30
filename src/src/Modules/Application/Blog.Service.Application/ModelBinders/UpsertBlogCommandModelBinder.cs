@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Blog.Model.Dto.Application.Requests;
+using Blog.Domain.Application.Requests;
 using Blog.Service.Application.UseCases.Blog.Commands;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;

@@ -1,7 +1,7 @@
 using System;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Application.Requests;
-using Blog.Model.Dto.Application.Responses;
+using Blog.Domain.Application.Requests;
+using Blog.Domain.Application.Responses;
 
 namespace Blog.Service.Application.Interfaces;
 

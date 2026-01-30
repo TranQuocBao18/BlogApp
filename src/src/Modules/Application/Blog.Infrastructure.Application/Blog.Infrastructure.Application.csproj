@@ -7,12 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.EventBus\Blog.EventBus.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Infrastructure.Shared\Blog.Infrastructure.Shared.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Presentation.Shared\Blog.Presentation.Shared.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.UnitOfWork\Blog.UnitOfWork.csproj" />
     <ProjectReference Include="..\Blog.Domain.Application\Blog.Domain.Application.csproj" />
-    <ProjectReference Include="..\Blog.Model.Dto.Application\Blog.Model.Dto.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

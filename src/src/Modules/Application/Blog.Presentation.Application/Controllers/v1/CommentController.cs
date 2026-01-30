@@ -1,6 +1,6 @@
 using System;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Application.Responses;
+using Blog.Domain.Application.Responses;
 using Blog.Service.Application.UseCases.Comment.Commands;
 using Blog.Service.Application.UseCases.Comment.Queries;
 using Blog.Shared.Auth;

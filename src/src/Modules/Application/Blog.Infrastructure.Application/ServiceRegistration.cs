@@ -1,7 +1,6 @@
 using System;
-using Blog.EventBus.Extensions;
 using Blog.Infrastructure.Application.Context;
-using Blog.Infrastructure.Application.Interfaces;
+using Blog.Domain.Application.Interfaces;
 using Blog.Infrastructure.Application.Repositories;
 using Blog.Infrastructure.Application.UnitOfWorks;
 using Blog.Infrastructure.Shared.Interfaces;

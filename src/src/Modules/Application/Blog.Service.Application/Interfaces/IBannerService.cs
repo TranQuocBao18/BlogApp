@@ -1,7 +1,7 @@
 using System;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Application.Requests;
-using Blog.Model.Dto.Application.Responses;
+using Blog.Domain.Application.Requests;
+using Blog.Domain.Application.Responses;
 using Microsoft.AspNetCore.Http;
 
 namespace Blog.Service.Application.Interfaces;

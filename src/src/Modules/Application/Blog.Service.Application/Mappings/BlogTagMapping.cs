@@ -1,9 +1,9 @@
 using System;
 using AutoMapper;
 using Blog.Domain.Application.Entities;
-using Blog.Model.Dto.Application.Dtos;
-using Blog.Model.Dto.Application.Requests;
-using Blog.Model.Dto.Application.Responses;
+using Blog.Domain.Application.Dtos;
+using Blog.Domain.Application.Requests;
+using Blog.Domain.Application.Responses;
 
 namespace Blog.Service.Application.Mappings;
 
