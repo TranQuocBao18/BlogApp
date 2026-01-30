@@ -1,9 +1,9 @@
 using System;
-using Blog.Infrastructure.Identity.Interfaces;
+using Blog.Domain.Identity.Interfaces;
 using Blog.Infrastructure.Shared.ErrorCodes;
 using Blog.Infrastructure.Shared.Interfaces;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Identity.Dtos;
+using Blog.Domain.Identity.Dtos;
 using Blog.Utilities.Extensions;
 
 namespace Blog.Service.Identity.Services;

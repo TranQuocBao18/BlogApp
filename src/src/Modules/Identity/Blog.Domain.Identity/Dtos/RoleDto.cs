@@ -1,6 +1,6 @@
 using System;
 
-namespace Blog.Model.Dto.Identity.Dtos;
+namespace Blog.Domain.Identity.Dtos;
 
 public class RoleDto
 {

@@ -1,7 +1,7 @@
 using System;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Identity.Requests;
-using Blog.Model.Dto.Identity.Responses;
+using Blog.Domain.Identity.Requests;
+using Blog.Domain.Identity.Responses;
 
 namespace Blog.Service.Identity.Interfaces;
 

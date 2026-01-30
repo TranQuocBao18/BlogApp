@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Blog.Model.Dto.Identity.Requests;
+namespace Blog.Domain.Identity.Requests;
 
 public class ResetPasswordRequest
 {

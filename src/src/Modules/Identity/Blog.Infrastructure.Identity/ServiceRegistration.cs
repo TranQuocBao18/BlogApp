@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Blog.Utilities.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Blog.Domain.Identity.Entities;
-using Blog.Infrastructure.Identity.Interfaces;
+using Blog.Domain.Identity.Interfaces;
 using Blog.Infrastructure.Identity.Repositories;
 using Blog.Infrastructure.Identity.UnitOfWorks;
 using Blog.Infrastructure.Shared.Interfaces;

@@ -1,6 +1,6 @@
 using System;
 
-namespace Blog.Model.Dto.Identity.Requests;
+namespace Blog.Domain.Identity.Requests;
 
 public class RoleRequest
 {

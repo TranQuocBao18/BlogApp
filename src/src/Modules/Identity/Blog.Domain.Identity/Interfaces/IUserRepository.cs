@@ -4,7 +4,7 @@ using Blog.Domain.Identity.Entities;
 using Blog.Infrastructure.Shared.ErrorCodes;
 using Blog.Infrastructure.Shared.Interfaces;
 
-namespace Blog.Infrastructure.Identity.Interfaces;
+namespace Blog.Domain.Identity.Interfaces;
 
 public interface IUserRepository : IGenericRepository<User, Guid>
 {

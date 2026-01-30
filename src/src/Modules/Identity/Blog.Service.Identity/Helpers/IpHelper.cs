@@ -2,7 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Blog.Infrastructure.Identity.Helpers;
+namespace Blog.Service.Identity.Helpers;
 
 public class IpHelper
 {

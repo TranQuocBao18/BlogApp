@@ -1,7 +1,7 @@
 using System;
 using Blog.UnitOfWork;
 
-namespace Blog.Infrastructure.Identity.Interfaces;
+namespace Blog.Domain.Identity.Interfaces;
 
 public interface IIdentityUnitOfWork : IUnitOfWork
 {

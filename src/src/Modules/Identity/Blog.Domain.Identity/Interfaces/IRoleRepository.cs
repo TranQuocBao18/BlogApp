@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using Blog.Domain.Identity.Entities;
 
-namespace Blog.Infrastructure.Identity.Interfaces;
+namespace Blog.Domain.Identity.Interfaces;
 
 public interface IRoleRepository
 {

@@ -1,8 +1,8 @@
 using System;
 using Blog.Domain.Identity.Entities;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Identity.Requests;
-using Blog.Model.Dto.Identity.Responses;
+using Blog.Domain.Identity.Requests;
+using Blog.Domain.Identity.Responses;
 using Blog.Service.Identity.UseCases.Identity.Commands;
 using Blog.Service.Identity.UseCases.Users.Commands;
 using MediatR;

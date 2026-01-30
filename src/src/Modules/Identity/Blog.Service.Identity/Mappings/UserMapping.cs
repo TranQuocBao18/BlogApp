@@ -1,9 +1,9 @@
 using System;
 using AutoMapper;
 using Blog.Domain.Identity.Entities;
-using Blog.Model.Dto.Identity.Dtos;
-using Blog.Model.Dto.Identity.Requests;
-using Blog.Model.Dto.Identity.Responses;
+using Blog.Domain.Identity.Dtos;
+using Blog.Domain.Identity.Requests;
+using Blog.Domain.Identity.Responses;
 using Blog.Model.Dto.Shared.Dtos;
 
 namespace Blog.Service.Identity.Mappings;

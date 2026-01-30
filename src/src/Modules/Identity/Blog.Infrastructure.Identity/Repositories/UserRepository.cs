@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using Blog.Domain.Identity.Entities;
 using Blog.Domain.Shared.Enums;
 using Blog.Infrastructure.Identity.Contexts;
-using Blog.Infrastructure.Identity.Interfaces;
+using Blog.Domain.Identity.Interfaces;
 using Blog.Infrastructure.Shared.ErrorCodes;
 using Blog.Infrastructure.Shared.Exceptions;
 using Blog.Infrastructure.Shared.Interfaces;

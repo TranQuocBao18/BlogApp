@@ -1,6 +1,6 @@
 using System;
 using Blog.Infrastructure.Identity.Contexts;
-using Blog.Infrastructure.Identity.Interfaces;
+using Blog.Domain.Identity.Interfaces;
 using Blog.UnitOfWork;
 
 namespace Blog.Infrastructure.Identity.UnitOfWorks;

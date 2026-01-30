@@ -1,7 +1,7 @@
 using System;
 using Blog.Model.Dto.Shared.Dtos;
 
-namespace Blog.Model.Dto.Identity.Responses;
+namespace Blog.Domain.Identity.Responses;
 
 public class UsersResponse : UserDto
 {

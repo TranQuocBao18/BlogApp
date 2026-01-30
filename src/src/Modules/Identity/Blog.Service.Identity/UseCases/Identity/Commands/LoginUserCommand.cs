@@ -1,6 +1,6 @@
 using System;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Identity.Responses;
+using Blog.Domain.Identity.Responses;
 using MediatR;
 
 namespace Blog.Service.Identity.UseCases.Identity.Commands;

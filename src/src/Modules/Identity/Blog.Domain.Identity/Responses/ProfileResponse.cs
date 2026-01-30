@@ -1,6 +1,6 @@
 using System;
 
-namespace Blog.Model.Dto.Identity.Responses;
+namespace Blog.Domain.Identity.Responses;
 
 public class ProfileResponse
 {

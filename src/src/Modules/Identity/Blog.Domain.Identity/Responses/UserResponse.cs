@@ -1,8 +1,8 @@
 using System;
-using Blog.Model.Dto.Identity.Dtos;
+using Blog.Domain.Identity.Dtos;
 using Blog.Model.Dto.Shared.Dtos;
 
-namespace Blog.Model.Dto.Identity.Responses;
+namespace Blog.Domain.Identity.Responses;
 
 public class UserResponse
 {

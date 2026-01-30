@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using Blog.Domain.Identity.Entities;
 using Blog.Infrastructure.Identity.Contexts;
-using Blog.Infrastructure.Identity.Interfaces;
+using Blog.Domain.Identity.Interfaces;
 using Blog.Infrastructure.Shared.Exceptions;
 using Blog.Utilities.Extensions;
 using Microsoft.AspNetCore.Identity;

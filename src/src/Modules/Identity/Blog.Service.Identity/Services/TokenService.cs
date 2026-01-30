@@ -4,14 +4,14 @@ using System.Security.Claims;
 using System.Text;
 using Blog.Domain.Identity.Entities;
 using Blog.Domain.Shared.Settings;
-using Blog.Infrastructure.Identity.Helpers;
-using Blog.Infrastructure.Identity.Interfaces;
+using Blog.Domain.Identity.Interfaces;
 using Blog.Service.Identity.Interfaces;
 using Blog.Utilities.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using Blog.Service.Identity.Helpers;
 
 namespace Blog.Service.Identity.Services;
 

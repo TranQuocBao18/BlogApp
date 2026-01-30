@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace Blog.Model.Dto.Identity.Responses;
+namespace Blog.Domain.Identity.Responses;
 
 public class AuthenticationResponse
 {

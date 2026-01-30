@@ -41,8 +41,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Infrastructure.Shared\Blog.Infrastructure.Shared.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Model.Dto.Shared\Blog.Model.Dto.Shared.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Presentation.Shared\Blog.Presentation.Shared.csproj" />
-    <ProjectReference Include="..\..\Application\Blog.Infrastructure.Application\Blog.Infrastructure.Application.csproj" />
-    <ProjectReference Include="..\Blog.Model.Dto.Identity\Blog.Model.Dto.Identity.csproj" />
+    <ProjectReference Include="..\Blog.Infrastructure.Identity\Blog.Infrastructure.Identity.csproj" />
     <ProjectReference Include="..\Blog.Service.Identity\Blog.Service.Identity.csproj" />
   </ItemGroup>
 
