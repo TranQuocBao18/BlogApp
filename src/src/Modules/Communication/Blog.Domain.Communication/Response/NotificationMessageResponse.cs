@@ -1,13 +1,13 @@
 using System;
 using Blog.Domain.Communication.Enums;
 
-namespace Blog.Model.Dto.Communication.Dtos;
+namespace Blog.Domain.Communication.Response;
 
-public class NotificationMessageDto
+public class NotificationMessageResponse
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = default!;
-    public NotificationType NotificationType { get; set; }
+    public NotificationTypeDto NotificationType { get; set; } = default!;
     public string? ContentNotify { get; set; }
     public string? ReferenceData { get; set; }
 }

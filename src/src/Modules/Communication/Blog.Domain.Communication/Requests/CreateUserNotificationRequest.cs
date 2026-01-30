@@ -1,6 +1,6 @@
 using System;
 
-namespace Blog.Model.Dto.Communication.Requests;
+namespace Blog.Domain.Communication.Requests;
 
 public class CreateUserNotificationRequest : NotificationRequest
 {

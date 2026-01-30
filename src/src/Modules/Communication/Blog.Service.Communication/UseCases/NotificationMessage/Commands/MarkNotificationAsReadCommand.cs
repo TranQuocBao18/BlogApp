@@ -1,7 +1,7 @@
 using System;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Communication.Requests;
-using Blog.Model.Dto.Communication.Response;
+using Blog.Domain.Communication.Requests;
+using Blog.Domain.Communication.Response;
 using MediatR;
 
 namespace Blog.Service.Communication.UseCases.NotificationMessage.Commands;

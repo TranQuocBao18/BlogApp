@@ -1,6 +1,6 @@
 using System;
 
-namespace Blog.Model.Dto.Communication.Enums;
+namespace Blog.Domain.Communication.Enums;
 
 public enum NotificationTypeDto
 {

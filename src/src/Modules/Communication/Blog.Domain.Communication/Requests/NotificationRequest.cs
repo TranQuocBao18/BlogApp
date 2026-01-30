@@ -1,7 +1,7 @@
 using System;
-using Blog.Model.Dto.Communication.Enums;
+using Blog.Domain.Communication.Enums;
 
-namespace Blog.Model.Dto.Communication.Requests;
+namespace Blog.Domain.Communication.Requests;
 
 public class NotificationRequest
 {

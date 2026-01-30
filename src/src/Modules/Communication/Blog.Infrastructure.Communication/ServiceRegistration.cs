@@ -3,7 +3,7 @@ using Blog.Domain.Shared.Contracts;
 using Blog.EventBus.Extensions;
 using Blog.Infrastructure.Communication.Consumer;
 using Blog.Infrastructure.Communication.Contexts;
-using Blog.Infrastructure.Communication.Interfaces;
+using Blog.Domain.Communication.Interfaces;
 using Blog.Infrastructure.Communication.Repositories;
 using Blog.Infrastructure.Communication.UnitOfWorks;
 using Blog.Infrastructure.Shared.Interfaces;

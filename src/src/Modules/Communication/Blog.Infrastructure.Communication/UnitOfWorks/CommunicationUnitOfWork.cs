@@ -1,6 +1,6 @@
 using System;
 using Blog.Infrastructure.Communication.Contexts;
-using Blog.Infrastructure.Communication.Interfaces;
+using Blog.Domain.Communication.Interfaces;
 using Blog.UnitOfWork;
 
 namespace Blog.Infrastructure.Communication.UnitOfWorks;

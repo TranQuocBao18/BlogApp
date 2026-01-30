@@ -1,7 +1,7 @@
 using System;
 using Blog.UnitOfWork;
 
-namespace Blog.Infrastructure.Communication.Interfaces;
+namespace Blog.Domain.Communication.Interfaces;
 
 public interface ICommunicationUnitOfWork : IUnitOfWork
 {

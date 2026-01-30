@@ -1,12 +1,11 @@
 using System;
 using Blog.Domain.Communication.Entities;
 using Blog.Domain.Communication.Enums;
-using Blog.Infrastructure.Communication.Interfaces;
+using Blog.Domain.Communication.Interfaces;
 using Blog.Infrastructure.Shared.ErrorCodes;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Communication.Enums;
-using Blog.Model.Dto.Communication.Requests;
-using Blog.Model.Dto.Communication.Response;
+using Blog.Domain.Communication.Requests;
+using Blog.Domain.Communication.Response;
 using Blog.Service.Communication.Interfaces;
 using Blog.Shared.Auth;
 using Microsoft.Extensions.Logging;

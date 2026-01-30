@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using Blog.Domain.Communication.Entities;
 using Blog.Infrastructure.Shared.Interfaces;
 
-namespace Blog.Infrastructure.Communication.Interfaces;
+namespace Blog.Domain.Communication.Interfaces;
 
 public interface INotificationMessageRepository : IGenericRepository<NotificationMessage, Guid>
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Blog.Model.Dto.Communication.Response;
+namespace Blog.Domain.Communication.Response;
 
 public class NotificationUserResponse
 {

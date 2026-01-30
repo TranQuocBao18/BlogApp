@@ -1,6 +1,6 @@
 using System;
 using Blog.Infrastructure.Shared.Wrappers;
-using Blog.Model.Dto.Communication.Response;
+using Blog.Domain.Communication.Response;
 using Blog.Service.Communication.UseCases.NotificationMessage.Commands;
 using Blog.Service.Communication.UseCases.NotificationMessage.Queries;
 using Blog.Shared.Auth;

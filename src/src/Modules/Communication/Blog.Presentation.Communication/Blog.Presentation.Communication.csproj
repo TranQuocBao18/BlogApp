@@ -12,7 +12,6 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Model.Dto.Shared\Blog.Model.Dto.Shared.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Blog.Presentation.Shared\Blog.Presentation.Shared.csproj" />
     <ProjectReference Include="..\Blog.Infrastructure.Communication\Blog.Infrastructure.Communication.csproj" />
-    <ProjectReference Include="..\Blog.Model.Dto.Communication\Blog.Model.Dto.Communication.csproj" />
     <ProjectReference Include="..\Blog.Service.Communication\Blog.Service.Communication.csproj" />
   </ItemGroup>
 

@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using Blog.Domain.Communication.Entities;
 using Blog.Infrastructure.Communication.Contexts;
-using Blog.Infrastructure.Communication.Interfaces;
+using Blog.Domain.Communication.Interfaces;
 using Blog.Infrastructure.Shared.Persistences.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 
