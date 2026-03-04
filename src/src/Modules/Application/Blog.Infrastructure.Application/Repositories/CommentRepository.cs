@@ -28,7 +28,6 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
             .Select(c => new
             {
                 CommentEntity = c,
-                UserEntity = c.User,
                 RepliesCount = c.ChildComments.Count(),
                 IsLiked = currentUserId.HasValue &&
                     c.Likes.Any(l => l.UserId == currentUserId.Value)
@@ -38,11 +37,6 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
         var res = new List<(Comment, int, bool)>();
         foreach (var item in result)
         {
-            if (item.CommentEntity != null && item.UserEntity != null)
-            {
-                item.CommentEntity.User = item.UserEntity;
-            }
-
             res.Add((item.CommentEntity!, item.RepliesCount, item.IsLiked));
         }
 
@@ -56,12 +50,10 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
             .Where(c => c.BlogId == blogId && c.ParentId == parentId);
 
         var result = await query
-            .Include(c => c.User)
             .OrderBy(c => c.Created)
             .Select(c => new
             {
                 CommentEntity = c,
-                UserEntity = c.User,
                 RepliesCount = c.ChildComments.Count(),
                 IsLiked = currentUserId.HasValue &&
                     c.Likes.Any(l => l.UserId == currentUserId.Value)
@@ -71,11 +63,6 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
         var res = new List<(Comment, int, bool)>();
         foreach (var item in result)
         {
-            if (item.CommentEntity != null && item.UserEntity != null)
-            {
-                item.CommentEntity.User = item.UserEntity;
-            }
-
             res.Add((item.CommentEntity!, item.RepliesCount, item.IsLiked));
         }
         return res;

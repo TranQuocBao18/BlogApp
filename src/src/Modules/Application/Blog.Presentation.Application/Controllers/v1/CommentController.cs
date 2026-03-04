@@ -29,17 +29,17 @@ public class CommentController : ControllerBase
     }
 
     // GET: api/v1/<controller>
-    [HttpGet("blogId:guid")]
+    [HttpGet("{blogId:guid}")]
     [ProducesResponseType(typeof(PagedResponse<IReadOnlyList<CommentResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Get([FromQuery] GetCommentsParameter filter, Guid blogId)
+    public async Task<IActionResult> Get([FromQuery] GetCommentsParameter filter, [FromRoute] Guid blogId)
     {
         return Ok(await Mediator.Send(new GetListCommentByBlogIdQuery() { Id = blogId, PageSize = filter.PageSize, PageNumber = filter.PageNumber }));
     }
 
     // GET: api/v1/<controller>
-    [HttpGet("blogId:guid/parentId:guid")]
+    [HttpGet("replies")]
     [ProducesResponseType(typeof(PagedResponse<IReadOnlyList<CommentResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetByParentId([FromQuery] GetCommentsParameter filter, Guid parentId, Guid blogId)
+    public async Task<IActionResult> GetReplies([FromQuery] GetCommentsParameter filter, [FromQuery] Guid parentId, [FromQuery] Guid blogId)
     {
         return Ok(await Mediator.Send(new GetRepliesByParentIdQuery() { Id = parentId, BlogId = blogId, PageSize = filter.PageSize, PageNumber = filter.PageNumber }));
     }

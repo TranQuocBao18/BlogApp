@@ -51,6 +51,7 @@ public class CommentService : ICommentService
             var currentUserId = _securityContextAccessor.UserId;
             var currentUserName = _securityContextAccessor.Email;
             var commentEntity = _mapper.Map<Comment>(commentRequest);
+            commentEntity.UserId = currentUserId;
             commentEntity.Created = _dateTimeService.NowUtc;
             commentEntity.CreatedBy = currentUserId.ToString();
 
@@ -63,7 +64,7 @@ public class CommentService : ICommentService
 
             await _applicationUnitOfWork.CommitAsync();
 
-            if (commentRequest.ParentId == Guid.Empty)
+            if (commentRequest.ParentId == Guid.Empty || commentRequest.ParentId == null)
             {
                 var blog = await _applicationUnitOfWork.BlogRepository.GetByIdAsync(commentRequest.BlogId, cancellationToken);
                 await _publishEndpoint.Publish(new CommentCreatedIntegrationEvent
@@ -71,18 +72,20 @@ public class CommentService : ICommentService
                     BlogId = commentRequest.BlogId,
                     AuthorId = currentUserId,
                     AuthorName = currentUserName,
-                    BlogAuthorId = blog.CreatedBy?.AsGuid(),
+                    ReceiverId = blog.CreatedBy?.AsGuid(),
                     Content = commentRequest.Content
                 });
             }
             else
             {
+                var commentParent = _applicationUnitOfWork.CommentRepository.GetByIdAsync(commentRequest.ParentId!.Value, cancellationToken);
                 await _publishEndpoint.Publish(new CommentCreatedIntegrationEvent
                 {
                     BlogId = commentRequest.BlogId,
                     AuthorId = currentUserId,
                     AuthorName = currentUserName,
                     ParentId = commentRequest.ParentId,
+                    ReceiverId = commentParent.Result.CreatedBy?.AsGuid(),
                     Content = commentRequest.Content
                 });
             }
@@ -109,6 +112,12 @@ public class CommentService : ICommentService
             {
                 _logger.LogError("Comment not found");
                 return new Infrastructure.Shared.Wrappers.Response<bool>(ErrorCodeEnum.COMM_ERR_001);
+            }
+
+            if (commentEntity.UserId != currentUserId)
+            {
+                _logger.LogError("Can't delete comment because of authorize");
+                return new Infrastructure.Shared.Wrappers.Response<bool>(ErrorCodeEnum.COMM_ERR_003);
             }
 
             commentEntity.LastModified = _dateTimeService.NowUtc;

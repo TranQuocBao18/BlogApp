@@ -11,19 +11,17 @@ namespace Blog.Infrastructure.Communication.Repositories;
 public class NotificationMessageRepository : GenericRepositoryAsync<NotificationMessage, Guid>, INotificationMessageRepository
 {
     private readonly CommunicationDbContext _dbContext;
-    private readonly DbSet<NotificationUser> _notificationUserDbSet;
 
     public NotificationMessageRepository(CommunicationDbContext dbContext) : base(dbContext)
     {
         _dbContext = dbContext;
-        _notificationUserDbSet = dbContext.Set<NotificationUser>();
     }
 
     public async Task<IList<Guid>> AddGroupNotificationAsync(IList<Guid> userIds, NotificationMessage notificationMessage, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(notificationMessage, nameof(notificationMessage));
 
-        await this.AddAsync(notificationMessage, cancellationToken);
+        await _dbContext.AddAsync(notificationMessage, cancellationToken);
 
         var notificationUsers = userIds.Select(userId => new NotificationUser
         {
@@ -33,7 +31,7 @@ public class NotificationMessageRepository : GenericRepositoryAsync<Notification
             Created = DateTime.UtcNow,
         }).ToList();
 
-        await _notificationUserDbSet.AddRangeAsync(notificationUsers);
+        await _dbContext.AddRangeAsync(notificationUsers, cancellationToken);
 
         return notificationUsers.Select(n => n.Id).ToList();
     }
@@ -42,7 +40,7 @@ public class NotificationMessageRepository : GenericRepositoryAsync<Notification
     {
         ArgumentNullException.ThrowIfNull(notificationMessage, nameof(notificationMessage));
 
-        await this.AddAsync(notificationMessage, cancellationToken);
+        await _dbContext.AddAsync(notificationMessage, cancellationToken);
 
         var notificationUsers = userIds.Select(userId => new NotificationUser
         {
@@ -52,7 +50,7 @@ public class NotificationMessageRepository : GenericRepositoryAsync<Notification
             Created = DateTime.UtcNow,
         }).ToList();
 
-        await _notificationUserDbSet.AddRangeAsync(notificationUsers);
+        await _dbContext.AddRangeAsync(notificationUsers, cancellationToken);
 
         return notificationUsers.Select(n => n.Id).ToList();
     }

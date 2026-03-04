@@ -35,18 +35,18 @@ public class CommentCreatedConsumer : IConsumer<CommentCreatedIntegrationEvent>
         var cancellationToken = context.CancellationToken;
         var evenData = context.Message;
 
-        if (evenData.ParentId == Guid.Empty && evenData.BlogAuthorId != Guid.Empty)
+        try
         {
             var notification = new NotificationMessage
             {
                 Title = "New comment appeared!",
                 NotificationType = NotificationType.User,
-                ContentNotify = $"{evenData.AuthorName} has just commented in your blog",
+                ContentNotify = evenData.ParentId.HasValue ? $"{evenData.AuthorName} has just replied your comment" : $"{evenData.AuthorName} has just commented in your blog",
                 ReferenceData = evenData.BlogId.ToString()
             };
 
             await _communicationUnitOfWork.NotificationMessageRepository.AddUsersNotificationAsync(
-                userIds: new[] { evenData.BlogAuthorId!.Value },
+                userIds: new[] { evenData.ReceiverId!.Value },
                 notification,
                 cancellationToken
             );
@@ -60,7 +60,7 @@ public class CommentCreatedConsumer : IConsumer<CommentCreatedIntegrationEvent>
                 ReferenceData = notification.ReferenceData
             };
 
-            var userNotification = new UserNotification<NotificationMessageDto>(evenData.BlogAuthorId.Value.ToString())
+            var userNotification = new UserNotification<NotificationMessageDto>(evenData.ReceiverId.Value.ToString())
             {
                 Type = "CommentCreated",
                 Data = notificationDto,
@@ -68,34 +68,11 @@ public class CommentCreatedConsumer : IConsumer<CommentCreatedIntegrationEvent>
             };
 
             await _realTimeNotifier.SendNotification(new[] { userNotification });
-            _logger.LogInformation($"Notification sent to user: {evenData.BlogAuthorId}");
+            _logger.LogInformation($"Notification sent to user: {evenData.ReceiverId}");
         }
-        else
+        catch (Exception ex)
         {
-            var notification = new NotificationMessage
-            {
-                Title = "New comment appeared!",
-                NotificationType = NotificationType.User,
-                ContentNotify = $"{evenData.AuthorName} has just replied your comment",
-                ReferenceData = evenData.BlogId.ToString()
-            };
-
-            await _communicationUnitOfWork.NotificationMessageRepository.AddUsersNotificationAsync(
-                userIds: new[] { evenData.ParentId!.Value },
-                notification,
-                cancellationToken
-            );
-            _logger.LogInformation("Notification saved to db successfully");
-
-            var userNotification = new UserNotification<NotificationMessage>(evenData.ParentId.Value.ToString())
-            {
-                Type = "CommentCreated",
-                Data = notification,
-                CreationTime = DateTime.UtcNow
-            };
-
-            await _realTimeNotifier.SendNotification(new[] { userNotification });
-            _logger.LogInformation($"Notification sent to user: {evenData.ParentId}");
+            _logger.LogError(ex, "Error processing CommentCreatedIntegrationEvent");
         }
 
     }

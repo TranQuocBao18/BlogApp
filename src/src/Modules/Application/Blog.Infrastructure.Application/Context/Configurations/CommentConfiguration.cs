@@ -35,12 +35,9 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.HasOne(x => x.ParentComment)
             .WithMany(c => c.ChildComments)
             .HasForeignKey(x => x.ParentId)
-            .OnDelete(DeleteBehavior.NoAction); // ⚠️ NO ACTION như trong script
+            .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasOne(x => x.User)
-            .WithMany()
-            .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.Ignore(x => x.User);
 
         builder.HasMany(x => x.Likes)
             .WithOne(l => l.Comment)
