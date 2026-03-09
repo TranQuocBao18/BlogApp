@@ -30,6 +30,7 @@ public class CommentLikeService : ICommentLikeService
         ISecurityContextAccessor securityContextAccessor,
         IApplicationUnitOfWork applicationUnitOfWork,
         IDateTimeService dateTimeService,
+        IPublishEndpoint publishEndpoint,
         ILogger<CommentLikeService> logger
     )
     {
@@ -37,6 +38,7 @@ public class CommentLikeService : ICommentLikeService
         _applicationUnitOfWork = applicationUnitOfWork;
         _securityContextAccessor = securityContextAccessor;
         _dateTimeService = dateTimeService;
+        _publishEndpoint = publishEndpoint;
         _logger = logger;
     }
 
@@ -80,6 +82,10 @@ public class CommentLikeService : ICommentLikeService
 
                 isLikedNow = true;
 
+                _logger.LogInformation("[BlogLikeService] Publishing LikeCreatedIntegrationEvent...");
+                _logger.LogInformation($"[BlogLikeService] BlogId={commentEntity.BlogId}, AuthorId={currentUserId}, AuthorName={currentUserName}, CommentAuthorId={commentEntity.CreatedBy}");
+                _logger.LogInformation($"[BlogLikeService] Event Type: {typeof(LikeCreatedIntegrationEvent).FullName}");
+
                 await _publishEndpoint.Publish(new CommentLikeCreatedIntegrationEvent
                 {
                     BlogId = commentEntity.BlogId,
@@ -87,6 +93,7 @@ public class CommentLikeService : ICommentLikeService
                     AuthorName = currentUserName,
                     CommentAuthorId = commentEntity.CreatedBy!.AsGuid()
                 });
+                _logger.LogInformation("[CommentLikeService] LikeCreatedIntegrationEvent published successfully");
             }
             await _applicationUnitOfWork.CommentRepository.UpdateAsync(commentEntity, cancellationToken, true);
             await _applicationUnitOfWork.CommitAsync();

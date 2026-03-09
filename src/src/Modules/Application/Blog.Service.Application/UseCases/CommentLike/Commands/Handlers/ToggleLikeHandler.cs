@@ -16,7 +16,7 @@ public class ToggleLikeHandler : IRequestHandler<ToggleLikeCommand, Response<boo
 
     public async Task<Response<bool>> Handle(ToggleLikeCommand request, CancellationToken cancellationToken)
     {
-        var blogId = request.Id;
-        return await _service.ToggleLikeAsync(blogId, cancellationToken);
+        var commentId = request.Id;
+        return await _service.ToggleLikeAsync(commentId, cancellationToken);
     }
 }
