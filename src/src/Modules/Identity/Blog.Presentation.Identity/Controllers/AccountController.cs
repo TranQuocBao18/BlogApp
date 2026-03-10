@@ -35,15 +35,24 @@ public class AccountController : ControllerBase
         return Ok(await Mediator.Send(command));
     }
 
+    [HttpPost("refresh-token")]
+    [ProducesResponseType(typeof(Response<AuthenticationResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RefreshTokenAsync(RefreshTokenCommand command)
+    {
+        command.IPAddress = GenerateIPAddress();
+        return Ok(await Mediator.Send(command));
+    }
+
     [HttpPost("logout")]
-    public async Task<IActionResult> LogoutAsync()
+    public async Task<IActionResult> LogoutAsync(LogoutCommand command)
     {
         if (User?.Identity?.IsAuthenticated == true)
         {
+            command.IPAddress = GenerateIPAddress();
             await _signInManager.SignOutAsync();
-            return SignOut(new AuthenticationProperties { RedirectUri = "/login" });
+            return Ok(await Mediator.Send(command));
         }
-        return Ok();
+        return BadRequest(new Response<bool>(false, "User is not authenticated"));
     }
 
     [HttpPost("forgotpassword")]

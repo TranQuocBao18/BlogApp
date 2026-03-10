@@ -15,6 +15,8 @@ using Blog.Service.Identity.Interfaces;
 using Blog.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
+using Blog.Infrastructure.Shared.Services;
 
 namespace Blog.Service.Identity.Services;
 
@@ -25,8 +27,8 @@ public class AccountService : IAccountService
     private readonly RoleManager<SystemRole> _roleManager;
     private readonly IIdentityUnitOfWork _identityUnitOfWork;
     private readonly IEmailService _emailService;
-    private readonly IServiceProvider _serviceProvider;
-    private ITokenService _tokenService => (ITokenService)_serviceProvider.GetService(typeof(ITokenService));
+    private readonly IDateTimeService _dateTimeService;
+    private ITokenService _tokenService;
 
     public AccountService(
         UserManager<ApplicationUser> userManager,
@@ -34,15 +36,16 @@ public class AccountService : IAccountService
         RoleManager<SystemRole> roleManager,
         IEmailService emailService,
         IIdentityUnitOfWork identityUnitOfWork,
-        IServiceProvider serviceProvider)
+        IDateTimeService dateTimeService,
+        ITokenService tokenService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-
+        _dateTimeService = dateTimeService;
         this._emailService = emailService;
         _identityUnitOfWork = identityUnitOfWork;
-        _serviceProvider = serviceProvider;
         _roleManager = roleManager;
+        this._tokenService = tokenService;
     }
 
     public async Task<Response<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request, string ipAddress)
@@ -85,8 +88,13 @@ public class AccountService : IAccountService
             return new Response<AuthenticationResponse>(ErrorCodeEnum.COM_ERR_000.ToString(), $"Account is Locked for '{request.Email}'.");
         }
 
+        user = await _userManager.FindByIdAsync(user.Id.ToString());
+
         var jwtToken = await _tokenService.GenerateJWToken(user);
         var refreshToken = _tokenService.GenerateRefreshToken(ipAddress);
+
+        user.RefreshTokens.Add(refreshToken);
+        await _userManager.UpdateAsync(user);
 
         AuthenticationResponse response = new()
         {
@@ -108,6 +116,76 @@ public class AccountService : IAccountService
         response.Roles = rolesList.ToList();
 
         return new Response<AuthenticationResponse>(response, $"Authenticated {user.UserName}");
+    }
+
+    public async Task<Response<AuthenticationResponse>> RefreshTokenAsync(RefreshTokenRequest request, string ipAddress, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.Users
+            .Include(u => u.RefreshTokens)
+            .FirstOrDefaultAsync(u => u.RefreshTokens.Any(rt => rt.Token == request.RefreshToken), cancellationToken);
+        if (user == null || user.RefreshTokens.All(x => x.Token != request.RefreshToken || x.Revoked != null || x.Expires < _dateTimeService.NowUtc))
+        {
+            return new Response<AuthenticationResponse>(ErrorCodeEnum.COM_ERR_000.ToString(), $"Invalid token.");
+        }
+
+        var jwtToken = await _tokenService.GenerateJWToken(user);
+        var refreshToken = _tokenService.GenerateRefreshToken(ipAddress);
+
+        // Revoke the old refresh token and save the new one
+        var oldRefreshToken = user.RefreshTokens.First(x => x.Token == request.RefreshToken);
+        oldRefreshToken.Revoked = _dateTimeService.NowUtc;
+        oldRefreshToken.ReplacedByToken = refreshToken.Token;
+        user.RefreshTokens.Add(refreshToken);
+        await _userManager.UpdateAsync(user);
+
+        AuthenticationResponse response = new()
+        {
+            Id = user.Id,
+            Email = user.Email ?? string.Empty,
+            UserName = user.UserName,
+            DisplayName = $"{user.FirstName} {user.LastName}",
+            JWToken = jwtToken,
+            RefreshToken = refreshToken.Token,
+            IsVerified = user.EmailConfirmed,
+        };
+
+        var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+        var roleNameByUser = rolesList.FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(roleNameByUser))
+        {
+            response.GroupCode = _roleManager.Roles.FirstOrDefault(x => x.Name == roleNameByUser)?.Code ?? "";
+        }
+        response.Roles = rolesList.ToList();
+
+        return new Response<AuthenticationResponse>(response, $"Authenticated {user.UserName}");
+    }
+
+    public async Task<Response<bool>> LogoutAsync(LogoutRequest request, string ipAddress, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.Users
+            .Include(u => u.RefreshTokens)
+            .FirstOrDefaultAsync(u => u.Id == request.UserId.ToString(), cancellationToken);
+        if (user == null)
+        {
+            return new Response<bool>(ErrorCodeEnum.COM_ERR_000.ToString(), $"Invalid user.");
+        }
+
+        var refreshTokens = user.RefreshTokens
+            .Where(x => x.CreatedByIp == ipAddress && x.Revoked == null && x.Expires > _dateTimeService.NowUtc)
+            .ToList();
+        if (refreshTokens.Count == 0)
+        {
+            return new Response<bool>(ErrorCodeEnum.COM_ERR_000.ToString(), $"No active tokens found.");
+        }
+        foreach (var refreshToken in refreshTokens)
+        {
+            refreshToken.Revoked = _dateTimeService.NowUtc;
+            refreshToken.RevokedByIp = ipAddress;
+        }
+
+        await _userManager.UpdateAsync(user);
+
+        return new Response<bool>(true, $"Logged out successfully. Revoked {refreshTokens.Count} refresh tokens.");
     }
 
     public async Task<Response<string>> RegisterAsync(RegisterRequest request, string origin)

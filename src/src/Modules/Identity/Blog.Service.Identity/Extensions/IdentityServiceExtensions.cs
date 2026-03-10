@@ -4,6 +4,7 @@ using System.Text;
 using Blog.Domain.Shared.Settings;
 using Blog.Infrastructure.Shared.Behaviours;
 using Blog.Infrastructure.Shared.Interfaces;
+using Blog.Infrastructure.Shared.Services;
 using Blog.Infrastructure.Shared.Wrappers;
 using Blog.Service.Identity.Interfaces;
 using Blog.Service.Identity.Services;
@@ -83,6 +84,8 @@ public static class IdentityServiceExtensions
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddMediatR(Assembly.GetExecutingAssembly());
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddTransient<IDateTimeService, DateTimeService>();
+
 
         services.AddScoped<ISecurityContextAccessor, SecurityContextAccessor>();
         services.AddHttpContextAccessor();

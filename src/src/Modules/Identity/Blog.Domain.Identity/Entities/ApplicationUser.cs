@@ -13,5 +13,5 @@ public class ApplicationUser : IdentityUser
     public DateTime Created { get; set; } = DateTime.UtcNow;
     public string? LastModifiedBy { get; set; }
     public DateTime? LastModified { get; set; } = DateTime.UtcNow;
-    public virtual List<RefreshToken>? RefreshTokens { get; set; }
+    public virtual List<RefreshToken>? RefreshTokens { get; set; } = new List<RefreshToken>();
 }

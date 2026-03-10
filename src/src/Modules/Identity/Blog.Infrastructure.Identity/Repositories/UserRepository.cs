@@ -208,7 +208,9 @@ public class UserRepository : IUserRepository
 
     public async Task<ApplicationUser> GetByPhoneNumberAsync(string phone, CancellationToken cancellationToken, bool includedDeleted = false)
     {
-        var applicationUsers = await _applicationUser.ToListAsync(cancellationToken);
+        var applicationUsers = await _applicationUser
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
 
         if (includedDeleted)
         {
@@ -241,9 +243,13 @@ public class UserRepository : IUserRepository
         ApplicationUser? applicationUser;
 
         if (includedDeleted)
-            applicationUser = await _applicationUser.FirstOrDefaultAsync(x => x.UserName == username);
+            applicationUser = await _applicationUser
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.UserName == username);
         else
-            applicationUser = await _applicationUser.FirstOrDefaultAsync(x => x.UserName == username && !x.IsDeleted);
+            applicationUser = await _applicationUser
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.UserName == username && !x.IsDeleted);
 
         if (applicationUser == null)
             return null;
@@ -256,9 +262,13 @@ public class UserRepository : IUserRepository
         ApplicationUser? applicationUser;
 
         if (includedDeleted)
-            applicationUser = await _applicationUser.FirstOrDefaultAsync(x => x.Email == email);
+            applicationUser = await _applicationUser
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Email == email);
         else
-            applicationUser = await _applicationUser.FirstOrDefaultAsync(x => x.Email == email && !x.IsDeleted);
+            applicationUser = await _applicationUser
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Email == email && !x.IsDeleted);
 
         if (applicationUser == null)
             return null;
