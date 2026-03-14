@@ -13,6 +13,6 @@ public class AuthenticationResponse
     public List<string> Roles { get; set; }
     public bool IsVerified { get; set; }
     public string JWToken { get; set; }
-    // [JsonIgnore]
+    [JsonIgnore]
     public string RefreshToken { get; set; }
 }

@@ -25,11 +25,14 @@ import router from '@/routes';
  */
 import { ThemeProvider } from '@/components/common/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
+import { SignalRProvider } from '@/contexts/SignalRContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      <RouterProvider router={router} />
+      <SignalRProvider autoConnect={true}>
+        <RouterProvider router={router} />
+      </SignalRProvider>
 
       <Toaster richColors />
     </ThemeProvider>

@@ -16,19 +16,19 @@ var AllowSpecificOrigins = "_AllowSpecificOrigins";
 var configuration = builder.Configuration;
 var environment = builder.Environment;
 
-// builder.Services.AddCors(options =>
-// {
-//     options.AddDefaultPolicy(
-//         policy =>
-//         {
-//             policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-//         });
-//     options.AddPolicy(name: AllowSpecificOrigins,
-//         policy =>
-//         {
-//             policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-//         });
-// });
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        });
+    options.AddPolicy(name: AllowSpecificOrigins,
+        policy =>
+        {
+            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        });
+});
 
 builder.Services.Configure<CookieAuthenticationOptions>(o =>
 {

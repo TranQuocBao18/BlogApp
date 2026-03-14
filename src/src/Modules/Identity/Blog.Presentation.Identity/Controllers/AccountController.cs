@@ -32,7 +32,19 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> AuthenticateAsync(LoginUserCommand command)
     {
         command.IPAddress = GenerateIPAddress();
-        return Ok(await Mediator.Send(command));
+        var result = await Mediator.Send(command);
+        Response.Cookies.Append(
+            "refreshToken",
+            result.Data.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            }
+        );
+        return Ok(result);
     }
 
     [HttpPost("refresh-token")]

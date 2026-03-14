@@ -8,7 +8,6 @@
  */
 import axios from 'axios';
 import registerAxiosTokenRefresh from 'axios-token-refresh';
-import { toast } from 'sonner';
 
 /**
  * Constants
@@ -21,8 +20,8 @@ import { AppRouters } from '@/constants/router';
  */
 import type {
   AxiosRequestConfig,
-  Method,
   InternalAxiosRequestConfig,
+  Method,
 } from 'axios';
 
 export interface RequestConfig extends AxiosRequestConfig {
@@ -51,14 +50,38 @@ const axiosInstance = axios.create({
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
   },
-  withCredentials: false,
+  withCredentials: true,
 });
 registerAxiosTokenRefresh(axiosInstance, {
-  refreshRequest: (failedRequest: any) => {
+  refreshRequest: async (failedRequest: any) => {
     // handle refresh token logic here
-    window.localStorage.clear();
-    window.location.href = AppRouters.LOGIN;
-    return Promise.reject(failedRequest);
+    try {
+      const response = await axios.post(
+        `${ENV_CONFIG.API}/${ENV_CONFIG.API_VERSION}/Account/refresh-token`,
+        {},
+        { withCredentials: true },
+      );
+
+      if (response.data.succeeded) {
+        localStorage.setItem(
+          APP_CONFIG.ACCESS_TOKEN,
+          response.data.data.jwToken,
+        );
+        localStorage.setItem(
+          'user',
+          JSON.stringify(response.data.data.userName),
+        );
+
+        failedRequest.response.config.header['Authorization'] =
+          `Bearer ${response.data.data.jwToken}`;
+
+        return Promise.resolve();
+      }
+    } catch (err) {
+      window.localStorage.clear();
+      window.location.href = AppRouters.LOGIN;
+      return Promise.reject(err);
+    }
   },
 });
 
