@@ -6,9 +6,6 @@
 /**
  * Node modules
  */
-import { redirect } from 'react-router';
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
 
 /**
  * Custom modules
@@ -18,15 +15,19 @@ import { apiLogin } from '@/api/user.api';
 /**
  * Types
  */
-import type { ActionFunction } from 'react-router';
+import type { ActionResponse, ErrorResponse } from '@/types';
 import { AxiosError } from 'axios';
-import type { ActionResponse, AuthResponse, ErrorResponse } from '@/types';
-import type { LoginParams } from '@/interfaces/user';
+import {
+  redirect,
+  type ActionFunction,
+  type LoaderFunction,
+} from 'react-router';
 
 /**
  * Constants
  */
 import { APP_CONFIG } from '@/constants/global';
+import { AppRouters } from '@/constants/router';
 
 const loginAction: ActionFunction = async ({ request }) => {
   const data = await request.json();
@@ -54,16 +55,16 @@ const loginAction: ActionFunction = async ({ request }) => {
       },
       { loading: false },
     );
-    console.log(response.data.succeeded);
+    console.log(response.succeeded);
 
     // const responseData = response?.data as AuthResponse;
-    if (response.data.succeeded) {
-      localStorage.setItem(APP_CONFIG.ACCESS_TOKEN, response.data.data.jwToken);
-      localStorage.setItem('user', JSON.stringify(response.data.data.userName));
+    if (response.succeeded) {
+      localStorage.setItem(APP_CONFIG.ACCESS_TOKEN, response.data.jwToken);
+      localStorage.setItem('user', JSON.stringify(response.data.userName));
 
       return {
         ok: true,
-        data: response.data,
+        data: response,
       } as ActionResponse;
     } else {
       return {
@@ -84,6 +85,16 @@ const loginAction: ActionFunction = async ({ request }) => {
 
     throw err;
   }
+};
+
+export const loginLoader: LoaderFunction = () => {
+  const accessToken = localStorage.getItem(APP_CONFIG.ACCESS_TOKEN);
+
+  if (accessToken) {
+    return redirect(AppRouters.HOME);
+  }
+
+  return null;
 };
 
 export default loginAction;

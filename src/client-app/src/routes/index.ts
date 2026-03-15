@@ -6,8 +6,8 @@
 /**
  * Node modules
  */
-import { createBrowserRouter } from 'react-router';
 import { lazy } from 'react';
+import { createBrowserRouter } from 'react-router';
 
 /**
  * Loaders
@@ -26,7 +26,7 @@ const SignupPage = lazy(() =>
 /**
  * Actions
  */
-import loginAction from '@/routes/action/auth/login';
+import loginAction, { loginLoader } from '@/routes/action/auth/login';
 import signupAction from '@/routes/action/auth/signup';
 
 /**
@@ -43,11 +43,13 @@ const router = createBrowserRouter([
     path: AppRouters.LOGIN,
     Component: LoginPage,
     action: loginAction,
+    loader: loginLoader,
   },
   {
     path: AppRouters.SIGNUP,
     Component: SignupPage,
     action: signupAction,
+    loader: loginLoader,
   },
   {
     path: AppRouters.HOME,

@@ -34,7 +34,7 @@ public class AccountController : ControllerBase
         command.IPAddress = GenerateIPAddress();
         var result = await Mediator.Send(command);
         Response.Cookies.Append(
-            "refreshToken",
+            "REFRESH_TOKEN",
             result.Data.RefreshToken,
             new CookieOptions
             {

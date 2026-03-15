@@ -8,6 +8,7 @@
  */
 import axios from 'axios';
 import registerAxiosTokenRefresh from 'axios-token-refresh';
+import { toast } from 'sonner';
 
 /**
  * Constants
@@ -53,6 +54,7 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 registerAxiosTokenRefresh(axiosInstance, {
+  statusCodes: [401, 403],
   refreshRequest: async (failedRequest: any) => {
     // handle refresh token logic here
     try {
@@ -94,6 +96,70 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
+  },
+);
+
+const getCookie = (name: string) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop()?.split(';').shift();
+  }
+  return null;
+};
+
+const checkAuthorize = (error: any) => {
+  const status = error?.response?.status || error?.status;
+  const dataStr = String(error?.response?.data || error?.data);
+
+  const isAuthError =
+    dataStr.includes('You are not Authorized') ||
+    status === 403 ||
+    status === 401;
+  if (isAuthError) {
+    const hasRefreshToken = getCookie('REFRESH_TOKEN');
+
+    if (!hasRefreshToken) {
+      toast.error('Your login session has expired. Please log in again.');
+      window.localStorage.clear();
+      setTimeout(() => {
+        window.location.href = AppRouters.LOGIN;
+      }, 2000);
+
+      return false;
+    }
+    return true;
+  }
+  return false;
+};
+
+axiosInstance.interceptors.response.use(
+  (resp) => {
+    if (String(resp?.data).includes('You are not Authorized')) {
+      const canRefresh = checkAuthorize(resp);
+      if (canRefresh) {
+        const customAuthError: any = new Error('Custom Unauthorized');
+        customAuthError.response = { status: 401, data: resp.data };
+        customAuthError.config = resp.config;
+
+        return Promise.reject(customAuthError);
+      }
+    }
+
+    return resp?.data;
+  },
+  (error) => {
+    const canRefresh = checkAuthorize(error);
+
+    if (canRefresh) {
+      return Promise.reject(error);
+    }
+
+    return {
+      status: false,
+      message: error?.message,
+      result: null,
+    };
   },
 );
 
