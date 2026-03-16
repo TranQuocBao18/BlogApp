@@ -11,6 +11,8 @@ import { Link } from 'react-router';
 /**
  * Components
  */
+import { SettingsDialog } from '@/components/common/SettingsDialog';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,15 +22,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import Avartar from 'react-avatar';
-import { SettingsDialog } from '@/components/SettingsDialog';
 
 /**
  * Custom hooks
  */
-import { useUser } from '@/hooks/useUser';
 import { useLogout } from '@/hooks/useLogout';
+import { useUser } from '@/hooks/useUser';
 
 /**
  * Assets

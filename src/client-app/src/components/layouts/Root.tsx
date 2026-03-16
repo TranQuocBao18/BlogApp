@@ -6,35 +6,38 @@
 /**
  * Node modules
  */
-import { Outlet } from 'react-router';
 import { Suspense } from 'react';
+import { Outlet } from 'react-router';
 
 /**
  * Components
  */
-import { Loading } from '@/components/common/Loading';
-// import { Header } from '@/components/common/Header';
 import { Footer } from '@/components/common/Footer';
+import { Header } from '@/components/common/Header';
+import { Loading } from '@/components/common/Loading';
 
 /**
  * Assets
  */
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { Loader2Icon } from 'lucide-react';
 
 export const RootLayout = () => {
   return (
     <div className='flex flex-col min-h-dvh'>
-      <Loading className='z-40' />
+      <TooltipProvider>
+        <Loading className='z-40' />
 
-      {/* <Header /> */}
+        <Header />
 
-      <main className='grow flex flex-col'>
-        <Suspense fallback={<Loader2Icon className='animate-spin' />}>
-          <Outlet />
-        </Suspense>
-      </main>
+        <main className='grow flex flex-col'>
+          <Suspense fallback={<Loader2Icon className='animate-spin' />}>
+            <Outlet />
+          </Suspense>
+        </main>
 
-      <Footer />
+        <Footer />
+      </TooltipProvider>
     </div>
   );
 };

@@ -17,17 +17,12 @@ import { apiLogin } from '@/api/user.api';
  */
 import type { ActionResponse, ErrorResponse } from '@/types';
 import { AxiosError } from 'axios';
-import {
-  redirect,
-  type ActionFunction,
-  type LoaderFunction,
-} from 'react-router';
+import { type ActionFunction } from 'react-router';
 
 /**
  * Constants
  */
 import { APP_CONFIG } from '@/constants/global';
-import { AppRouters } from '@/constants/router';
 
 const loginAction: ActionFunction = async ({ request }) => {
   const data = await request.json();
@@ -85,16 +80,6 @@ const loginAction: ActionFunction = async ({ request }) => {
 
     throw err;
   }
-};
-
-export const loginLoader: LoaderFunction = () => {
-  const accessToken = localStorage.getItem(APP_CONFIG.ACCESS_TOKEN);
-
-  if (accessToken) {
-    return redirect(AppRouters.HOME);
-  }
-
-  return null;
 };
 
 export default loginAction;

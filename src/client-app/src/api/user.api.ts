@@ -35,7 +35,7 @@ export const forgotPassword = (email: string) =>
   request('post', `${ENV_CONFIG.API}/Account/forgotpassword`, { email });
 
 export const apiLogout = () =>
-  request('post', `${ENV_CONFIG.API}/Account/logout`);
+  request('post', `${ENV_CONFIG.API}/Account/logout`, {});
 
 export const apiUserInfo = () => request('get', `/info`);
 

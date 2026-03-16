@@ -12,7 +12,8 @@ import { createBrowserRouter } from 'react-router';
 /**
  * Loaders
  */
-
+import { RootLayout } from '@/components/layouts/Root';
+import loginLoader from '@/routes/loaders/auth/loginLoader';
 /**
  * Pages
  */
@@ -26,8 +27,8 @@ const SignupPage = lazy(() =>
 /**
  * Actions
  */
-import loginAction, { loginLoader } from '@/routes/action/auth/login';
-import signupAction from '@/routes/action/auth/signup';
+import loginAction from '@/routes/actions/auth/login';
+import signupAction from '@/routes/actions/auth/signup';
 
 /**
  * Error boundaries
@@ -53,6 +54,14 @@ const router = createBrowserRouter([
   },
   {
     path: AppRouters.HOME,
+    Component: RootLayout,
+    children: [
+      // {
+      //   index: true,
+      //   Component: HomePage,
+      //   loader: homeLoader,
+      // },
+    ],
   },
 ]);
 

@@ -62,6 +62,15 @@ public class AccountController : ControllerBase
         {
             command.IPAddress = GenerateIPAddress();
             await _signInManager.SignOutAsync();
+
+            Response.Cookies.Delete("REFRESH_TOKEN", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Path = "/"
+            });
+
             return Ok(await Mediator.Send(command));
         }
         return BadRequest(new Response<bool>(false, "User is not authenticated"));

@@ -11,6 +11,8 @@ import { Link, useLocation } from 'react-router';
 /**
  * Components
  */
+import { Logo } from '@/components/common/Logo';
+import { SidebarUserMenu } from '@/components/common/SidebarUserMenu';
 import {
   Sidebar,
   SidebarContent,
@@ -22,8 +24,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Logo } from '@/components/common/Logo';
-import { SidebarUserMenu } from '@/components/common/SidebarUserMenu';
 
 /**
  * Constants

@@ -19,8 +19,8 @@ import { Logo } from '@/components/common/Logo';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipTrigger,
 } from '@/components/ui/tooltip';
 
 /**
