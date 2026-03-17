@@ -62,6 +62,9 @@ export const apiAddUser = (data: IAddEditUser) =>
 export const apiUpdateUser = (data: IAddEditUser) =>
   request('put', `/User`, { payload: data });
 
+export const apiUpdateProfile = (data: IAddEditUser) =>
+  request('put', `/User/profile`, { payload: data });
+
 export const apiDeleteUser = (id: string) => request('delete', `/User/${id}`);
 
 export const apiChangePasswordUser = (

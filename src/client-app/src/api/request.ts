@@ -54,28 +54,28 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 registerAxiosTokenRefresh(axiosInstance, {
-  statusCodes: [401, 403],
+  statusCodes: [401],
   refreshRequest: async (failedRequest: any) => {
     // handle refresh token logic here
     try {
       const response = await axios.post(
-        `${ENV_CONFIG.API}/${ENV_CONFIG.API_VERSION}/Account/refresh-token`,
+        `${ENV_CONFIG.API}/Account/refresh-token`,
         {},
         { withCredentials: true },
       );
 
-      if (response.data.succeeded) {
+      if (response.data.Succeeded) {
         localStorage.setItem(
           APP_CONFIG.ACCESS_TOKEN,
-          response.data.data.jwToken,
+          response.data.Data.JWToken,
         );
         localStorage.setItem(
           'user',
-          JSON.stringify(response.data.data.userName),
+          JSON.stringify(response.data.Data.UserName),
         );
 
         failedRequest.response.config.header['Authorization'] =
-          `Bearer ${response.data.data.jwToken}`;
+          `Bearer ${response.data.Data.JWToken}`;
 
         return Promise.resolve();
       }
@@ -113,9 +113,7 @@ const checkAuthorize = (error: any) => {
   const dataStr = String(error?.response?.data || error?.data);
 
   const isAuthError =
-    dataStr.includes('You are not Authorized') ||
-    status === 403 ||
-    status === 401;
+    dataStr.includes('You are not Authorized') || status === 401;
   if (isAuthError) {
     const hasRefreshToken = getCookie('REFRESH_TOKEN');
 

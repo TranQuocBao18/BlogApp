@@ -4,53 +4,61 @@
  */
 
 export interface User {
-  _id: string;
-  username: string;
-  email: string;
-  role: 'admin' | 'user';
-  firstName?: string;
-  lastName?: string;
-  socialLinks?: {
-    website?: string;
-    facebook?: string;
-    instagram?: string;
-    linkedin?: string;
-    x?: string;
-    youtube?: string;
-  };
-  createdAt: string;
-  updatedAt: string;
+  id: string;
+  username?: string;
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
+  isAdmin: boolean;
+  created: string;
+  lastModified?: string;
 }
 
 export interface Blog {
-  _id: string;
+  id: string;
   title: string;
-  slug: string;
+  slug?: string;
   content: string;
-  banner: {
-    publicId: string;
-    url: string;
-    width: number;
-    height: number;
-  };
-  author: User;
-  viewsCount: number;
-  likesCount: number;
-  commentsCount: number;
-  status: 'draft' | 'published';
-  publishedAt: string;
-  updatedAt: string;
+  banner?: Banner;
+  category?: Category;
+  tags: Tag[];
+  likeCount?: number;
+  isLikeByCurrentUser?: boolean;
+  commentCount: number;
+  status: 'draft' | 'published' | string;
 }
 
 export interface Comment {
-  _id: string;
+  id: string;
   content: string;
-  likesCount: number;
-  user: User | null;
-  blog: Blog;
-  replies: Comment[];
-  createdAt: string;
-  updatedAt: string;
+  userId?: string;
+  blogId: string;
+  parentId?: string;
+  user?: User | null;
+  likeCount?: number;
+  isLikeByCurrentUser?: boolean;
+  childComments?: Comment[];
+  replyCount?: number;
+  created: string;
+}
+
+export interface Category {
+  id?: string;
+  name: string;
+  slug?: string;
+}
+
+export interface Tag {
+  name: string;
+  slug?: string;
+}
+
+export interface Banner {
+  id?: string;
+  publicId: string;
+  url: string;
+  width: number;
+  height: number;
 }
 
 export type PaginatedResponse<T, K extends string> = {
@@ -109,8 +117,24 @@ export interface ActionResponse<T = unknown> {
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  user: Pick<User, 'username' | 'email' | 'role'>;
+  id: string;
+  userName: string;
+  displayName: string;
+  email: string;
+  groupCode: string;
+  roles: string[];
+  isVerified: boolean;
+  jwToken: string;
+}
+
+export interface ProfileResponse {
+  id: string;
+  userName?: string;
+  displayName?: string;
+  email?: string;
+  fullName?: string;
+  phoneNumber?: string;
+  roles?: string[];
 }
 
 export interface BlogCreateResponse {

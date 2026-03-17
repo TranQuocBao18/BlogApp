@@ -212,6 +212,11 @@ public class UserService : IUserService, IUserServiceShare
                 return new Response<bool>(ErrorCodeEnum.USE_ERR_006);
             }
 
+            if (oldPassword == newPassword)
+            {
+                return new Response<bool>(ErrorCodeEnum.USE_ERR_013);
+            }
+
             await _identityUnitOfWork.UserRepository.ChangePasswordAsync(userId, oldPassword, newPassword);
             return new Response<bool>(true);
         }

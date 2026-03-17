@@ -26,12 +26,24 @@ public class UserController : BaseApiController
 
     // GET api/<controller>/profile
     [HttpGet("profile")]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     [ProducesResponseType(typeof(Response<ProfileResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ProfileAsync()
     {
         var userId = _securityContextAccessor.UserId;
         return Ok(await Mediator.Send(new GetProfileQuery() { Id = userId }));
+    }
+
+    // PUT api/<controller>/profile - Update own profile
+    [HttpPut("profile")]
+    [Authorize]
+    [ProducesResponseType(typeof(Response<Guid>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateProfileAsync([FromBody] UpsertUserCommand command)
+    {
+        var userId = _securityContextAccessor.UserId;
+        // Set the user ID to current user to ensure they can only update their own profile
+        command.Payload.Id = userId;
+        return Ok(await Mediator.Send(command));
     }
 
     // GET api/<controller>/roles
@@ -108,7 +120,7 @@ public class UserController : BaseApiController
 
     // POST api/<controller>
     [HttpPost("changepassword")]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ChangePasswordAsync(ChangePasswordUserCommand command)
     {

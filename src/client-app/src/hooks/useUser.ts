@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
  * Types
  */
 import type { User } from '@/types';
-export type UserResponse = Pick<User, 'username' | 'email' | 'role'>;
+export type UserResponse = Pick<User, 'username' | 'email'>;
 
 export const useUser = () => {
   const [user, setUser] = useState<UserResponse>();

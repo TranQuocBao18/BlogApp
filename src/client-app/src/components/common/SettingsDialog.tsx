@@ -7,16 +7,19 @@
  * Node modules
  */
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useFetcher } from 'react-router';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 /**
  * Custom modules
  */
-import { cn } from '@/lib/utils';
+import {
+  apiChangePasswordUser,
+  apiGetProfile,
+  apiUpdateProfile,
+} from '@/api/user.api';
 
 /**
  * Components
@@ -46,7 +49,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 /**
  * Custom hooks
  */
-import { useUser } from '@/hooks/useUser';
 
 /**
  * Assets
@@ -56,71 +58,117 @@ import { AtSignIcon, Loader2Icon, MailIcon } from 'lucide-react';
 /**
  * Types
  */
-/**
- * Types
- */
-import type { ActionResponse } from '@/types';
+import type { ProfileResponse } from '@/types';
 import type { DialogProps } from '@radix-ui/react-dialog';
 
 /**
  * Profile form schema
  */
 const profileFormSchema = z.object({
-  firstName: z
+  username: z
     .string()
-    .max(20, 'First name must be less than 20 characters')
+    .max(20, 'Username must be less than 20 characters')
     .optional(),
-  lastName: z
+  fullname: z
     .string()
-    .max(20, 'Last name must be less than 20 characters')
+    .max(50, 'Full name must be less than 50 characters')
     .optional(),
   email: z
     .string()
     .max(50, 'Email must be less than 50 characters')
     .email('Invalid email address')
     .optional(),
-  username: z
+  phoneNumber: z
     .string()
-    .max(20, 'Username must be less than 20 characters')
+    .max(20, 'Phone number must be less than 20 characters')
     .optional(),
 });
 
-const ProfileSettingsForm = () => {
-  const fetcher = useFetcher();
-  const user = useUser();
-  const data = fetcher.data as ActionResponse;
-
-  const loading = fetcher.state !== 'idle';
-
-  useEffect(() => {
-    if (data && data.ok) {
-      toast.success('Profile has been updated successfully');
-    }
-  }, [data]);
-
-  const defaultValues = {
-    firstName: '',
-    lastName: '',
-    email: user?.email,
-    userName: user?.username,
-  };
+const ProfileSettingsForm = ({ onSuccess }: { onSuccess?: () => void }) => {
+  const [loading, setLoading] = useState(false);
+  const [profileData, setProfileData] = useState<ProfileResponse | null>(null);
 
   //React hook form initial
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
+    defaultValues: {
+      username: '',
+      fullname: '',
+      email: '',
+      phoneNumber: '',
+    },
   });
+
+  // Fetch profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await apiGetProfile();
+
+        // Check if the response indicates success
+        if (response?.Succeeded || response?.succeeded) {
+          const profile = (response?.Data || response?.data) as ProfileResponse;
+          setProfileData(profile);
+          form.reset({
+            username: profile.userName || '',
+            fullname: profile.fullName || '',
+            email: profile.email || '',
+            phoneNumber: profile.phoneNumber || '',
+          });
+        } else {
+          console.error(
+            'Failed to fetch profile:',
+            response?.Message || response?.message,
+          );
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch profile:', error);
+        // Only show error toast if it's not a 403/401 auth error
+        if (
+          error?.response?.status !== 403 &&
+          error?.response?.status !== 401
+        ) {
+          toast.error('Failed to load profile data');
+        }
+      }
+    };
+
+    fetchProfile();
+  }, [form]);
 
   //Handle form submit
   const onSubmit = useCallback(
     async (values: z.infer<typeof profileFormSchema>) => {
-      await fetcher.submit(values, {
-        action: '/settings',
-        method: 'post',
-        encType: 'application/json',
-      });
+      setLoading(true);
+      try {
+        const response = await apiUpdateProfile({
+          id: profileData?.id,
+          username: values.username || '',
+          email: values.email || '',
+          fullname: values.fullname || '',
+          phoneNumber: values.phoneNumber || '',
+        });
+
+        // Check if the response indicates success
+        if (response?.Succeeded || response?.succeeded) {
+          toast.success('Profile has been updated successfully');
+          onSuccess?.();
+        } else {
+          // Show error message from response
+          const errorMessage =
+            response?.Message ||
+            response?.message ||
+            'Failed to update profile';
+          toast.error(errorMessage);
+        }
+      } catch (error) {
+        console.error('Failed to update profile:', error);
+        toast.error('Failed to update profile');
+      } finally {
+        setLoading(false);
+      }
     },
-    [],
+    [profileData?.id, onSuccess],
   );
 
   return (
@@ -130,66 +178,63 @@ const ProfileSettingsForm = () => {
           <h3 className='font-semibold text-lg'>Personal info</h3>
 
           <p className='text-sm text-muted-foreground'>
-            Update your photo and personal details here.
+            Update your personal details here.
           </p>
 
           <Separator className='my-5' />
         </div>
 
-        <div className='grid gap-4 items-start lg:grid-cols-[1fr_2fr]'>
-          <div
-            className={cn(
-              'text-sm leading-none font-medium',
-              (form.formState.errors.firstName ||
-                form.formState.errors.lastName) &&
-                'text-destructive',
-            )}
-          >
-            Name
-          </div>
+        <FormField
+          control={form.control}
+          name='username'
+          render={({ field }) => (
+            <FormItem className='grid gap-2 items-start lg:grid-cols-[1fr_2fr]'>
+              <FormLabel>Username</FormLabel>
 
-          <div className='grid max-md:gap-y-4 gap-x-6 md:grid-cols-2'>
-            <FormField
-              control={form.control}
-              name='firstName'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='md:sr-only'>First name</FormLabel>
+              <div className='space-y-2'>
+                <div className='relative'>
+                  <AtSignIcon
+                    size={20}
+                    className='absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none text-muted-foreground'
+                  />
 
                   <FormControl>
                     <Input
                       type='text'
-                      placeholder='John'
+                      placeholder='johndoe'
+                      className='ps-10'
                       {...field}
                     />
                   </FormControl>
+                </div>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              control={form.control}
-              name='lastName'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='md:sr-only'>Last name</FormLabel>
+        <Separator className='my-5' />
 
-                  <FormControl>
-                    <Input
-                      type='text'
-                      placeholder='Doe'
-                      {...field}
-                    />
-                  </FormControl>
+        <FormField
+          control={form.control}
+          name='fullname'
+          render={({ field }) => (
+            <FormItem className='grid gap-2 items-start lg:grid-cols-[1fr_2fr]'>
+              <FormLabel>Full name</FormLabel>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+              <FormControl>
+                <Input
+                  type='text'
+                  placeholder='John Doe'
+                  {...field}
+                />
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <Separator className='my-5' />
 
@@ -227,30 +272,20 @@ const ProfileSettingsForm = () => {
 
         <FormField
           control={form.control}
-          name='username'
+          name='phoneNumber'
           render={({ field }) => (
             <FormItem className='grid gap-2 items-start lg:grid-cols-[1fr_2fr]'>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Phone number</FormLabel>
 
-              <div className='space-y-2'>
-                <div className='relative'>
-                  <AtSignIcon
-                    size={20}
-                    className='absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none text-muted-foreground'
-                  />
+              <FormControl>
+                <Input
+                  type='tel'
+                  placeholder='+1 (555) 000-0000'
+                  {...field}
+                />
+              </FormControl>
 
-                  <FormControl>
-                    <Input
-                      type='text'
-                      placeholder='johndoe'
-                      className='ps-10'
-                      {...field}
-                    />
-                  </FormControl>
-                </div>
-
-                <FormMessage />
-              </div>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -283,7 +318,12 @@ const ProfileSettingsForm = () => {
  */
 const passwordFormSchema = z
   .object({
-    password: z.string().min(8, 'Password must be at least 8 characters long'),
+    oldPassword: z
+      .string()
+      .min(8, 'Old password must be at least 8 characters long'),
+    password: z
+      .string()
+      .min(8, 'New password must be at least 8 characters long'),
     confirm_password: z.string(),
   })
   .refine((data) => data.password === data.confirm_password, {
@@ -292,21 +332,13 @@ const passwordFormSchema = z
   });
 
 const PasswordSettingsForm = () => {
-  const fetcher = useFetcher();
-  const data = fetcher.data as ActionResponse;
-
-  const loading = fetcher.state !== 'idle';
-
-  useEffect(() => {
-    if (data && data.ok) {
-      toast.success('Password has been updated successfully');
-    }
-  }, [data]);
+  const [loading, setLoading] = useState(false);
 
   //React hook form initial
   const form = useForm<z.infer<typeof passwordFormSchema>>({
     resolver: zodResolver(passwordFormSchema),
     defaultValues: {
+      oldPassword: '',
       password: '',
       confirm_password: '',
     },
@@ -315,13 +347,33 @@ const PasswordSettingsForm = () => {
   //Handle form submit
   const onSubmit = useCallback(
     async (values: z.infer<typeof passwordFormSchema>) => {
-      await fetcher.submit(values, {
-        action: '/settings',
-        method: 'post',
-        encType: 'application/json',
-      });
+      setLoading(true);
+      try {
+        const response = await apiChangePasswordUser(
+          values.oldPassword,
+          values.password,
+        );
+
+        // Check if the response indicates success
+        if (response?.Succeeded || response?.succeeded) {
+          toast.success('Password has been updated successfully');
+          form.reset();
+        } else {
+          // Show error message from response
+          const errorMessage =
+            response?.Message ||
+            response?.message ||
+            'Failed to update password';
+          toast.error(errorMessage);
+        }
+      } catch (error) {
+        console.error('Failed to update password:', error);
+        toast.error('Failed to update password');
+      } finally {
+        setLoading(false);
+      }
     },
-    [],
+    [form],
   );
 
   return (
@@ -336,6 +388,29 @@ const PasswordSettingsForm = () => {
 
           <Separator className='my-5' />
         </div>
+
+        <FormField
+          control={form.control}
+          name='oldPassword'
+          render={({ field }) => (
+            <FormItem className='grid gap-2 items-start lg:grid-cols-[1fr_2fr]'>
+              <FormLabel>Current password</FormLabel>
+
+              <div className='space-y-2'>
+                <FormControl>
+                  <InputPassword
+                    placeholder='••••••••'
+                    {...field}
+                  />
+                </FormControl>
+
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+
+        <Separator className='my-5' />
 
         <FormField
           control={form.control}
@@ -408,8 +483,18 @@ export const SettingsDialog = ({
   children,
   ...props
 }: React.PropsWithChildren<DialogProps>) => {
+  const [open, setOpen] = useState(false);
+
+  const handleSuccess = () => {
+    setOpen(false);
+  };
+
   return (
-    <Dialog {...props}>
+    <Dialog
+      open={open}
+      onOpenChange={setOpen}
+      {...props}
+    >
       <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className='md:min-w-[80vw] xl:min-w-4xl'>
@@ -428,7 +513,7 @@ export const SettingsDialog = ({
           </TabsList>
 
           <TabsContent value='profile'>
-            <ProfileSettingsForm />
+            <ProfileSettingsForm onSuccess={handleSuccess} />
           </TabsContent>
 
           <TabsContent value='password'>

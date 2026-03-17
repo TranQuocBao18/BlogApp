@@ -43,6 +43,8 @@ public enum ErrorCodeEnum
     USE_ERR_011,
     [Description(@"User is exsiting.")]
     USE_ERR_012,
+    [Description(@"User new password is the same as the old password.")]
+    USE_ERR_013,
     #endregion
 
     #region Role Group
