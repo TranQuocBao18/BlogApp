@@ -12,6 +12,11 @@ import { apiLogout } from '@/api/user.api';
 import { toast } from 'sonner';
 
 /**
+ * Types
+ */
+import type { Response } from '@/types';
+
+/**
  * Constants
  */
 import { APP_CONFIG } from '@/constants/global';
@@ -27,10 +32,10 @@ export const useLogout = () => {
 
   return async () => {
     try {
-      const response = await apiLogout();
+      const response = (await apiLogout()) as Response;
 
       // Nếu logout thất bại, hiện lỗi và return
-      if (response?.status === false) {
+      if (!response?.succeeded) {
         toast.error(response?.message || 'Logout failed');
         return;
       }

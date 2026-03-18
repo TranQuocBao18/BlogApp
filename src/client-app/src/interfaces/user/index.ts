@@ -3,22 +3,6 @@
  * @license Apache-2.0
  */
 
-export interface LoginParams {
-  ipAddress?: string;
-  email: string;
-  password: string;
-  rememberMe: boolean;
-}
-
-export interface RegisterParams {
-  id?: string;
-  username: string;
-  email: string;
-  fullname: string;
-  phoneNumber: string;
-  isAdmin: boolean;
-}
-
 export interface UserRole {
   id: string;
   roleName: string;
@@ -51,15 +35,13 @@ export interface IAddEditUser {
   phoneNumber: string;
 }
 
-export interface JWTDecode {
-  sub: string;
-  jti: string;
-  email: string;
-  uid: string;
-  ip: string;
-  roles: string[];
-  permission: string[];
-  exp: number;
-  iss: string;
-  aud: string;
+export interface User {
+  id: string;
+  username?: string;
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
+  isAdmin: boolean;
+  created: string;
+  lastModified?: string;
 }

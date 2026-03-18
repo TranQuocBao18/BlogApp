@@ -64,18 +64,19 @@ registerAxiosTokenRefresh(axiosInstance, {
         { withCredentials: true },
       );
 
-      if (response.data.Succeeded) {
+      // Backend returns Response<T> structure
+      if (response.data?.succeeded) {
         localStorage.setItem(
           APP_CONFIG.ACCESS_TOKEN,
-          response.data.Data.JWToken,
+          response.data.data?.jwToken || '',
         );
         localStorage.setItem(
           'user',
-          JSON.stringify(response.data.Data.UserName),
+          JSON.stringify(response.data.data?.userName || ''),
         );
 
-        failedRequest.response.config.header['Authorization'] =
-          `Bearer ${response.data.Data.JWToken}`;
+        failedRequest.response.config.headers['Authorization'] =
+          `Bearer ${response.data.data?.jwToken}`;
 
         return Promise.resolve();
       }
@@ -144,6 +145,7 @@ axiosInstance.interceptors.response.use(
       }
     }
 
+    // Return backend Response<T> structure as-is
     return resp?.data;
   },
   (error) => {
@@ -153,20 +155,27 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Return consistent Response<T> structure for errors
     return {
-      status: false,
-      message: error?.message,
-      result: null,
+      succeeded: false,
+      message: error?.message || 'Unknown error',
+      errorCode: error?.code || 'NetworkError',
+      errors: [],
+      data: null,
     };
   },
 );
 
+/**
+ * Main Response Type - Matches Backend Response<T>
+ * Backend always returns HTTP 200, success indicated by 'succeeded' field
+ */
 export type Response<T = any> = {
-  status: boolean;
+  succeeded: boolean;
   message: string;
-  result: T;
+  errorCode?: string;
+  errors?: string[];
   data?: T;
-  [key: string]: any;
 };
 
 export type MyResponse<T = any> = Promise<Response<T>>;

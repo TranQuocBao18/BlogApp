@@ -17,11 +17,8 @@ import { request } from '@/api/request';
  * Types
  */
 import type { RequestConfig } from '@/api/request';
-import type {
-  IAddEditUser,
-  LoginParams,
-  RegisterParams,
-} from '@/interfaces/user';
+import type { LoginParams, RegisterParams } from '@/interfaces/auth';
+import type { IAddEditUser } from '@/interfaces/user';
 
 export const apiLogin = (data: LoginParams, config?: RequestConfig) =>
   request('post', `${ENV_CONFIG.API}/Account/authenticate`, data, config);

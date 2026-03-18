@@ -58,7 +58,8 @@ import { AtSignIcon, Loader2Icon, MailIcon } from 'lucide-react';
 /**
  * Types
  */
-import type { ProfileResponse } from '@/types';
+import type { ProfileResponse } from '@/interfaces/auth';
+import type { Response } from '@/types';
 import type { DialogProps } from '@radix-ui/react-dialog';
 
 /**
@@ -103,11 +104,11 @@ const ProfileSettingsForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await apiGetProfile();
+        const response = (await apiGetProfile()) as Response<ProfileResponse>;
 
         // Check if the response indicates success
-        if (response?.Succeeded || response?.succeeded) {
-          const profile = (response?.Data || response?.data) as ProfileResponse;
+        if (response?.succeeded) {
+          const profile = response.data as ProfileResponse;
           setProfileData(profile);
           form.reset({
             username: profile.userName || '',
@@ -118,7 +119,7 @@ const ProfileSettingsForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         } else {
           console.error(
             'Failed to fetch profile:',
-            response?.Message || response?.message,
+            response?.message || 'Unknown error',
           );
         }
       } catch (error: any) {
@@ -141,24 +142,21 @@ const ProfileSettingsForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     async (values: z.infer<typeof profileFormSchema>) => {
       setLoading(true);
       try {
-        const response = await apiUpdateProfile({
+        const response = (await apiUpdateProfile({
           id: profileData?.id,
           username: values.username || '',
           email: values.email || '',
           fullname: values.fullname || '',
           phoneNumber: values.phoneNumber || '',
-        });
+        })) as Response;
 
         // Check if the response indicates success
-        if (response?.Succeeded || response?.succeeded) {
+        if (response?.succeeded) {
           toast.success('Profile has been updated successfully');
           onSuccess?.();
         } else {
           // Show error message from response
-          const errorMessage =
-            response?.Message ||
-            response?.message ||
-            'Failed to update profile';
+          const errorMessage = response?.message || 'Failed to update profile';
           toast.error(errorMessage);
         }
       } catch (error) {
@@ -349,21 +347,18 @@ const PasswordSettingsForm = () => {
     async (values: z.infer<typeof passwordFormSchema>) => {
       setLoading(true);
       try {
-        const response = await apiChangePasswordUser(
+        const response = (await apiChangePasswordUser(
           values.oldPassword,
           values.password,
-        );
+        )) as Response;
 
         // Check if the response indicates success
-        if (response?.Succeeded || response?.succeeded) {
+        if (response?.succeeded) {
           toast.success('Password has been updated successfully');
           form.reset();
         } else {
           // Show error message from response
-          const errorMessage =
-            response?.Message ||
-            response?.message ||
-            'Failed to update password';
+          const errorMessage = response?.message || 'Failed to update password';
           toast.error(errorMessage);
         }
       } catch (error) {

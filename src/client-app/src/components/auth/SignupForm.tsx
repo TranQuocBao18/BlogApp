@@ -43,7 +43,6 @@ import { LoaderCircleIcon } from 'lucide-react';
 /**
  * Types
  */
-import type { ValidationError } from '@/types';
 type SignupField =
   | 'username'
   | 'email'
@@ -115,42 +114,57 @@ export const SignupForm = ({
   useEffect(() => {
     if (!signupResponse) return;
 
-    if (signupResponse.ok) {
+    // Check if signup was successful
+    if (signupResponse.succeeded) {
       toast.success('Signup successful!');
       navigate('/login', { viewTransition: true });
       return;
     }
 
-    if (!signupResponse.err) return;
+    // Handle errors
+    if (!signupResponse.message) return;
 
-    // if (signupResponse.err.code === 'AuthorizationError') {
-    //   console.log('Showing toast for AuthorizationError');
-    //   const authorizationError = signupResponse.err as ErrorResponse;
-
-    //   toast.error(authorizationError.message, {
-    //     position: 'top-center',
-    //   });
-    //   return;
-    // }
-
-    if (signupResponse.err.code === 'ValidationError') {
-      const validationError = signupResponse.err as ValidationError;
-
-      Object.entries(validationError.errors).forEach((value) => {
-        const [, validationError] = value;
-        const signupField = validationError.path as SignupField;
-
-        form.setError(
-          signupField,
-          {
-            type: 'custom',
-            message: validationError.msg,
-          },
-          { shouldFocus: true },
-        );
+    // Check if it's a validation error
+    if (
+      signupResponse.errorCode === 'ValidationError' &&
+      signupResponse.errors
+    ) {
+      // Backend returns validation errors as string array
+      // Try to extract field-level errors if available
+      signupResponse.errors.forEach((errorMsg: string) => {
+        // Match error message pattern: "fieldName: error message"
+        // Adjust this regex based on your actual backend error format
+        const match = errorMsg.match(/^(\w+):\s*(.+)$/);
+        if (match) {
+          const [, fieldName, message] = match;
+          const signupField = fieldName as SignupField;
+          if (
+            [
+              'username',
+              'email',
+              'fullname',
+              'phoneNumber',
+              'isAdmin',
+            ].includes(signupField)
+          ) {
+            form.setError(
+              signupField,
+              {
+                type: 'custom',
+                message,
+              },
+              { shouldFocus: true },
+            );
+          }
+        }
+      });
+    } else {
+      // Show general error message
+      toast.error(signupResponse.message, {
+        position: 'top-center',
       });
     }
-  }, [signupResponse]);
+  }, [signupResponse, form, navigate]);
 
   //Handle form submition
   const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {

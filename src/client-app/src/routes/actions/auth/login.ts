@@ -15,7 +15,7 @@ import { apiLogin } from '@/api/user.api';
 /**
  * Types
  */
-import type { ActionResponse, ErrorResponse } from '@/types';
+import type { Response } from '@/types';
 import { AxiosError } from 'axios';
 import { type ActionFunction } from 'react-router';
 
@@ -26,11 +26,6 @@ import { APP_CONFIG } from '@/constants/global';
 
 const loginAction: ActionFunction = async ({ request }) => {
   const data = await request.json();
-
-  // const email = formData.get('email') as string;
-  // const password = formData.get('password') as string;
-  // const rememberMeStr = formData.get('rememberMe') as string;
-  // const rememberMe = rememberMeStr === 'true';
 
   let ipAddress = '';
 
@@ -50,32 +45,36 @@ const loginAction: ActionFunction = async ({ request }) => {
       },
       { loading: false },
     );
-    console.log(response.succeeded);
 
-    // const responseData = response?.data as AuthResponse;
+    // Response has Response<T> structure from backend
     if (response.succeeded) {
       localStorage.setItem(APP_CONFIG.ACCESS_TOKEN, response.data.jwToken);
       localStorage.setItem('user', JSON.stringify(response.data.userName));
 
       return {
-        ok: true,
-        data: response,
-      } as ActionResponse;
+        succeeded: true,
+        message: response.message || 'Login successful',
+        data: response.data,
+      } as Response;
     } else {
       return {
-        ok: false,
-        err: {
-          code: 'AuthenticationError',
-          message: response.message || 'Login failed',
-        } as ErrorResponse,
-      } as ActionResponse;
+        succeeded: false,
+        message: response.message || 'Login failed',
+        errorCode: 'AuthenticationError',
+        errors: response.errors,
+        data: null,
+      } as Response;
     }
   } catch (err) {
     if (err instanceof AxiosError) {
+      const errorResponse = err.response?.data as Response;
       return {
-        ok: false,
-        err: err.response?.data,
-      } as ActionResponse;
+        succeeded: false,
+        message: errorResponse?.message || 'Network error',
+        errorCode: errorResponse?.errorCode || 'AuthenticationError',
+        errors: errorResponse?.errors,
+        data: null,
+      } as Response;
     }
 
     throw err;

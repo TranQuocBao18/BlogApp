@@ -6,12 +6,12 @@
 /**
  * Node modules
  */
-import { Link, useFetcher, useNavigate } from 'react-router';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, useFetcher, useNavigate } from 'react-router';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 /**
  * Custome modules
@@ -21,9 +21,9 @@ import { cn } from '@/lib/utils';
 /**
  * Components
  */
+import { InputPassword } from '@/components/auth/InputPassword';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
@@ -33,7 +33,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { InputPassword } from '@/components/auth/InputPassword';
+import { Input } from '@/components/ui/input';
 
 /**
  * Assets
@@ -44,7 +44,6 @@ import { LoaderCircleIcon } from 'lucide-react';
 /**
  * Types
  */
-import type { ActionResponse, AuthResponse, ValidationError } from '@/types';
 type LoginFieldName = 'email' | 'password';
 
 /**
@@ -96,31 +95,22 @@ export const LoginForm = ({
   useEffect(() => {
     if (!loginResponse) return;
 
-    if (loginResponse.ok) {
+    // Check if login was successful
+    if (loginResponse.succeeded) {
       toast.success('Login successful!');
       navigate('/', { viewTransition: true });
       return;
     }
 
-    if (!loginResponse.err) return;
+    // Handle errors
+    if (!loginResponse.message) return;
 
-    if (loginResponse.err.code === 'ValidationError') {
-      const validationError = loginResponse.err as ValidationError;
-
-      Object.entries(validationError.errors).forEach((value) => {
-        const [, validationError] = value;
-        const loginField = validationError.path as LoginFieldName;
-
-        form.setError(
-          loginField,
-          {
-            type: 'custom',
-            message: validationError.msg,
-          },
-          { shouldFocus: true },
-        );
-      });
-    }
+    // Backend login endpoint returns general error messages, not field-level validation errors
+    // Examples: "Invalid Credentials", "No Accounts Registered", "Account is Locked"
+    // Just show as general error toast
+    toast.error(loginResponse.message, {
+      position: 'top-center',
+    });
   }, [loginResponse, navigate, form]);
 
   //Handle form submition
