@@ -561,6 +561,13 @@ public class UserRepository : IUserRepository
             throw new ApiException($"Not found account.");
         }
         var result = await _userManager.ChangePasswordAsync(account, oldPassword, newPassword);
+
+        if (result.Succeeded)
+        {
+            var updateResult = await _userManager.UpdateAsync(account);
+            return updateResult.Succeeded;
+        }
+
         return result.Succeeded;
     }
 

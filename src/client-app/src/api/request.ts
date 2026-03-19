@@ -92,7 +92,9 @@ axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem(APP_CONFIG.ACCESS_TOKEN);
 
-    config.headers.set('Authorization', `Bearer ${token?.trim()}`);
+    if (token && token.trim()) {
+      config.headers.set('Authorization', `Bearer ${token.trim()}`);
+    }
     return config;
   },
   (error) => {
@@ -155,12 +157,16 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Return consistent Response<T> structure for errors
+    // Extract error message from backend Response<T> structure
+    const backendResponse = error?.response?.data;
+    const statusCode = error?.response?.status;
+
     return {
       succeeded: false,
-      message: error?.message || 'Unknown error',
-      errorCode: error?.code || 'NetworkError',
-      errors: [],
+      message:
+        backendResponse?.message || error?.message || `Error (${statusCode})`,
+      errorCode: backendResponse?.errorCode || error?.code || 'NetworkError',
+      errors: backendResponse?.errors || [],
       data: null,
     };
   },

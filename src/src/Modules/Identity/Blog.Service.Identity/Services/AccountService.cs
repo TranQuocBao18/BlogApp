@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Blog.Infrastructure.Shared.Services;
+using Blog.Shared.Auth;
 
 namespace Blog.Service.Identity.Services;
 
@@ -29,6 +30,8 @@ public class AccountService : IAccountService
     private readonly IEmailService _emailService;
     private readonly IDateTimeService _dateTimeService;
     private ITokenService _tokenService;
+    private readonly ISecurityContextAccessor _securityContextAccessor;
+
 
     public AccountService(
         UserManager<ApplicationUser> userManager,
@@ -37,7 +40,8 @@ public class AccountService : IAccountService
         IEmailService emailService,
         IIdentityUnitOfWork identityUnitOfWork,
         IDateTimeService dateTimeService,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        ISecurityContextAccessor securityContextAccessor)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -46,6 +50,7 @@ public class AccountService : IAccountService
         _identityUnitOfWork = identityUnitOfWork;
         _roleManager = roleManager;
         this._tokenService = tokenService;
+        _securityContextAccessor = securityContextAccessor;
     }
 
     public async Task<Response<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request, string ipAddress)
@@ -162,9 +167,10 @@ public class AccountService : IAccountService
 
     public async Task<Response<bool>> LogoutAsync(LogoutRequest request, string ipAddress, CancellationToken cancellationToken)
     {
+        var userId = _securityContextAccessor.UserId;
         var user = await _userManager.Users
             .Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(u => u.Id == request.UserId.ToString(), cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == userId.ToString(), cancellationToken);
         if (user == null)
         {
             return new Response<bool>(ErrorCodeEnum.COM_ERR_000.ToString(), $"Invalid user.");

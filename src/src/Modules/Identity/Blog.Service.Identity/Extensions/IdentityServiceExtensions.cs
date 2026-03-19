@@ -40,14 +40,14 @@ public static class IdentityServiceExtensions
 
             o.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuerSigningKey = false,
-                ValidateIssuer = false,
-                ValidateAudience = false,
+                ValidateIssuerSigningKey = false,   // Loosen for testing - may fail signature validation
+                ValidateIssuer = true,              // ✅ Validate issuer must match
+                ValidateAudience = true,            // ✅ Validate audience must match
 
                 ValidIssuer = configuration["JWTSettings:Issuer"],
                 ValidAudience = configuration["JWTSettings:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(keyJwt)),
-                RequireSignedTokens = false,
+                RequireSignedTokens = false,        // Loosen for testing
 
                 RequireExpirationTime = true,
                 ValidateLifetime = true,

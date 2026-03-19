@@ -22,6 +22,12 @@ public class SecurityContextAccessor : ISecurityContextAccessor
         get
         {
             var userId = _httpContextAccessor.HttpContext?.User.GetClaim(ClaimTypeExtend.UserId);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            }
+
             _logger.LogDebug("{SecurityContext} Current user_id: {UserId}", "SecurityContext", userId);
 
             if (string.IsNullOrEmpty(userId))

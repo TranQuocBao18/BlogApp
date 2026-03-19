@@ -217,7 +217,11 @@ public class UserService : IUserService, IUserServiceShare
                 return new Response<bool>(ErrorCodeEnum.USE_ERR_013);
             }
 
-            await _identityUnitOfWork.UserRepository.ChangePasswordAsync(userId, oldPassword, newPassword);
+            var result = await _identityUnitOfWork.UserRepository.ChangePasswordAsync(userId, oldPassword, newPassword);
+            if (!result)
+            {
+                return new Response<bool>(ErrorCodeEnum.COM_ERR_000.ToString(), "Failed to change password");
+            }
             return new Response<bool>(true);
         }
         catch (Exception ex)

@@ -81,7 +81,7 @@ const profileFormSchema = z.object({
     .optional(),
   phoneNumber: z
     .string()
-    .max(20, 'Phone number must be less than 20 characters')
+    .max(11, 'Phone number must be less than 11 characters')
     .optional(),
 });
 
@@ -318,7 +318,7 @@ const passwordFormSchema = z
   .object({
     oldPassword: z
       .string()
-      .min(8, 'Old password must be at least 8 characters long'),
+      .min(8, 'Current password must be at least 8 characters long'),
     password: z
       .string()
       .min(8, 'New password must be at least 8 characters long'),
