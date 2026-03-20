@@ -29,7 +29,7 @@ const signupAction: ActionFunction = async ({ request }) => {
   try {
     const response = await apiRegister(data);
 
-    // Response already has Response<T> structure from backend
+    // Backend returns Response<T> with PascalCase: Succeeded, Message, ErrorCode, Errors, Data
     if (response.succeeded) {
       return {
         succeeded: true,
@@ -37,11 +37,11 @@ const signupAction: ActionFunction = async ({ request }) => {
         data: response.data,
       } as Response;
     } else {
-      // Business logic failed nhưng HTTP OK
+      // Business logic failed but HTTP OK - return exact backend message
       return {
         succeeded: false,
         message: response.message || 'SignUp failed',
-        errorCode: 'BadRequest',
+        errorCode: response.errorCode,
         errors: response.errors,
         data: null,
       } as Response;

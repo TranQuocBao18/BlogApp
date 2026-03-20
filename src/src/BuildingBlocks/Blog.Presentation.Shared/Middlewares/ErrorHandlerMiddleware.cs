@@ -48,8 +48,7 @@ public class ErrorHandlerMiddleware
         switch (error)
         {
             case ApiException e:
-                // custom application error
-                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.StatusCode = (int)HttpStatusCode.OK;
                 break;
             case ValidationException e:
                 // custom application error
@@ -65,7 +64,11 @@ public class ErrorHandlerMiddleware
                 response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 break;
         }
-        var result = JsonSerializer.Serialize(responseModel);
+        var jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+        };
+        var result = JsonSerializer.Serialize(responseModel, jsonOptions);
 
         await response.WriteAsync(result);
     }

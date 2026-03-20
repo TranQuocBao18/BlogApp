@@ -329,7 +329,7 @@ const passwordFormSchema = z
     path: ['confirm_password'],
   });
 
-const PasswordSettingsForm = () => {
+const PasswordSettingsForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [loading, setLoading] = useState(false);
 
   //React hook form initial
@@ -356,6 +356,7 @@ const PasswordSettingsForm = () => {
         if (response?.succeeded) {
           toast.success('Password has been updated successfully');
           form.reset();
+          onSuccess?.();
         } else {
           // Show error message from response
           const errorMessage = response?.message || 'Failed to update password';
@@ -368,7 +369,7 @@ const PasswordSettingsForm = () => {
         setLoading(false);
       }
     },
-    [form],
+    [form, onSuccess],
   );
 
   return (
@@ -512,7 +513,7 @@ export const SettingsDialog = ({
           </TabsContent>
 
           <TabsContent value='password'>
-            <PasswordSettingsForm />
+            <PasswordSettingsForm onSuccess={handleSuccess} />
           </TabsContent>
         </Tabs>
       </DialogContent>

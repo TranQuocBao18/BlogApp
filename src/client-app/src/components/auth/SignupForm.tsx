@@ -114,6 +114,8 @@ export const SignupForm = ({
   useEffect(() => {
     if (!signupResponse) return;
 
+    console.log('signupResponse:', signupResponse);
+
     // Check if signup was successful
     if (signupResponse.succeeded) {
       toast.success('Signup successful!');
@@ -121,46 +123,47 @@ export const SignupForm = ({
       return;
     }
 
-    // Handle errors
-    if (!signupResponse.message) return;
-
-    // Check if it's a validation error
-    if (
-      signupResponse.errorCode === 'ValidationError' &&
-      signupResponse.errors
-    ) {
-      // Backend returns validation errors as string array
-      // Try to extract field-level errors if available
-      signupResponse.errors.forEach((errorMsg: string) => {
-        // Match error message pattern: "fieldName: error message"
-        // Adjust this regex based on your actual backend error format
-        const match = errorMsg.match(/^(\w+):\s*(.+)$/);
-        if (match) {
-          const [, fieldName, message] = match;
-          const signupField = fieldName as SignupField;
-          if (
-            [
-              'username',
-              'email',
-              'fullname',
-              'phoneNumber',
-              'isAdmin',
-            ].includes(signupField)
-          ) {
-            form.setError(
-              signupField,
-              {
-                type: 'custom',
-                message,
-              },
-              { shouldFocus: true },
-            );
+    // If not succeeded, show error message
+    if (signupResponse.message) {
+      if (
+        signupResponse.errorCode === 'ValidationError' &&
+        signupResponse.errors &&
+        Array.isArray(signupResponse.errors)
+      ) {
+        signupResponse.errors.forEach((errorMsg: string) => {
+          const match = errorMsg.match(/^(\w+):\s*(.+)$/);
+          if (match) {
+            const [, fieldName, message] = match;
+            const signupField = fieldName as SignupField;
+            if (
+              [
+                'username',
+                'email',
+                'fullname',
+                'phoneNumber',
+                'isAdmin',
+              ].includes(signupField)
+            ) {
+              form.setError(
+                signupField,
+                {
+                  type: 'custom',
+                  message,
+                },
+                { shouldFocus: true },
+              );
+            }
           }
-        }
-      });
+        });
+      } else {
+        // Show general error message (business logic error)
+        toast.error(signupResponse.message, {
+          position: 'top-center',
+        });
+      }
     } else {
-      // Show general error message
-      toast.error(signupResponse.message, {
+      // Fallback if message is somehow missing
+      toast.error('Signup failed', {
         position: 'top-center',
       });
     }

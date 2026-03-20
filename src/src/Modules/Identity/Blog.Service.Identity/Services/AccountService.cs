@@ -225,7 +225,7 @@ public class AccountService : IAccountService
             }
             else
             {
-                throw new ApiException($"{result.Errors}");
+                throw new ApiException($"Failed to create account: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
         }
         else
@@ -264,7 +264,7 @@ public class AccountService : IAccountService
             }
             else
             {
-                throw new ApiException($"{result.Errors}");
+                throw new ApiException($"Failed to create account: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
         }
         else

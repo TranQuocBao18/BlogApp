@@ -351,7 +351,10 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> AnyAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken)
     {
-        return await _dbContext.Set<User>().Where(predicate).AnyAsync();
+        // User is not an EF entity, convert to ApplicationUser query
+        // Note: This is a limitation - User queries cannot directly access all predicates
+        // For now, return false or implement converter if needed
+        throw new NotImplementedException("Cannot query User entity directly. Use ApplicationUser overload instead.");
     }
 
     public async virtual Task<bool> AnyAsync(Expression<Func<ApplicationUser, bool>> predicate, CancellationToken cancellationToken)

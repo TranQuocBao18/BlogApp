@@ -145,8 +145,24 @@ public class UserService : IUserService, IUserServiceShare
                 return new Response<Guid>(ErrorCodeEnum.USE_ERR_001.ToString(), "User is not existing.");
             }
 
+            var isDuplicateEmail = await _identityUnitOfWork.UserRepository.AnyAsync(
+                x => x.Email == user.Email && x.Id != user.Id.ToString() && !x.IsDeleted, 
+                cancellationToken);
+            if (isDuplicateEmail)
+            {
+                return new Response<Guid>(ErrorCodeEnum.COM_ERR_002.ToString(), "Email is duplicate.");
+            }
+
+            var isDuplicateUsername = await _identityUnitOfWork.UserRepository.GetByUsernameAsync(user.Username) != null;
+            if (isDuplicateUsername)
+            {
+                return new Response<Guid>(ErrorCodeEnum.COM_ERR_002.ToString(), "Username is duplicate.");
+            }
+
             userEntity.PhoneNumber = user.PhoneNumber;
             userEntity.FullName = user.Fullname;
+            userEntity.Username = user.Username;
+            userEntity.Email = user.Email;
             await _identityUnitOfWork.UserRepository.UpdateAsync(userEntity, cancellationToken, true);
 
             var hasAdmin = user.IsAdmin ?? false;
