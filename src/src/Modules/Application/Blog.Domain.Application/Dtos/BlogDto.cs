@@ -16,5 +16,7 @@ public class BlogDto
     public CategoryDto? Category { get; set; }
     public BannerDto? Banner { get; set; }
     public List<TagDto> Tags { get; set; } = new();
+    public string AuthorName { get; set; } = string.Empty;
+    public DateTime Created { get; set; }
 
 }

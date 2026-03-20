@@ -22,6 +22,8 @@ export interface Blog {
   isLikeByCurrentUser?: boolean;
   commentCount: number;
   status: 'draft' | 'published' | string;
+  authorName?: string;
+  created: string;
 }
 
 export interface BlogCreateResponse {

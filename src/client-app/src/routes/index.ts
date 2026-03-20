@@ -14,6 +14,7 @@ import { createBrowserRouter } from 'react-router';
  */
 import { RootLayout } from '@/components/layouts/Root';
 import loginLoader from '@/routes/loaders/auth/loginLoader';
+import homeLoader from '@/routes/loaders/user/homeLoader';
 /**
  * Pages
  */
@@ -22,6 +23,9 @@ const LoginPage = lazy(() =>
 );
 const SignupPage = lazy(() =>
   import('@/pages/auth/Signup').then((module) => ({ default: module.Signup })),
+);
+const HomePage = lazy(() =>
+  import('@/pages/user/HomePage').then((module) => ({ default: module.HomePage })),
 );
 
 /**
@@ -56,11 +60,11 @@ const router = createBrowserRouter([
     path: AppRouters.HOME,
     Component: RootLayout,
     children: [
-      // {
-      //   index: true,
-      //   Component: HomePage,
-      //   loader: homeLoader,
-      // },
+      {
+        index: true,
+        Component: HomePage,
+        loader: homeLoader,
+      },
     ],
   },
 ]);

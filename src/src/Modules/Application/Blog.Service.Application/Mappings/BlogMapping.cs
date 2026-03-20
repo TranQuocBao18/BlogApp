@@ -19,6 +19,7 @@ public class BlogMapping : Profile
                 src.BlogTags.Select(bt => bt.Tag).ToList()))
             .ForMember(dest => dest.CommentCount, opt => opt.MapFrom(src =>
                 src.Comments.Count(c => !c.IsDeleted)))
+            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.AuthorName))
             // LikeCount và IsLikeByCurrentUser sẽ set manually trong service
             .ForMember(dest => dest.LikeCount, opt => opt.Ignore())
             .ForMember(dest => dest.IsLikeByCurrentUser, opt => opt.Ignore());

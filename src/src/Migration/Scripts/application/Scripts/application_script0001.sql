@@ -37,6 +37,7 @@ CREATE TABLE [Application].[Blog] (
     [Id] nvarchar(450) NOT NULL,
     [CategoryId] nvarchar(450) NOT NULL,
     [BannerId] nvarchar(450) NULL,
+    [AuthorName] nvarchar(256) NOT NULL,
     [Title] nvarchar(256) NOT NULL,
     [Content] nvarchar(max) NOT NULL,
     [Slug] nvarchar(450) NULL,

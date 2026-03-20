@@ -8,6 +8,7 @@ public class BlogEntity : BaseEntityWithAudit
 {
     public Guid CategoryId { get; set; }
     public Guid? BannerId { get; set; }
+    public string AuthorName { get; set; } = string.Empty;
     public required string Title { get; set; }
     public required string Content { get; set; }
     public string? Slug { get; set; }

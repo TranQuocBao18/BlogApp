@@ -14,6 +14,7 @@ using Blog.Shared.Auth;
 using Blog.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Blog.Domain.Identity.Interfaces;
 
 namespace Blog.Service.Application.Services;
 
@@ -21,6 +22,7 @@ public class BlogService : IBlogService
 {
     private readonly IMapper _mapper;
     private readonly IApplicationUnitOfWork _applicationUnitOfWork;
+    private readonly IIdentityUnitOfWork _identityUnitOfWork;
     private readonly ISecurityContextAccessor _securityContextAccessor;
     private readonly IDateTimeService _dateTimeService;
     private readonly ILogger<BlogService> _logger;
@@ -32,7 +34,8 @@ public class BlogService : IBlogService
         IApplicationUnitOfWork applicationUnitOfWork,
         IDateTimeService dateTimeService,
         ILogger<BlogService> logger,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IIdentityUnitOfWork identityUnitOfWork
     )
     {
         _mapper = mapper;
@@ -41,6 +44,7 @@ public class BlogService : IBlogService
         _dateTimeService = dateTimeService;
         _logger = logger;
         _configuration = configuration;
+        _identityUnitOfWork = identityUnitOfWork;
     }
 
     public async Task<Response<Guid>> CreateBlogAsync(BlogRequest blogRequest, CancellationToken cancellationToken)
@@ -127,9 +131,11 @@ public class BlogService : IBlogService
             }
 
             var currentUserId = _securityContextAccessor.UserId;
+            var user = await _identityUnitOfWork.UserRepository.GetByIdAsync(currentUserId, cancellationToken);
             var blogEntity = _mapper.Map<BlogEntity>(blogRequest);
             blogEntity.Created = _dateTimeService.NowUtc;
             blogEntity.CreatedBy = currentUserId.ToString();
+            blogEntity.AuthorName = user?.Username ?? string.Empty;
 
             // Generate slug from title and ensure uniqueness
             var baseSlug = StringUtils.GenerateSlug(blogRequest.Title, 450);
