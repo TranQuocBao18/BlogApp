@@ -51,7 +51,7 @@ export const SidebarUserMenu = () => {
                 className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
               >
                 <Avartar
-                  email={user.email}
+                  name={user.username || 'unknown'}
                   size='32'
                   className='rounded-lg'
                 />
@@ -74,7 +74,7 @@ export const SidebarUserMenu = () => {
               <DropdownMenuLabel className='p-0 font-normal'>
                 <div className='flex items-center gap-2 px-1 py-1.5 text-left-text-sm'>
                   <Avartar
-                    email={user.email}
+                    name={user.username || 'unknown'}
                     size='32'
                     className='rounded-lg'
                   />

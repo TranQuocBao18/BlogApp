@@ -11,8 +11,10 @@ import { useEffect, useState } from 'react';
 /**
  * Types
  */
-import type { User } from '@/types';
-export type UserResponse = Pick<User, 'username' | 'email'>;
+import type { User } from '@/interfaces/user';
+export type UserResponse = Pick<User, 'username' | 'email'> & {
+  roles?: string[];
+};
 
 export const useUser = () => {
   const [user, setUser] = useState<UserResponse>();

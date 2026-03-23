@@ -72,7 +72,11 @@ registerAxiosTokenRefresh(axiosInstance, {
         );
         localStorage.setItem(
           'user',
-          JSON.stringify(response.data.data?.userName || ''),
+          JSON.stringify({
+            username: response.data.data?.userName || '',
+            email: response.data.data?.email || '',
+            roles: response.data.data?.roles || [],
+          }),
         );
 
         failedRequest.response.config.headers['Authorization'] =

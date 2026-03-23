@@ -80,7 +80,8 @@ public class AccountController : ControllerBase
             });
             return Ok(await Mediator.Send(command));
         }
-        return BadRequest(new Response<bool>(false, "User is not authenticated"));
+
+        return Ok(new Response<bool>(true, "Successfully logged out"));
     }
 
     [HttpPost("forgotpassword")]

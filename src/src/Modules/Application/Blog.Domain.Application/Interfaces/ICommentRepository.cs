@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using Blog.Domain.Application.Entities;
 using Blog.Infrastructure.Shared.Interfaces;
 
@@ -18,6 +19,12 @@ public interface ICommentRepository : IGenericRepository<Comment, Guid>
         Guid parentId,
         Guid blogId,
         Guid? currentUserId,
+        CancellationToken cancellationToken
+    );
+    Task<IReadOnlyList<Comment>> SearchAsync(Expression<Func<Comment, bool>> predicate, int pageNumber, int pageSize, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Comment>> GetPagedReponseAsync(
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken
     );
 }

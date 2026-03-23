@@ -75,6 +75,18 @@ public class BlogRepository : GenericRepositoryAsync<BlogEntity, Guid>, IBlogRep
         return (result, likeCount, isLiked);
     }
 
+    public override async Task<IReadOnlyList<BlogEntity>> GetPagedReponseAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        return await Query()
+            .Include(b => b.Category)
+            .Include(b => b.Banner)
+            .OrderByDescending(x => x.Created)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<BlogEntity>> GetPublishedBlogsAsync(
         int page,
         int pageSize,

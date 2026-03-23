@@ -17,7 +17,7 @@ import { request } from '@/api/request';
  */
 import type { Comment } from '@/interfaces/comment';
 
-export const apiGetComments = (
+export const apiGetCommentsByBlogId = (
   blogId: string,
   pageNumber: number = 1,
   pageSize: number = 10,
@@ -36,6 +36,12 @@ export const apiGetCommentReplies = (
   request('get', `/Comment/replies`, {
     parentId,
     blogId,
+    pageNumber,
+    pageSize,
+  });
+
+export const apiGetComments = (pageNumber: number = 1, pageSize: number = 10) =>
+  request('get', `/Comment`, {
     pageNumber,
     pageSize,
   });

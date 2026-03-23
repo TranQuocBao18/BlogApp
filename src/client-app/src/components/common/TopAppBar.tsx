@@ -16,12 +16,12 @@ import { cn } from '@/lib/utils';
 /**
  * Components
  */
-import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { AppBreadcrumb } from '@/components/common/AppBreadcrumb';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { TopBarProgress } from '@/components/common/TopBarProgress';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 /**
  * Assets

@@ -136,6 +136,24 @@ public class CommentService : ICommentService
         }
     }
 
+    public async Task<PagedResponse<IReadOnlyList<CommentResponse>>> GetAllCommentsAsync(int pageNumber, int pageSize, string searchName, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(searchName))
+        {
+            var totalItems = await _applicationUnitOfWork.CommentRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
+            var comments = await _applicationUnitOfWork.CommentRepository.GetPagedReponseAsync(pageNumber, pageSize, cancellationToken);
+            var commentsResponse = _mapper.Map<IReadOnlyList<CommentResponse>>(comments);
+            return new PagedResponse<IReadOnlyList<CommentResponse>>(commentsResponse, pageNumber, pageSize, totalItems);
+        }
+        else
+        {
+            var totalItems = await _applicationUnitOfWork.CommentRepository.CountAsync(x => !x.IsDeleted && x.Content.Contains(searchName), cancellationToken);
+            var comments = await _applicationUnitOfWork.CommentRepository.SearchAsync(x => !x.IsDeleted && x.Content.Contains(searchName), pageNumber, pageSize, cancellationToken);
+            var commentsResponse = _mapper.Map<IReadOnlyList<CommentResponse>>(comments);
+            return new PagedResponse<IReadOnlyList<CommentResponse>>(commentsResponse, pageNumber, pageSize, totalItems);
+        }
+    }
+
     public async Task<PagedResponse<IReadOnlyList<CommentResponse>>> GetListCommentByBlogIdAsync(Guid blogId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         var currentUserId = _securityContextAccessor.UserId;

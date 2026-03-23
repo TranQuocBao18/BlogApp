@@ -4,6 +4,7 @@ using Blog.Infrastructure.Application.Context;
 using Blog.Domain.Application.Interfaces;
 using Blog.Infrastructure.Shared.Persistences.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Blog.Infrastructure.Application.Repositories;
 
@@ -66,5 +67,16 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
             res.Add((item.CommentEntity!, item.RepliesCount, item.IsLiked));
         }
         return res;
+    }
+
+    public async Task<IReadOnlyList<Comment>> SearchAsync(Expression<Func<Comment, bool>> predicate, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        return await Query()
+            .Where(predicate)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .OrderByDescending(x => x.Created)
+            .ToListAsync(cancellationToken);
     }
 }

@@ -6,15 +6,15 @@
 /**
  * Node modules
  */
-import { Outlet } from 'react-router';
 import { Suspense } from 'react';
+import { Outlet } from 'react-router';
 
 /**
  * Components
  */
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSideBar } from '@/components/common/AppSideBar';
 import { TopAppBar } from '@/components/common/TopAppBar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 /**
  * Assets

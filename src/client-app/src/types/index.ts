@@ -18,8 +18,10 @@ export interface Response<T = unknown> {
 /**
  * Paginated Response - Matches Backend PagedResponse<T> Pattern
  * Extends Response with pagination metadata
+ * data is always an array of T items
  */
-export interface PagedResponse<T = unknown> extends Response<T> {
+export interface PagedResponse<T = unknown> extends Response<T[]> {
+  data: T[];
   pageNumber: number;
   pageSize: number;
   totalItems: number;
@@ -41,7 +43,7 @@ export const isSuccess = (response: Response): boolean =>
  * Utility to check if response is paged
  */
 export const isPaged = <T>(
-  response: Response<T>,
+  response: ApiResponse<T>,
 ): response is PagedResponse<T> => {
   return (
     'pageNumber' in response &&

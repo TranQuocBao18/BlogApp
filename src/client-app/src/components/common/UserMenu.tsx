@@ -22,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import Avartar from 'react-avatar';
+import Avatar from 'react-avatar';
 
 /**
  * Custom hooks
@@ -47,8 +47,7 @@ export const UserMenu = () => {
             size='icon'
             variant='ghost'
           >
-            <Avartar
-              email={user.email}
+            <Avatar
               size='28'
               name={user.username}
               className='rounded-sm'
@@ -61,9 +60,8 @@ export const UserMenu = () => {
           align='end'
         >
           <DropdownMenuLabel className='p-0 font-normal'>
-            <div className='flex items-center gap-2 px-1 py-1.5 text-left-text-sm'>
-              <Avartar
-                email={user.email}
+            <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
+              <Avatar
                 size='32'
                 name={user.username}
                 className='rounded-lg'
@@ -79,7 +77,7 @@ export const UserMenu = () => {
           <DropdownMenuSeparator />
 
           <DropdownMenuGroup>
-            {user.role === 'admin' && (
+            {user?.roles?.includes('SuperAdmin') && (
               <DropdownMenuItem asChild>
                 <Link
                   to='/admin/dashboard'

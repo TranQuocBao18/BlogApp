@@ -37,6 +37,15 @@ public class CommentController : ControllerBase
     }
 
     // GET: api/v1/<controller>
+    [HttpGet]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin")]
+    [ProducesResponseType(typeof(PagedResponse<IReadOnlyList<CommentResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] GetCommentsParameter filter, [FromRoute] Guid blogId)
+    {
+        return Ok(await Mediator.Send(new GetAllCommentsQuery() { PageSize = filter.PageSize, PageNumber = filter.PageNumber }));
+    }
+
+    // GET: api/v1/<controller>
     [HttpGet("replies")]
     [ProducesResponseType(typeof(PagedResponse<IReadOnlyList<CommentResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetReplies([FromQuery] GetCommentsParameter filter, [FromQuery] Guid parentId, [FromQuery] Guid blogId)

@@ -49,7 +49,14 @@ const loginAction: ActionFunction = async ({ request }) => {
     // Response has Response<T> structure from backend
     if (response.succeeded) {
       localStorage.setItem(APP_CONFIG.ACCESS_TOKEN, response.data.jwToken);
-      localStorage.setItem('user', JSON.stringify(response.data.userName));
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          username: response.data.userName,
+          email: response.data.email,
+          roles: response.data.roles || [],
+        }),
+      );
 
       return {
         succeeded: true,
