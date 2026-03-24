@@ -49,8 +49,8 @@ export const Dashboard = () => {
       <h2 className='text-2xl font-semibold'>Dashboard</h2>
 
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
-        <Card className='gap-4 py-4'>
-          <CardHeader className='flex items-center gap-2.5 px-4'>
+        <Card className='gap-4 p-4'>
+          <CardHeader className='flex flex-row items-center gap-2.5 px-4'>
             <div className='bg-muted text-muted-foreground max-w-max p-2 rounded-lg'>
               <TextIcon size={18} />
             </div>
@@ -60,13 +60,13 @@ export const Dashboard = () => {
             </CardTitle>
           </CardHeader>
 
-          <CardContent className='text-4xl text-center tracking-wider px-4'>
+          <CardContent className='text-4xl tracking-wider px-4'>
             {loaderData.blogsCount}
           </CardContent>
         </Card>
 
-        <Card className='gap-4 py-4'>
-          <CardHeader className='flex items-center gap-2.5 px-4'>
+        <Card className='gap-4 p-4'>
+          <CardHeader className='flex flex-row items-center gap-2.5 px-4'>
             <div className='bg-muted text-muted-foreground max-w-max p-2 rounded-lg'>
               <MessageSquareIcon size={18} />
             </div>
@@ -76,13 +76,13 @@ export const Dashboard = () => {
             </CardTitle>
           </CardHeader>
 
-          <CardContent className='text-4xl text-center tracking-wider px-4'>
+          <CardContent className='text-4xl tracking-wider px-4'>
             {loaderData.commentsCount}
           </CardContent>
         </Card>
 
-        <Card className='gap-4 py-4'>
-          <CardHeader className='flex items-center gap-2.5 px-4'>
+        <Card className='gap-4 p-4'>
+          <CardHeader className='flex flex-row items-center gap-2.5 px-4'>
             <div className='bg-muted text-muted-foreground max-w-max p-2 rounded-lg'>
               <UserRoundIcon size={18} />
             </div>
@@ -90,14 +90,14 @@ export const Dashboard = () => {
             <CardTitle className='font-normal text-lg'>Total Users</CardTitle>
           </CardHeader>
 
-          <CardContent className='text-4xl text-center tracking-wider px-4'>
+          <CardContent className='text-4xl tracking-wider px-4'>
             {loaderData.usersCount}
           </CardContent>
         </Card>
       </div>
 
       <Card className='gap-4 py-4'>
-        <CardHeader className='flex items-center gap-2.5 px-4'>
+        <CardHeader className='flex flex-row items-center gap-2.5 px-6'>
           <div className='bg-muted text-muted-foreground max-w-max p-2 rounded-lg'>
             <TextIcon size={18} />
           </div>
@@ -123,8 +123,8 @@ export const Dashboard = () => {
       </Card>
 
       <div className='grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4'>
-        <Card className='gap-4 py-4'>
-          <CardHeader className='flex items-center gap-2.5 px-4'>
+        <Card className='gap-4 p-4'>
+          <CardHeader className='flex flex-row items-center gap-2.5 px-4'>
             <div className='bg-muted text-muted-foreground max-w-max p-2 rounded-lg'>
               <MessageSquareIcon size={18} />
             </div>
@@ -154,8 +154,8 @@ export const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className='gap-4 py-4'>
-          <CardHeader className='flex items-center gap-2.5 px-4'>
+        <Card className='gap-4 py-4 px-2'>
+          <CardHeader className='flex flex-row items-center gap-2.5 px-4'>
             <div className='bg-muted text-muted-foreground max-w-max p-2 rounded-lg'>
               <UserRoundIcon size={18} />
             </div>

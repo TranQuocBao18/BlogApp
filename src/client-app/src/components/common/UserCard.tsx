@@ -68,7 +68,7 @@ export const UserCard = ({
 
   return (
     <Card className='group py-4 w-full min-w-0'>
-      <CardContent className='grid grid-cols-[max-content_minmax(0,1fr)_max-content] gap-4 px-4 w-full'>
+      <CardContent className='grid grid-cols-[max-content_minmax(0,1fr)_max-content] gap-4 px-4 py-2 w-full'>
         <Avatar
           email={email || ''}
           size='40'
