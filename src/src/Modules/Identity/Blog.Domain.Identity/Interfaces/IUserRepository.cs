@@ -22,4 +22,5 @@ public interface IUserRepository : IGenericRepository<User, Guid>
     Task<bool> CheckPasswordAsync(Guid userId, string oldPassword);
     Task<bool> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
     Task<string> GetLatestCodeGenerateAsync(CancellationToken cancellationToken, bool hasTransaction = false);
+    Task<IReadOnlyList<User>> GetUsersByIdsAsync(List<Guid> userIds, CancellationToken cancellationToken);
 }

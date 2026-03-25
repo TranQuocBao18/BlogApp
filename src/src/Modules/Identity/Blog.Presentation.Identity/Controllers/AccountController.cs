@@ -58,7 +58,33 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> RefreshTokenAsync(RefreshTokenCommand command)
     {
         command.IPAddress = GenerateIPAddress();
-        return Ok(await Mediator.Send(command));
+
+        // Extract refresh token from HttpOnly cookie
+        var refreshTokenFromCookie = Request.Cookies["REFRESH_TOKEN"];
+        if (!string.IsNullOrEmpty(refreshTokenFromCookie))
+        {
+            command.RefreshToken = refreshTokenFromCookie;
+        }
+
+        var result = await Mediator.Send(command);
+
+        // If refresh successful, update the refresh token cookie with the new token
+        if (result.Succeeded && !string.IsNullOrEmpty(result.Data?.RefreshToken))
+        {
+            Response.Cookies.Append(
+                "REFRESH_TOKEN",
+                result.Data.RefreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                }
+            );
+        }
+
+        return Ok(result);
     }
 
     [HttpPost("logout")]

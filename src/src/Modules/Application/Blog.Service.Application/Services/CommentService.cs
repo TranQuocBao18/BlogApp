@@ -1,8 +1,10 @@
 using System;
 using AutoMapper;
 using Blog.Domain.Application.Entities;
+using Blog.Domain.Identity.Entities;
 using Blog.Domain.Shared.Contracts;
 using Blog.Domain.Application.Interfaces;
+using Blog.Domain.Identity.Interfaces;
 using Blog.Infrastructure.Shared.ErrorCodes;
 using Blog.Infrastructure.Shared.Exceptions;
 using Blog.Infrastructure.Shared.Interfaces;
@@ -14,6 +16,8 @@ using Blog.Shared.Auth;
 using Blog.Utilities.Extensions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using Blog.Domain.Identity.Responses;
+using Microsoft.AspNetCore.Identity;
 
 namespace Blog.Service.Application.Services;
 
@@ -21,6 +25,7 @@ public class CommentService : ICommentService
 {
     private readonly IMapper _mapper;
     private readonly IApplicationUnitOfWork _applicationUnitOfWork;
+    private readonly IIdentityUnitOfWork _identityUnitOfWork;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ISecurityContextAccessor _securityContextAccessor;
     private readonly IDateTimeService _dateTimeService;
@@ -30,6 +35,7 @@ public class CommentService : ICommentService
         IMapper mapper,
         ISecurityContextAccessor securityContextAccessor,
         IApplicationUnitOfWork applicationUnitOfWork,
+        IIdentityUnitOfWork identityUnitOfWork,
         IPublishEndpoint publishEndpoint,
         IDateTimeService dateTimeService,
         ILogger<CommentService> logger
@@ -37,6 +43,7 @@ public class CommentService : ICommentService
     {
         _mapper = mapper;
         _applicationUnitOfWork = applicationUnitOfWork;
+        _identityUnitOfWork = identityUnitOfWork;
         _publishEndpoint = publishEndpoint;
         _securityContextAccessor = securityContextAccessor;
         _dateTimeService = dateTimeService;
@@ -141,8 +148,26 @@ public class CommentService : ICommentService
         if (string.IsNullOrWhiteSpace(searchName))
         {
             var totalItems = await _applicationUnitOfWork.CommentRepository.CountAsync(x => !x.IsDeleted, cancellationToken);
-            var comments = await _applicationUnitOfWork.CommentRepository.GetPagedReponseAsync(pageNumber, pageSize, cancellationToken);
-            var commentsResponse = _mapper.Map<IReadOnlyList<CommentResponse>>(comments);
+            var tupleComments = await _applicationUnitOfWork.CommentRepository.GetAllCommentsAsync(pageNumber, pageSize, cancellationToken);
+
+            // Batch load users to avoid N+1 queries
+            var userIds = tupleComments.Select(c => c.Comment.UserId).Distinct().ToList();
+            var userList = await _identityUnitOfWork.UserRepository.GetUsersByIdsAsync(userIds, cancellationToken);
+            var userDict = userList.ToDictionary(u => u.Id);
+
+            var commentsResponse = new List<CommentResponse>();
+            foreach (var (commentEntity, likeCount, replyCount) in tupleComments)
+            {
+                if (userDict.TryGetValue(commentEntity.UserId, out var user))
+                {
+                    commentEntity.User = user;
+                }
+                var commentDto = _mapper.Map<CommentResponse>(commentEntity);
+                commentDto.LikeCount = likeCount;
+                commentDto.ReplyCount = replyCount;
+
+                commentsResponse.Add(commentDto);
+            }
             return new PagedResponse<IReadOnlyList<CommentResponse>>(commentsResponse, pageNumber, pageSize, totalItems);
         }
         else

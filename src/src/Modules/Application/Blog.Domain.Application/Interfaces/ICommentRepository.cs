@@ -15,6 +15,12 @@ public interface ICommentRepository : IGenericRepository<Comment, Guid>
         CancellationToken cancellationToken
     );
 
+    Task<IReadOnlyList<(Comment Comment, int likeCount, int ReplyCount)>> GetAllCommentsAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken
+    );
+
     Task<IReadOnlyList<(Comment Comment, int ReplyCount, bool isLiked)>> GetRepliesByParentIdAsync(
         Guid parentId,
         Guid blogId,

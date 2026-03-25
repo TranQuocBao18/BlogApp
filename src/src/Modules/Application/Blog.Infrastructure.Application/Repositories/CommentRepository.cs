@@ -18,9 +18,34 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
 
     public async Task<IReadOnlyList<(Comment Comment, int ReplyCount, bool isLiked)>> GetCommentsByBlogIdAsync(Guid blogId, Guid? currentUserId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        var query = Query()
+        // Fetch data from database with includes
+        var commentsFromDb = await Query()
+            .Where(c => c.BlogId == blogId && c.ParentId == null)
+            .Include(c => c.User)
+            .Include(c => c.Likes)
+            .Include(c => c.ChildComments)
+            .OrderByDescending(c => c.Created)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .AsNoTracking()
-            .Where(c => c.BlogId == blogId && c.ParentId == null);
+            .ToListAsync(cancellationToken);
+
+        // Project in memory
+        var result = commentsFromDb
+            .Select(c => (
+                c,
+                c.ChildComments.Count,
+                currentUserId.HasValue && c.Likes.Any(l => l.UserId == currentUserId.Value)
+            ))
+            .ToList();
+
+        return result;
+    }
+
+    public async Task<IReadOnlyList<(Comment Comment, int likeCount, int ReplyCount)>> GetAllCommentsAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var query = Query()
+            .AsNoTracking();
 
         var result = await query
             .OrderByDescending(c => c.Created)
@@ -30,15 +55,14 @@ public class CommentRepository : GenericRepositoryAsync<Comment, Guid>, IComment
             {
                 CommentEntity = c,
                 RepliesCount = c.ChildComments.Count(),
-                IsLiked = currentUserId.HasValue &&
-                    c.Likes.Any(l => l.UserId == currentUserId.Value)
+                LikeCount = c.Likes.Count()
             })
             .ToListAsync(cancellationToken);
 
-        var res = new List<(Comment, int, bool)>();
+        var res = new List<(Comment, int, int)>();
         foreach (var item in result)
         {
-            res.Add((item.CommentEntity!, item.RepliesCount, item.IsLiked));
+            res.Add((item.CommentEntity!, item.LikeCount, item.RepliesCount));
         }
 
         return res;

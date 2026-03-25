@@ -20,13 +20,46 @@ export const useUser = () => {
   const [user, setUser] = useState<UserResponse>();
 
   useEffect(() => {
-    const userJson = localStorage.getItem('user');
+    // Function to read user from localStorage
+    const readUser = () => {
+      const userJson = localStorage.getItem('user');
+      if (userJson) {
+        try {
+          const parsedUser = JSON.parse(userJson) as UserResponse;
+          setUser(parsedUser);
+        } catch (e) {
+          console.error('Failed to parse user from localStorage:', e);
+        }
+      }
+    };
 
-    if (userJson) {
-      const user = JSON.parse(userJson) as UserResponse;
+    // Read user on mount
+    readUser();
 
-      setUser(user);
-    }
+    // Listen for storage changes (from other tabs/windows)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'user') {
+        readUser();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Custom event listener for same-tab updates
+    const handleUserUpdate = () => {
+      readUser();
+    };
+
+    window.addEventListener('userUpdated', handleUserUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener(
+        'userUpdated',
+        handleUserUpdate as EventListener,
+      );
+    };
   }, []);
+
   return user;
 };

@@ -44,7 +44,6 @@ import { LoaderCircleIcon } from 'lucide-react';
 /**
  * Types
  */
-type LoginFieldName = 'email' | 'password';
 
 /**
  * Constants

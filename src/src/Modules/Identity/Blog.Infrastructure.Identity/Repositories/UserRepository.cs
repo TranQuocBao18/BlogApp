@@ -201,6 +201,29 @@ public class UserRepository : IUserRepository
         return users.AsReadOnly();
     }
 
+    public async Task<IReadOnlyList<User>> GetUsersByIdsAsync(List<Guid> userIds, CancellationToken cancellationToken)
+    {
+        if (userIds == null || !userIds.Any())
+        {
+            return new List<User>().AsReadOnly();
+        }
+
+        // Convert userIds (Guid) to strings to use in DB query (avoid .AsGuid() translation issue)
+        var userIdStrings = userIds.Select(id => id.ToString()).ToList();
+
+        var applicationUsers = await _applicationUser
+            .Where(u => userIdStrings.Contains(u.Id) && !u.IsDeleted)
+            .ToListAsync(cancellationToken);
+
+        if (applicationUsers == null || !applicationUsers.Any())
+        {
+            return new List<User>().AsReadOnly();
+        }
+
+        var users = applicationUsers.Select(u => ConvertToUser(u)).ToList();
+        return users.AsReadOnly();
+    }
+
     public async Task<IReadOnlyList<User>> GetAllAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken)
     {
         return await _dbContext.Set<User>().Where(predicate).ToListAsync();

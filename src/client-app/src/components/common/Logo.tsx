@@ -6,8 +6,8 @@
 /**
  * Node modules
  */
-import { Link } from 'react-router';
 import { motion } from 'motion/react';
+import { Link } from 'react-router';
 
 /**
  * Components
@@ -17,7 +17,7 @@ const MotionLink = motion.create(Link);
 /**
  * Assets
  */
-import { logoLight, logoDark } from '@/assets';
+import { logoDark, logoLight } from '@/assets';
 
 export const Logo = () => {
   return (
@@ -30,15 +30,15 @@ export const Logo = () => {
     >
       <img
         src={logoLight}
-        width={115}
-        height={32}
+        width={45}
+        height={45}
         className='hidden dark:block'
         alt='logo'
       />
       <img
         src={logoDark}
-        width={115}
-        height={32}
+        width={45}
+        height={45}
         className='dark:hidden'
         alt='logo'
       />

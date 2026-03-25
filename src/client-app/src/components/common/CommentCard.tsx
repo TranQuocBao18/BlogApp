@@ -21,6 +21,7 @@ import Avatar from 'react-avatar';
 /**
  * Assets
  */
+import { ThumbsUpIcon } from 'lucide-react';
 
 /**
  * Types
@@ -32,7 +33,7 @@ type Prop = {
 };
 
 export const CommentCard = ({ comment }: Prop) => {
-  const { content, user, created: createdAt, likeCount: likesCount } = comment;
+  const { content, user, created: createdAt, likeCount } = comment;
 
   return (
     <div className='@container'>
@@ -79,6 +80,13 @@ export const CommentCard = ({ comment }: Prop) => {
           </div>
 
           <div className='max-w-[60ch] text-sm'>{content}</div>
+
+          <div className='flex items-center gap-2 mt-2'>
+            <div className='flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors'>
+              <ThumbsUpIcon size={16} />
+              <span className='pt-1'>{likeCount > 0 ? likeCount : ''}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

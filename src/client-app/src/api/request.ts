@@ -65,26 +65,36 @@ registerAxiosTokenRefresh(axiosInstance, {
       );
 
       // Backend returns Response<T> structure
-      if (response.data?.succeeded) {
-        localStorage.setItem(
-          APP_CONFIG.ACCESS_TOKEN,
-          response.data.data?.jwToken || '',
-        );
-        localStorage.setItem(
-          'user',
-          JSON.stringify({
-            username: response.data.data?.userName || '',
-            email: response.data.data?.email || '',
-            roles: response.data.data?.roles || [],
-          }),
-        );
+      if (response.data?.succeeded && response.data.data?.jwToken) {
+        const newAccessToken = response.data.data.jwToken;
 
-        failedRequest.response.config.headers['Authorization'] =
-          `Bearer ${response.data.data?.jwToken}`;
+        // Update stored token
+        localStorage.setItem(APP_CONFIG.ACCESS_TOKEN, newAccessToken);
+
+        // Update user info
+        const userData = {
+          username: response.data.data?.userName || '',
+          email: response.data.data?.email || '',
+          roles: response.data.data?.roles || [],
+        };
+
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        // Dispatch custom event to notify useUser hook of updates
+        window.dispatchEvent(new Event('userUpdated'));
+
+        // Update the failed request with new authorization header
+        failedRequest.response.config.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return Promise.resolve();
+      } else {
+        // Refresh failed - clear storage and redirect to login
+        window.localStorage.clear();
+        window.location.href = AppRouters.LOGIN;
+        return Promise.reject(new Error('Token refresh failed'));
       }
     } catch (err) {
+      // Refresh token expired or invalid - clear storage and redirect to login
       window.localStorage.clear();
       window.location.href = AppRouters.LOGIN;
       return Promise.reject(err);
@@ -143,11 +153,17 @@ axiosInstance.interceptors.response.use(
     if (String(resp?.data).includes('You are not Authorized')) {
       const canRefresh = checkAuthorize(resp);
       if (canRefresh) {
-        const customAuthError: any = new Error('Custom Unauthorized');
-        customAuthError.response = { status: 401, data: resp.data };
+        // Trigger a 401 error to invoke the refresh token mechanism
+        const customAuthError: any = new Error('Unauthorized');
+        customAuthError.response = {
+          status: 401,
+          statusText: 'Unauthorized',
+          data: resp.data,
+          config: resp.config,
+        };
         customAuthError.config = resp.config;
 
-        return Promise.reject(customAuthError);
+        throw customAuthError;
       }
     }
 
@@ -158,6 +174,7 @@ axiosInstance.interceptors.response.use(
     const canRefresh = checkAuthorize(error);
 
     if (canRefresh) {
+      // Let axios-token-refresh handle the 401 error
       return Promise.reject(error);
     }
 

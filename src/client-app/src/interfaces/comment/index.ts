@@ -15,7 +15,7 @@ export interface Comment {
   blogId: string;
   parentId?: string;
   user?: User | null;
-  likeCount?: number;
+  likeCount: number;
   isLikeByCurrentUser?: boolean;
   childComments?: Comment[];
   replyCount?: number;
